@@ -12,12 +12,14 @@ import { createSlug } from '../../../../util/urlHelpers';
 import { isPriceVariationsEnabled } from '../../../../util/configHelpers';
 import * as validators from '../../../../util/validators';
 import { formatMoney } from '../../../../util/currency';
+import { stringifyDateToISO8601 } from '../../../../util/dates';
 import { FIXED } from '../../../../transactions/transaction';
 
 // Import shared components
 import {
   FieldCurrencyInput,
   FieldTextInput,
+  FieldSingleDatePicker,
   IconDelete,
   InlineTextButton,
   ValidationError,
@@ -31,6 +33,9 @@ const { Money } = sdkTypes;
 const MAX_HOURS_FOR_BOOKING_DURATION = 12;
 const MINUTES_FOR_BOOKING_DURATION = [0, 15, 30, 45];
 
+// Duration units to support longer sessions. "months" will enable selecting a start date
+const DURATION_UNITS = ['minutes', 'hours', 'days', 'months'];
+
 const getDurationInMinutes = (hours = 0, minutes = 0) => {
   if (hours === 0 && minutes === 0) {
     return 0;
@@ -39,6 +44,23 @@ const getDurationInMinutes = (hours = 0, minutes = 0) => {
     .times(60)
     .plus(minutes)
     .toNumber();
+};
+
+const getDurationInMinutesFromComponents = ({ unit, value }) => {
+  const numeric = Number(value) || 0;
+  switch (unit) {
+    case 'minutes':
+      return numeric;
+    case 'hours':
+      return new Decimal(numeric).times(60).toNumber();
+    case 'days':
+      return new Decimal(numeric).times(24).times(60).toNumber();
+    case 'months':
+      // Approximate a month as 30 days
+      return new Decimal(numeric).times(30).times(24).times(60).toNumber();
+    default:
+      return 0;
+  }
 };
 
 const getDurationFactors = durationInMinutes => {
@@ -69,11 +91,14 @@ export const getInitialValuesForPriceVariants = (props, isUsingBookingPriceVaria
     ? priceVariants.map(variant => {
         const nameMaybe = variant.name ? { name: variant.name } : {};
         const bookingLengthInMinutes = setDefault(variant.bookingLengthInMinutes, 60);
+        const bookingStartDate = variant.bookingStartDate || null;
+        const bookingStartDateMaybe = isFixedUnitType && bookingStartDate ? { bookingStartDate } : {};
         const bookingLengthInMinutesMaybe = isFixedUnitType ? { bookingLengthInMinutes } : {};
         const priceInSubunits = setDefault(variant.priceInSubunits, null);
         return {
           ...nameMaybe,
           ...bookingLengthInMinutesMaybe,
+          ...bookingStartDateMaybe,
           price: priceInSubunits ? new Money(priceInSubunits, price.currency) : null,
         };
       })
@@ -152,13 +177,41 @@ export const handleSubmitValuesForPriceVariants = (
         publicData: {
           ...publicData,
           priceVariants: priceVariants.map(variant => {
-            const { name, bookingLengthInMinutes, price: variantPrice } = variant;
+            const { name, bookingLengthInMinutes, bookingStartDate, price: variantPrice } = variant;
             const nameMaybe = shouldIncludeName && name ? { name } : {};
-            const bookingLengthInMinutesMaybe = isFixedUnitType ? { bookingLengthInMinutes } : {};
+
+            // bookingLengthInMinutes may be a number or an object stored by the UI { __minutes, unit, value }
+            let normalizedBookingLengthInMinutes = null;
+            if (isFixedUnitType) {
+              if (bookingLengthInMinutes && typeof bookingLengthInMinutes === 'object') {
+                normalizedBookingLengthInMinutes = bookingLengthInMinutes.__minutes || null;
+              } else {
+                normalizedBookingLengthInMinutes = bookingLengthInMinutes;
+              }
+            }
+
+            const bookingLengthInMinutesMaybe = isFixedUnitType
+              ? { bookingLengthInMinutes: normalizedBookingLengthInMinutes }
+              : {};
+
+            // Normalize bookingStartDate: if it's an object with a date field, extract and stringify to ISO 8601
+            let normalizedBookingStartDate = null;
+            if (isFixedUnitType && bookingStartDate) {
+              if (bookingStartDate && typeof bookingStartDate === 'object' && bookingStartDate.date) {
+                normalizedBookingStartDate = stringifyDateToISO8601(bookingStartDate.date);
+              } else if (bookingStartDate instanceof Date) {
+                normalizedBookingStartDate = stringifyDateToISO8601(bookingStartDate);
+              } else if (typeof bookingStartDate === 'string') {
+                normalizedBookingStartDate = bookingStartDate;
+              }
+            }
+            const bookingStartDateMaybe = normalizedBookingStartDate ? { bookingStartDate: normalizedBookingStartDate } : {};
+
             return {
               ...nameMaybe,
               priceInSubunits: variantPrice.amount,
               ...bookingLengthInMinutesMaybe,
+              ...bookingStartDateMaybe,
             };
           }),
         },
@@ -185,42 +238,47 @@ const getPriceValidators = (listingMinimumPriceSubUnits, marketplaceCurrency, in
     : priceRequired;
 };
 
+/*
+ * Validator for booking length that supports numeric minutes or the object stored by the UI
+ * (i.e. { __minutes, unit, value }). Returns an error message string when invalid.
+ */
+const bookingLengthValidator = (minMinutes, intl) => value => {
+  if (value == null) {
+    return intl.formatMessage({ id: 'EditListingPricingForm.priceVariant.bookingLengthRequired' });
+  }
+  const minutes = typeof value === 'object' ? value.__minutes : Number(value);
+  if (!minutes || Number(minutes) < minMinutes) {
+    return intl.formatMessage({ id: 'EditListingPricingForm.priceVariant.bookingLengthRequired' });
+  }
+  return undefined;
+};
+
 const FieldBookingLength = props => {
   const { name, className, rootClassName, label, idPrefix, intl, ...rest } = props;
-
-  const getHoursOptionLabel = hours =>
-    intl.formatMessage({ id: 'EditListingPricingForm.priceVariant.hoursOption' }, { hours });
-  const getMinutesOptionLabel = minutes =>
-    intl.formatMessage({ id: 'EditListingPricingForm.priceVariant.minutesOption' }, { minutes });
-
-  const toHourOption = (_, i) => ({ key: i, label: getHoursOptionLabel(i) });
-  const optionsHours = Array.from({ length: MAX_HOURS_FOR_BOOKING_DURATION }, toHourOption);
-  const toMinuteOption = minutes => ({ key: minutes, label: getMinutesOptionLabel(minutes) });
-  const optionsMinutes = MINUTES_FOR_BOOKING_DURATION.map(toMinuteOption);
 
   const classes = classNames(rootClassName || css.root, className);
 
   return (
     <Field name={name} {...rest}>
       {({ input, meta }) => {
-        const [factors, setFactors] = useState(getDurationFactors(input?.value));
-        const [hours, minutes] = factors;
+        // input.value expected to be a number (minutes) or an object when using units
+        // For simplicity, store a small helper object in the UI for unit & value when possible
+        const stored = input.value && typeof input.value === 'object' ? input.value : null;
+        const [unit, setUnit] = useState(stored?.unit || 'hours');
+        const [value, setValue] = useState(stored?.value || 1);
         const { valid, invalid, touched, error } = meta;
-        const handleHoursChange = e => {
-          const newHours = e.target.value;
-          const bookingLengthInMinutes = getDurationInMinutes(newHours, minutes);
-          setFactors([newHours, minutes]);
-          input.onChange(bookingLengthInMinutes);
-        };
-        const handleMinutesChange = e => {
-          const newMinutes = e.target.value;
-          const bookingLengthInMinutes = getDurationInMinutes(hours, newMinutes);
-          setFactors([hours, newMinutes]);
-          input.onChange(bookingLengthInMinutes);
+
+        // When unit/value change, compute minutes and update the form value
+        const updateValue = (newUnit, newValue) => {
+          setUnit(newUnit);
+          setValue(newValue);
+          const minutes = getDurationInMinutesFromComponents({ unit: newUnit, value: newValue });
+          // Store a simple object so we can render the unit+value again
+          input.onChange({ __minutes: minutes, unit: newUnit, value: newValue });
         };
 
         const hasError = touched && invalid && error;
-        const selectClasses = classNames(css.select, {
+        const inputClasses = classNames(css.select, {
           [css.selectSuccess]: valid,
           [css.selectError]: hasError,
         });
@@ -232,35 +290,32 @@ const FieldBookingLength = props => {
             </label>
 
             <div className={css.selects}>
-              <select
-                id={`${idPrefix}_hours`}
-                name={`${name}.hours`}
-                className={selectClasses}
-                onChange={handleHoursChange}
+              <input
+                id={`${idPrefix}_length_value`}
+                type="number"
+                min="1"
+                className={inputClasses}
+                value={value}
+                onChange={e => updateValue(unit, e.target.value)}
                 onBlur={input.onBlur}
-                value={hours}
-              >
-                {optionsHours.map(option => (
-                  <option key={option.key} value={option.key}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
+              />
               <select
-                id={`${idPrefix}_minutes`}
-                name={`${name}.minutes`}
-                className={selectClasses}
-                onChange={handleMinutesChange}
+                id={`${idPrefix}_length_unit`}
+                name={`${name}.unit`}
+                className={inputClasses}
+                onChange={e => updateValue(e.target.value, value)}
                 onBlur={input.onBlur}
-                value={minutes}
+                value={unit}
               >
-                {optionsMinutes.map(option => (
-                  <option key={option.key} value={option.key}>
-                    {option.label}
+                {DURATION_UNITS.map(u => (
+                  <option key={u} value={u}>
+                    {intl.formatMessage({ id: `EditListingPricingForm.priceVariant.unit.${u}` })}
                   </option>
                 ))}
               </select>
             </div>
+
+            {/* Start date picker moved to PriceVariant so validation can access other fields */}
 
             <ValidationError fieldMeta={meta} />
           </div>
@@ -355,11 +410,28 @@ const PriceVariant = props => {
           name={`${name}.bookingLengthInMinutes`}
           idPrefix={idPrefix}
           intl={intl}
-          validate={validators.numberAtLeast(
-            intl.formatMessage({ id: 'EditListingPricingForm.priceVariant.bookingLengthRequired' }),
-            15
-          )}
+          validate={bookingLengthValidator(15, intl)}
         />
+      ) : null}
+
+      {/* Start date: shown when booking length unit is months. Validate presence when required. */}
+      {unitType === FIXED ? (
+        <div className={css.startDate}>
+          <FieldSingleDatePicker
+            id={`${idPrefix}_startDate`}
+            name={`${name}.bookingStartDate`}
+            label={intl.formatMessage({ id: 'EditListingPricingForm.priceVariant.startDateLabel' })}
+            showErrorMessage
+            validate={value => {
+              const bookingLength = formApi.getState().values?.priceVariants?.[currentIndex]?.bookingLengthInMinutes;
+              const unit = bookingLength && typeof bookingLength === 'object' ? bookingLength.unit : null;
+              if (unit === 'months' && (value == null || value.date == null)) {
+                return intl.formatMessage({ id: 'EditListingPricingForm.priceVariant.startDateRequired' });
+              }
+              return undefined;
+            }}
+          />
+        </div>
       ) : null}
 
       {isPriceVariationsInUse && showDeleteButton ? (
@@ -439,10 +511,10 @@ export const BookingPriceVariants = props => {
     <FieldArray
       name="priceVariants"
       validate={validators.composeValidators(
-        validators.nonEmptyArray(
-          intl.formatMessage({ id: 'EditListingPricingForm.priceVariant.required' })
-        )
-      )}
+          validators.nonEmptyArray(
+            intl.formatMessage({ id: 'EditListingPricingForm.priceVariant.required' })
+          )
+        )}
     >
       {({ fields }) => {
         const priceVariantNames = fields?.value?.map(field => field.name);

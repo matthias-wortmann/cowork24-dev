@@ -137,6 +137,21 @@ export const EditListingPricingForm = props => (
       const isBookingPriceVariationsInUse = isBooking && isPriceVariationsInUse;
       const isUsingPriceVariants = isFixedLengthBooking || isBookingPriceVariationsInUse;
 
+      // Show the start time interval radio buttons only when any price variant
+      // uses minute-based durations. Otherwise we want the booking start to be
+      // aligned to the start of the day (no radio shown).
+      const variants = formValues?.priceVariants || [];
+      const hasMinuteDurationVariant = variants.some(v => {
+        const bl = v?.bookingLengthInMinutes;
+        if (bl == null) return false;
+        if (typeof bl === 'object') {
+          return bl.unit === 'minutes';
+        }
+        // numeric values are minutes when less than 60
+        return Number(bl) < 60;
+      });
+      const showStartTimeInterval = isFixedLengthBooking && hasMinuteDurationVariant;
+
       return (
         <Form onSubmit={handleSubmit} className={classes}>
           <ErrorMessages fetchErrors={fetchErrors} />
@@ -171,7 +186,7 @@ export const EditListingPricingForm = props => (
             />
           )}
 
-          {isFixedLengthBooking ? (
+          {showStartTimeInterval ? (
             <StartTimeInterval
               name="startTimeInterval"
               idPrefix={`${formId}_startTimeInterval`}
@@ -179,6 +194,10 @@ export const EditListingPricingForm = props => (
               pristine={pristine}
             />
           ) : null}
+
+      {/* When the start time interval is hidden we don't mutate the form
+        during render. Downstream code will treat a missing
+        `startTimeInterval` as start-of-day. */}
 
           <Button
             className={css.submitButton}
