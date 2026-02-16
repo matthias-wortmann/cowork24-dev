@@ -1,0 +1,141 @@
+@import '../../../../styles/customMediaQueries.css';
+
+/* ================ Section root ================ */
+
+.root {
+  max-width: var(--contentMaxWidthPages, 1120px);
+  margin: 0 auto;
+  padding: 48px 24px;
+}
+
+@media (--viewportMedium) {
+  .root {
+    padding: 64px 48px;
+  }
+}
+
+/* ================ Section header ================ */
+
+.sectionHeader {
+  margin-bottom: 24px;
+}
+
+.title {
+  font-size: 24px;
+  line-height: 30px;
+  font-weight: var(--fontWeightBold, 700);
+  color: #222222;
+  margin: 0 0 6px 0;
+}
+
+@media (--viewportMedium) {
+  .title {
+    font-size: 32px;
+    line-height: 38px;
+    margin: 0 0 8px 0;
+  }
+}
+
+.subtitle {
+  font-size: 16px;
+  line-height: 22px;
+  color: #717171;
+  margin: 0;
+}
+
+/* ================ Grid / Slider ================ */
+
+.grid {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 4px;
+
+  /* Hide scrollbar */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.grid::-webkit-scrollbar {
+  display: none;
+}
+
+@media (--viewportMedium) {
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+    overflow-x: visible;
+    scroll-snap-type: none;
+  }
+}
+
+/* ================ Location card ================ */
+
+.card {
+  flex: 0 0 auto;
+  width: 200px;
+  scroll-snap-align: start;
+
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.card:hover {
+  opacity: 0.85;
+}
+
+.card:focus-visible {
+  outline: 2px solid var(--marketplaceColor, #6938ef);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+@media (--viewportMedium) {
+  .card {
+    width: auto;
+  }
+}
+
+/* ================ Card image ================ */
+
+.imageWrapper {
+  position: relative;
+  width: 100%;
+  padding-bottom: 100%; /* 1:1 aspect ratio */
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 10px;
+  background-color: #f0f0f0;
+}
+
+.image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ================ Card text ================ */
+
+.cityName {
+  font-size: 16px;
+  line-height: 20px;
+  font-weight: var(--fontWeightBold, 700);
+  color: #222222;
+  margin: 0;
+}
+
+.listingCount {
+  font-size: 14px;
+  line-height: 18px;
+  color: #717171;
+  margin: 4px 0 0 0;
+}

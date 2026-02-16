@@ -6,6 +6,7 @@ import SectionCategoryBar from '../PageBuilder/SectionBuilder/SectionCategoryBar
 import SectionCategoryShortcuts from '../PageBuilder/SectionBuilder/SectionCategoryShortcuts';
 import SectionForOwners from '../PageBuilder/SectionBuilder/SectionForOwners';
 import SectionFaq from '../PageBuilder/SectionBuilder/SectionFaq';
+import SectionLocations from '../PageBuilder/SectionBuilder/SectionLocations';
 
 import HeroSearchForm from './HeroSearchForm';
 import css from './FallbackPage.module.css';
@@ -21,6 +22,7 @@ const defaultLandingSections = () => [
   { sectionType: 'defaultLandingHero', sectionId: 'hero' },
   { sectionType: 'categoryBar', sectionId: 'category-bar' },
   { sectionType: 'categoryShortcuts', sectionId: 'category-shortcuts' },
+  { sectionType: 'sectionLocations', sectionId: 'locations' },
   { sectionType: 'forOwners', sectionId: 'for-owners' },
   { sectionType: 'faq', sectionId: 'faq' },
 ];
@@ -115,6 +117,7 @@ const FallbackPage = props => {
           defaultLandingHero: { component: SectionDefaultLandingHero },
           categoryBar: { component: SectionCategoryBar },
           categoryShortcuts: { component: SectionCategoryShortcuts },
+          sectionLocations: { component: SectionLocations },
           forOwners: { component: SectionForOwners },
           faq: { component: SectionFaq },
         },

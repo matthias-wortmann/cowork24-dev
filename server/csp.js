@@ -87,6 +87,9 @@ const defaultDirectives = {
     'picsum.photos',
     '*.picsum.photos',
 
+    // SectionLocations city images
+    'images.unsplash.com',
+
     'api.mapbox.com',
     'maps.googleapis.com',
     '*.gstatic.com',

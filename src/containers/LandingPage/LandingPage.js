@@ -15,6 +15,7 @@ import SectionCategoryBar from '../PageBuilder/SectionBuilder/SectionCategoryBar
 import SectionCategoryShortcuts from '../PageBuilder/SectionBuilder/SectionCategoryShortcuts';
 import SectionForOwners from '../PageBuilder/SectionBuilder/SectionForOwners';
 import SectionFaq from '../PageBuilder/SectionBuilder/SectionFaq';
+import SectionLocations from '../PageBuilder/SectionBuilder/SectionLocations';
 
 const PageBuilder = loadable(() =>
   import(/* webpackChunkName: "PageBuilder" */ '../PageBuilder/PageBuilder')
@@ -38,6 +39,7 @@ export const LandingPageComponent = props => {
           defaultLandingHero: { component: SectionDefaultLandingHero },
           categoryBar: { component: SectionCategoryBar },
           categoryShortcuts: { component: SectionCategoryShortcuts },
+          sectionLocations: { component: SectionLocations },
           forOwners: { component: SectionForOwners },
           faq: { component: SectionFaq },
         },
