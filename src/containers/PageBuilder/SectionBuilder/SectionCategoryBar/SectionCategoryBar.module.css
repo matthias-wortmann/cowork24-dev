@@ -8,12 +8,13 @@
   z-index: var(--zIndexNav, 9);
   background: #fff;
   border-bottom: 1px solid var(--colorGrey100, #e5e5e5);
-  min-height: 54px;
+  min-height: 48px;
 }
 
 @media (--viewportMedium) {
   .root {
     top: var(--topbarHeightDesktop, 64px);
+    min-height: 54px;
   }
 }
 
@@ -22,8 +23,13 @@
 .scrollContainer {
   max-width: var(--contentMaxWidthPages, 1120px);
   margin: 0 auto;
-  /* Mobile: left padding aligns first item with section headings (24px) */
-  padding: 0 24px;
+  padding: 0 16px;
+}
+
+@media (--viewportSmall) {
+  .scrollContainer {
+    padding: 0 24px;
+  }
 }
 
 @media (--viewportMedium) {
@@ -36,9 +42,8 @@
 
 .track {
   display: flex;
-  /* Mobile: items start from the left, scrollable */
   justify-content: flex-start;
-  gap: 32px;
+  gap: 20px;
   overflow-x: auto;
   overflow-y: hidden;
   scroll-snap-type: x mandatory;
@@ -53,9 +58,14 @@
   display: none; /* Chrome / Safari */
 }
 
+@media (--viewportSmall) {
+  .track {
+    gap: 28px;
+  }
+}
+
 @media (--viewportMedium) {
   .track {
-    /* Desktop: center the category items */
     justify-content: center;
     gap: 48px;
     overflow-x: visible;
@@ -73,15 +83,16 @@
 
 .categoryItem {
   flex: 0 0 auto;
-  min-width: fit-content;
+  min-width: 44px;
+  min-height: 44px;
   scroll-snap-align: start;
 
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  padding: 12px 4px 10px;
+  gap: 2px;
+  padding: 8px 4px 6px;
 
   background: none;
   border: none;
@@ -96,6 +107,13 @@
   transition: opacity 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
 
+@media (--viewportSmall) {
+  .categoryItem {
+    gap: 4px;
+    padding: 10px 6px 8px;
+  }
+}
+
 @media (--viewportMedium) {
   .categoryItem {
     gap: 8px;
@@ -103,9 +121,12 @@
   }
 }
 
-.categoryItem:hover {
-  opacity: 1;
-  color: #222222;
+/* Only apply hover effect on devices that support hover (pointer devices) */
+@media (hover: hover) and (pointer: fine) {
+  .categoryItem:hover {
+    opacity: 1;
+    color: #222222;
+  }
 }
 
 .categoryItem:focus-visible {
@@ -128,23 +149,42 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  height: 24px;
+  width: 20px;
+  height: 20px;
 }
 
 /* Ensure SVGs rendered by lucide-react are visible */
 .categoryIcon svg {
-  width: 24px;
-  height: 24px;
+  width: 20px;
+  height: 20px;
   display: block;
+}
+
+@media (--viewportSmall) {
+  .categoryIcon {
+    width: 24px;
+    height: 24px;
+  }
+
+  .categoryIcon svg {
+    width: 24px;
+    height: 24px;
+  }
 }
 
 /* ================ Label ================ */
 
 .categoryLabel {
-  font-size: 12px;
-  line-height: 16px;
+  font-size: 10px;
+  line-height: 14px;
   font-weight: var(--fontWeightSemiBold, 600);
   white-space: nowrap;
   text-align: center;
+}
+
+@media (--viewportSmall) {
+  .categoryLabel {
+    font-size: 12px;
+    line-height: 16px;
+  }
 }

@@ -4,16 +4,16 @@
   display: flex;
   align-items: center;
   scroll-behavior: smooth;
-  padding: 64px 0 0 0;
+  padding: 32px 0 0 0;
 
-  &:hover .carouselArrows {
-    opacity: 1;
+  @media (--viewportMedium) {
+    padding: 64px 0 0 0;
   }
 
-  /* smartphones, touchscreens: we don't need to show arrows */
-  @media (any-hover: none) and (pointer: coarse) {
+  /* Only show arrows on pointer devices */
+  @media (hover: hover) and (pointer: fine) {
     &:hover .carouselArrows {
-      opacity: 0;
+      opacity: 1;
     }
   }
 }
@@ -92,22 +92,29 @@
 
 .block {
   flex: 0 0 auto;
-  /* 64px = horizontal layout paddings */
-  width: calc(min(var(--contentMaxWidthPages), var(--carouselWidth)) - 64px);
+  /* 48px = horizontal layout paddings (24px * 2) on mobile */
+  width: calc(min(var(--contentMaxWidthPages), var(--carouselWidth)) - 48px);
 
   margin-right: 16px;
   scroll-snap-align: center;
 
-  transform: translateX(32px);
+  transform: translateX(24px);
 
   &:last-of-type {
-    padding-right: 32px;
-    /* 32px (padding-right above) */
-    width: calc(min(var(--contentMaxWidthPages), var(--carouselWidth)) - 32px);
+    padding-right: 24px;
+    width: calc(min(var(--contentMaxWidthPages), var(--carouselWidth)) - 24px);
   }
 
   @media (--viewportMedium) {
+    /* 64px = horizontal layout paddings on desktop */
+    width: calc(min(var(--contentMaxWidthPages), var(--carouselWidth)) - 64px);
     margin-right: 32px;
+    transform: translateX(32px);
+
+    &:last-of-type {
+      padding-right: 32px;
+      width: calc(min(var(--contentMaxWidthPages), var(--carouselWidth)) - 32px);
+    }
   }
 
   @media (min-width: 1200px) {

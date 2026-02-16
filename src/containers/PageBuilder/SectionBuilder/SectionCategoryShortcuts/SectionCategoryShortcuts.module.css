@@ -7,12 +7,18 @@
 .wrapper {
   max-width: var(--contentMaxWidthPages);
   margin: 0 auto;
-  padding: 48px 24px 64px;
+  padding: 28px 16px 36px;
+}
+
+@media (--viewportSmall) {
+  .wrapper {
+    padding: 32px 24px 40px;
+  }
 }
 
 @media (--viewportMedium) {
   .wrapper {
-    padding: 56px 48px 72px;
+    padding: 48px 48px 56px;
   }
 }
 
@@ -23,13 +29,22 @@
 }
 
 .title {
-  font-size: 26px;
+  font-size: 20px;
   font-weight: 800;
   line-height: 1.2;
   letter-spacing: -0.01em;
-  margin: 0 0 8px;
+  margin: 0 0 4px;
   text-align: left;
   color: var(--colorGrey900);
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+@media (--viewportSmall) {
+  .title {
+    font-size: 22px;
+    margin: 0 0 6px;
+  }
 }
 
 @media (--viewportMedium) {
@@ -40,12 +55,21 @@
 }
 
 .description {
-  font-size: 16px;
+  font-size: 14px;
   line-height: 1.5;
   color: var(--colorGrey600);
-  margin: 0 0 28px;
+  margin: 0 0 16px;
   max-width: 520px;
   text-align: left;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+@media (--viewportSmall) {
+  .description {
+    font-size: 15px;
+    margin: 0 0 20px;
+  }
 }
 
 @media (--viewportMedium) {
@@ -61,12 +85,20 @@
   flex-wrap: nowrap;
   gap: 16px;
   margin: 0;
-  padding: 0 0 8px;
+  padding: 0 0 4px;
   list-style: none;
   overflow-x: auto;
   overflow-y: hidden;
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
+
+  /* Hide scrollbar across browsers */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE / Edge */
+}
+
+.grid::-webkit-scrollbar {
+  display: none; /* Chrome / Safari */
 }
 
 @media (--viewportMedium) {
@@ -88,19 +120,27 @@
 }
 
 .card {
-  flex: 0 0 160px;
+  flex: 0 0 140px;
   scroll-snap-align: start;
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  padding: 20px 16px;
+  padding: 16px 12px;
   background: var(--colorWhite);
   border: 1px solid var(--colorGrey200);
-  border-radius: 16px;
+  border-radius: 12px;
   text-decoration: none;
   color: inherit;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+@media (--viewportSmall) {
+  .card {
+    flex: 0 0 160px;
+    padding: 20px 16px;
+    border-radius: 16px;
+  }
 }
 
 @media (--viewportMedium) {
@@ -112,28 +152,51 @@
   }
 }
 
-.card:hover,
-.card:focus {
+/* Only apply hover effect on pointer devices to avoid double-tap on touch */
+@media (hover: hover) and (pointer: fine) {
+  .card:hover {
+    border-color: var(--colorGrey300);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  }
+}
+
+.card:focus-visible {
   border-color: var(--colorGrey300);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  outline: 2px solid var(--marketplaceColor, #6938ef);
+  outline-offset: 2px;
 }
 
 .cardIcon,
 .cardIconSvg {
-  width: 56px;
-  height: 56px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
   background: linear-gradient(135deg, var(--colorMarketplace) 0%, #c13584 100%);
   color: var(--colorWhite);
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 .cardIconSvg svg {
-  width: 28px;
-  height: 28px;
+  width: 24px;
+  height: 24px;
+}
+
+@media (--viewportSmall) {
+  .cardIcon,
+  .cardIconSvg {
+    width: 56px;
+    height: 56px;
+    margin-bottom: 12px;
+  }
+
+  .cardIconSvg svg {
+    width: 28px;
+    height: 28px;
+  }
 }
 
 @media (--viewportMedium) {
@@ -151,10 +214,18 @@
 }
 
 .cardLabel {
-  font-size: 15px;
+  font-size: 13px;
   font-weight: 600;
   line-height: 1.3;
   color: var(--colorGrey900);
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+@media (--viewportSmall) {
+  .cardLabel {
+    font-size: 15px;
+  }
 }
 
 @media (--viewportMedium) {

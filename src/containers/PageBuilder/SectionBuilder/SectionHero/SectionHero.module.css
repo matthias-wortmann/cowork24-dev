@@ -1,3 +1,5 @@
+@import '../../../../styles/customMediaQueries.css';
+
 .root {
   /* SectionContainer defaults */
   background-size: cover;
@@ -6,9 +8,17 @@
   width: 100%;
   position: relative;
 
-  /* Hero specific */
-  min-height: 80vh;
+  /* Hero specific – compact on mobile, generous on desktop */
+  min-height: auto;
   display: flex;
   justify-content: center;
   align-items: center;
+  padding: 32px 24px;
+}
+
+@media (--viewportMedium) {
+  .root {
+    min-height: 80vh;
+    padding: 64px 48px;
+  }
 }

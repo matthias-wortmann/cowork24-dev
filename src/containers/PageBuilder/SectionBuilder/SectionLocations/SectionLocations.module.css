@@ -5,7 +5,13 @@
 .root {
   max-width: var(--contentMaxWidthPages, 1120px);
   margin: 0 auto;
-  padding: 48px 24px;
+  padding: 28px 16px;
+}
+
+@media (--viewportSmall) {
+  .root {
+    padding: 32px 24px;
+  }
 }
 
 @media (--viewportMedium) {
@@ -17,16 +23,38 @@
 /* ================ Section header ================ */
 
 .sectionHeader {
-  margin-bottom: 24px;
+  margin-bottom: 12px;
+}
+
+@media (--viewportSmall) {
+  .sectionHeader {
+    margin-bottom: 16px;
+  }
+}
+
+@media (--viewportMedium) {
+  .sectionHeader {
+    margin-bottom: 24px;
+  }
 }
 
 .title {
-  font-size: 24px;
-  line-height: 30px;
+  font-size: 20px;
+  line-height: 26px;
   font-weight: var(--fontWeightBold, 700);
   color: #222222;
-  margin: 0 0 6px 0;
+  margin: 0 0 4px 0;
   text-align: left;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+@media (--viewportSmall) {
+  .title {
+    font-size: 22px;
+    line-height: 28px;
+    margin: 0 0 6px 0;
+  }
 }
 
 @media (--viewportMedium) {
@@ -38,18 +66,27 @@
 }
 
 .subtitle {
-  font-size: 16px;
-  line-height: 22px;
+  font-size: 14px;
+  line-height: 20px;
   color: #717171;
   margin: 0;
   text-align: left;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+@media (--viewportSmall) {
+  .subtitle {
+    font-size: 16px;
+    line-height: 22px;
+  }
 }
 
 /* ================ Grid / Slider ================ */
 
 .grid {
   display: flex;
-  gap: 16px;
+  gap: 12px;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
@@ -58,6 +95,12 @@
   /* Hide scrollbar */
   scrollbar-width: none;
   -ms-overflow-style: none;
+}
+
+@media (--viewportSmall) {
+  .grid {
+    gap: 16px;
+  }
 }
 
 .grid::-webkit-scrollbar {
@@ -78,7 +121,7 @@
 
 .card {
   flex: 0 0 auto;
-  width: 200px;
+  width: 160px;
   scroll-snap-align: start;
 
   display: block;
@@ -88,8 +131,17 @@
   transition: opacity 0.2s ease;
 }
 
-.card:hover {
-  opacity: 0.85;
+@media (--viewportSmall) {
+  .card {
+    width: 200px;
+  }
+}
+
+/* Only apply hover effect on pointer devices to avoid double-tap on touch */
+@media (hover: hover) and (pointer: fine) {
+  .card:hover {
+    opacity: 0.85;
+  }
 }
 
 .card:focus-visible {
@@ -110,10 +162,17 @@
   position: relative;
   width: 100%;
   padding-bottom: 100%; /* 1:1 aspect ratio */
-  border-radius: 12px;
+  border-radius: 10px;
   overflow: hidden;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
   background-color: #f0f0f0;
+}
+
+@media (--viewportSmall) {
+  .imageWrapper {
+    border-radius: 12px;
+    margin-bottom: 10px;
+  }
 }
 
 .image {
@@ -128,16 +187,31 @@
 /* ================ Card text ================ */
 
 .cityName {
-  font-size: 16px;
-  line-height: 20px;
+  font-size: 14px;
+  line-height: 18px;
   font-weight: var(--fontWeightBold, 700);
   color: #222222;
   margin: 0;
 }
 
+@media (--viewportSmall) {
+  .cityName {
+    font-size: 16px;
+    line-height: 20px;
+  }
+}
+
 .listingCount {
-  font-size: 14px;
-  line-height: 18px;
+  font-size: 12px;
+  line-height: 16px;
   color: #717171;
-  margin: 4px 0 0 0;
+  margin: 2px 0 0 0;
+}
+
+@media (--viewportSmall) {
+  .listingCount {
+    font-size: 14px;
+    line-height: 18px;
+    margin: 4px 0 0 0;
+  }
 }

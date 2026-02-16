@@ -5,7 +5,9 @@
   background-position: center center;
   background-repeat: no-repeat;
   width: 100%;
+  max-width: 100%;
   position: relative;
+  overflow-x: hidden;
 
   &:nth-of-type(odd) {
     background-color: var(--colorWhite);
@@ -20,12 +22,13 @@
 }
 
 .sectionContent {
-  padding: 32px 0;
+  padding: 0;
   position: relative;
   word-break: break-word;
+  overflow-wrap: break-word;
 
   @media (--viewportMedium) {
-    padding: 64px 0;
+    padding: 0;
   }
 }
 

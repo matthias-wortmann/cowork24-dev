@@ -16,7 +16,17 @@
   align-items: center;
   justify-content: center;
   background: linear-gradient(180deg, #fff5f5 0%, #fff 24%, var(--colorGrey50) 100%);
-  padding: 40px 16px 48px;
+  padding: 20px 16px 24px;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+@media (--viewportSmall) {
+  .heroSection {
+    padding: 24px 24px 32px;
+  }
 }
 
 @media (--viewportMedium) {
@@ -27,41 +37,64 @@
 
 .heroContent {
   text-align: center;
-  max-width: 680px;
+  max-width: min(680px, 100%);
   width: 100%;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
   align-items: center;
+  box-sizing: border-box;
 }
 
 .heroTitle {
-  font-size: 36px;
+  font-size: 24px;
   font-weight: 800;
-  line-height: 1.15;
+  line-height: 1.2;
   letter-spacing: -0.02em;
-  margin: 0 0 16px;
+  margin: 0 0 8px;
   color: var(--colorGrey900);
+  overflow-wrap: break-word;
+  word-break: break-word;
+  hyphens: auto;
+}
+
+@media (--viewportSmall) {
+  .heroTitle {
+    font-size: 28px;
+    margin: 0 0 12px;
+  }
 }
 
 @media (--viewportMedium) {
   .heroTitle {
     font-size: 48px;
     margin-bottom: 20px;
+    hyphens: none;
   }
 }
 
 .heroDescription {
-  font-size: 18px;
-  line-height: 1.5;
+  font-size: 15px;
+  line-height: 1.45;
   color: var(--colorGrey700);
-  margin: 0 0 28px;
+  margin: 0 0 16px;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  hyphens: auto;
+}
+
+@media (--viewportSmall) {
+  .heroDescription {
+    font-size: 16px;
+    margin: 0 0 20px;
+  }
 }
 
 @media (--viewportMedium) {
   .heroDescription {
     font-size: 20px;
     margin-bottom: 32px;
+    hyphens: none;
   }
 }
 
@@ -86,9 +119,17 @@
   transition: box-shadow 0.2s ease;
 }
 
-.heroSearchStripInner:hover,
-.heroSearchStripInner:focus {
+/* Only apply hover effect on pointer devices to avoid double-tap on touch */
+@media (hover: hover) and (pointer: fine) {
+  .heroSearchStripInner:hover {
+    box-shadow: 0 6px 28px rgba(0, 0, 0, 0.14);
+  }
+}
+
+.heroSearchStripInner:focus-visible {
   box-shadow: 0 6px 28px rgba(0, 0, 0, 0.14);
+  outline: 2px solid var(--marketplaceColor, #6938ef);
+  outline-offset: 2px;
 }
 
 .heroSearchPlaceholder {

@@ -1,17 +1,27 @@
 .layout {
   min-height: 100vh;
   grid-template-rows: auto 1fr auto;
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
+  box-sizing: border-box;
 }
 
 .topbar {
   position: sticky;
   top: 0;
   z-index: var(--zIndexTopbar);
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 .main {
   display: grid;
   scroll-margin-top: var(--topbarHeight);
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: hidden;
   @media (--viewportMedium) {
     scroll-margin-top: var(--topbarHeightDesktop);
   }
@@ -23,6 +33,9 @@
    work correctly on child sections (e.g. SectionCategoryBar). */
 .sectionFlow {
   min-height: 0;
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 .loading {

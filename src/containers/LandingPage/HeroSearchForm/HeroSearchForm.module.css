@@ -3,12 +3,19 @@
 /* ───── Outer container ───── */
 .strip {
   width: 100%;
-  max-width: 640px;
+  max-width: min(640px, 100%);
   margin: 0 auto;
-  border-radius: 16px;
+  border-radius: 12px;
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08);
   background: var(--colorWhite);
   overflow: visible;
+  box-sizing: border-box;
+}
+
+@media (--viewportSmall) {
+  .strip {
+    border-radius: 16px;
+  }
 }
 
 @media (--viewportMedium) {
@@ -25,8 +32,14 @@
 .fields {
   display: flex;
   flex-direction: column;
-  padding: 12px 16px;
+  padding: 10px 12px;
   gap: 0;
+}
+
+@media (--viewportSmall) {
+  .fields {
+    padding: 12px 16px;
+  }
 }
 
 @media (--viewportMedium) {
@@ -69,7 +82,7 @@
   width: 100%;
   border: none;
   border-bottom: none;
-  padding: 10px 0;
+  padding: 8px 0;
   margin: 0;
   font-size: 15px;
   line-height: unset;
@@ -77,6 +90,7 @@
   height: 44px;
   background: transparent;
   outline: none;
+  text-overflow: ellipsis;
 
   /* Safari bugfix */
   &::-webkit-input-placeholder {
@@ -104,15 +118,22 @@
 .predictions {
   position: absolute;
   top: 100%;
-  left: -16px;
-  right: -16px;
+  left: -12px;
+  right: -12px;
   margin-top: 4px;
   background: var(--colorWhite);
   border-radius: 12px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
   z-index: calc(var(--zIndexPopup) + 1);
-  max-height: 280px;
+  max-height: 260px;
   overflow-y: auto;
+}
+
+@media (--viewportSmall) {
+  .predictions {
+    left: -16px;
+    right: -16px;
+  }
 }
 
 @media (--viewportMedium) {
@@ -155,10 +176,14 @@
   cursor: pointer;
   white-space: nowrap;
   width: 100%;
+  min-height: 44px;
 }
 
-.dateTrigger:hover {
-  color: var(--colorGrey900);
+/* Only apply hover effect on pointer devices to avoid double-tap on touch */
+@media (hover: hover) and (pointer: fine) {
+  .dateTrigger:hover {
+    color: var(--colorGrey900);
+  }
 }
 
 @media (--viewportMedium) {
@@ -181,16 +206,34 @@
 
 /* ───── Date dropdown ───── */
 .dateDropdown {
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  margin-top: 8px;
+  position: fixed;
+  top: auto;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  transform: none;
+  margin-top: 0;
   padding: 16px;
+  padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
   background: var(--colorWhite);
-  border-radius: 12px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+  border-radius: 16px 16px 0 0;
+  box-shadow: 0 -4px 32px rgba(0, 0, 0, 0.15);
   z-index: var(--zIndexPopup);
+}
+
+@media (--viewportSmall) {
+  .dateDropdown {
+    position: absolute;
+    top: 100%;
+    bottom: auto;
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+    margin-top: 8px;
+    padding: 16px;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+  }
 }
 
 @media (--viewportMedium) {
@@ -202,19 +245,35 @@
 }
 
 .datePicker {
-  min-width: 280px;
+  min-width: 0;
+  width: 100%;
+}
+
+@media (--viewportSmall) {
+  .datePicker {
+    min-width: 280px;
+    width: auto;
+  }
 }
 
 /* ───── Submit button ───── */
 .submitBtn {
   flex-shrink: 0;
   width: 100%;
-  padding: 14px 20px;
+  padding: 12px 16px;
   font-size: 15px;
   font-weight: 600;
-  border-radius: 12px;
+  border-radius: 10px;
   white-space: nowrap;
-  min-height: 48px;
+  min-height: 46px;
+}
+
+@media (--viewportSmall) {
+  .submitBtn {
+    padding: 14px 20px;
+    border-radius: 12px;
+    min-height: 48px;
+  }
 }
 
 @media (--viewportMedium) {

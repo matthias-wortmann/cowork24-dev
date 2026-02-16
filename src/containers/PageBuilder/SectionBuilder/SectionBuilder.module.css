@@ -6,8 +6,10 @@
   display: grid;
   justify-content: start;
   margin: 0 auto;
-  padding: 0 24px;
+  padding: 0 16px;
   position: relative;
+  overflow-wrap: break-word;
+  word-break: break-word;
 
   & h1 + p,
   & h1 + a,
@@ -100,6 +102,12 @@
   }
 }
 
+@media (--viewportSmall) {
+  .sectionDetails {
+    padding: 0 24px;
+  }
+}
+
 @media (--viewportMedium) {
   .sectionDetails {
     padding: 0 48px;
@@ -107,10 +115,20 @@
 }
 
 .blockContainer {
-  padding: 64px 24px 0 24px;
+  padding: 32px 16px 0 16px;
 
   &:first-child {
-    padding: 0 24px;
+    padding: 0 16px;
+  }
+}
+
+@media (--viewportSmall) {
+  .blockContainer {
+    padding: 32px 24px 0 24px;
+
+    &:first-child {
+      padding: 0 24px;
+    }
   }
 }
 
@@ -142,7 +160,7 @@
 .ctaButton {
   composes: align;
   display: inline-block;
-  padding: 8px 20px;
+  padding: 12px 24px;
   font-size: 15px;
   background-color: var(--marketplaceColor);
   border-radius: 4px;
@@ -151,8 +169,12 @@
   box-shadow: 0 8px 16px 0 rgb(0 0 0 / 20%);
   font-weight: 500;
   margin-top: 24px;
+  min-height: 44px;
+}
 
-  &:hover {
+/* Only apply hover effect on pointer devices to avoid double-tap on touch */
+@media (hover: hover) and (pointer: fine) {
+  .ctaButton:hover {
     text-decoration: none;
     background-color: var(--marketplaceColorDark);
   }

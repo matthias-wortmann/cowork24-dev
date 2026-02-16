@@ -7,7 +7,13 @@
 .wrapper {
   max-width: var(--contentMaxWidthPages);
   margin: 0 auto;
-  padding: 48px 24px 64px;
+  padding: 28px 16px 40px;
+}
+
+@media (--viewportSmall) {
+  .wrapper {
+    padding: 32px 24px 48px;
+  }
 }
 
 @media (--viewportMedium) {
@@ -17,11 +23,19 @@
 }
 
 .title {
-  font-size: 26px;
+  font-size: 20px;
   font-weight: 800;
   line-height: 1.25;
-  margin: 0 0 8px;
+  margin: 0 0 6px;
   color: var(--colorGrey900);
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+@media (--viewportSmall) {
+  .title {
+    font-size: 22px;
+  }
 }
 
 @media (--viewportMedium) {
@@ -32,11 +46,20 @@
 }
 
 .description {
-  font-size: 16px;
+  font-size: 15px;
   line-height: 1.5;
   color: var(--colorGrey600);
-  margin: 0 0 32px;
+  margin: 0 0 24px;
   max-width: 560px;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+@media (--viewportSmall) {
+  .description {
+    font-size: 16px;
+    margin: 0 0 32px;
+  }
 }
 
 @media (--viewportMedium) {
@@ -67,24 +90,52 @@
 .question {
   width: 100%;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
-  gap: 16px;
-  padding: 20px 0;
-  font-size: 17px;
+  gap: 12px;
+  padding: 14px 0;
+  font-size: 15px;
   font-weight: 600;
   color: var(--colorGrey900);
   text-align: left;
   background: none;
   border: none;
   cursor: pointer;
+  min-height: 48px;
   transition: color 0.2s ease;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  hyphens: auto;
 }
 
-.question:hover,
-.question:focus {
+@media (--viewportSmall) {
+  .question {
+    font-size: 16px;
+    gap: 16px;
+    padding: 16px 0;
+    align-items: center;
+  }
+}
+
+@media (--viewportMedium) {
+  .question {
+    padding: 20px 0;
+    font-size: 17px;
+    hyphens: none;
+  }
+}
+
+/* Only apply hover effect on pointer devices to avoid double-tap on touch */
+@media (hover: hover) and (pointer: fine) {
+  .question:hover {
+    color: var(--colorMarketplace);
+  }
+}
+
+.question:focus-visible {
   color: var(--colorMarketplace);
-  outline: none;
+  outline: 2px solid var(--marketplaceColor, #6938ef);
+  outline-offset: -2px;
 }
 
 .questionOpen {
@@ -115,8 +166,17 @@
 }
 
 .answer {
-  padding: 0 0 20px;
-  font-size: 15px;
+  padding: 0 0 16px;
+  font-size: 14px;
   line-height: 1.6;
   color: var(--colorGrey700);
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+@media (--viewportSmall) {
+  .answer {
+    padding: 0 0 20px;
+    font-size: 15px;
+  }
 }
