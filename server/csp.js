@@ -150,9 +150,16 @@ exports.csp = (reportUri, reportOnly) => {
   // const { imgSrc = [self] } = defaultDirectives;
   // const exampleImgSrc = imgSrc.concat('my-custom-domain.example.com');
 
+  // Logo slider: allow external coworking space logo domains
+  const { imgSrc = [self] } = defaultDirectives;
+  const extendedImgSrc = imgSrc.concat(
+    'www.workspace4you.ch',
+    'media.licdn.com',
+    'cdn.prod.website-files.com'
+  );
+
   const customDirectives = {
-    // Example: Add custom directive override
-    // imgSrc: exampleImgSrc,
+    imgSrc: extendedImgSrc,
   };
 
   // ================ END CUSTOM CSP URLs ================ //

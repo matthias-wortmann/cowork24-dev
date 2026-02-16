@@ -6,11 +6,12 @@ import { NamedLink } from '../../../../components';
 
 import SectionContainer from '../SectionContainer';
 import css from './SectionSpaceOwner.module.css';
+import spaceOwnerImg from './space-owner-cta.jpg';
 
 /**
  * Split-screen CTA section for coworking space owners.
  * Left column: heading, description, and CTA button.
- * Right column: image placeholder (to be replaced with a real image later).
+ * Right column: coworking image.
  *
  * @component
  * @param {Object} props
@@ -52,7 +53,14 @@ const SectionSpaceOwner = props => {
           </div>
 
           <div className={css.imageColumn}>
-            <div className={css.imagePlaceholder} />
+            <img
+              src={spaceOwnerImg}
+              alt="Coworking Space"
+              className={css.image}
+              width={800}
+              height={449}
+              loading="lazy"
+            />
           </div>
         </div>
       </div>

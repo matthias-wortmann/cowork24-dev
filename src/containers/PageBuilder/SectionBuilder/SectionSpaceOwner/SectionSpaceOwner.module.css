@@ -131,16 +131,10 @@
   }
 }
 
-.imagePlaceholder {
+.image {
+  display: block;
   width: 100%;
-  min-height: 280px;
-  aspect-ratio: 4 / 3;
-  background-color: #e0e0e0;
+  height: auto;
+  object-fit: cover;
   border-radius: 12px;
-}
-
-@media (--viewportMedium) {
-  .imagePlaceholder {
-    min-height: 360px;
-  }
 }
