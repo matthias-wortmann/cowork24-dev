@@ -13,7 +13,7 @@ import {
 } from './FallbackPage';
 import SectionCategoryBar from '../PageBuilder/SectionBuilder/SectionCategoryBar';
 import SectionCategoryShortcuts from '../PageBuilder/SectionBuilder/SectionCategoryShortcuts';
-import SectionForOwners from '../PageBuilder/SectionBuilder/SectionForOwners';
+import SectionSpaceOwner from '../PageBuilder/SectionBuilder/SectionSpaceOwner';
 import SectionFaq from '../PageBuilder/SectionBuilder/SectionFaq';
 import SectionLocations from '../PageBuilder/SectionBuilder/SectionLocations';
 
@@ -40,7 +40,7 @@ export const LandingPageComponent = props => {
           categoryBar: { component: SectionCategoryBar },
           categoryShortcuts: { component: SectionCategoryShortcuts },
           sectionLocations: { component: SectionLocations },
-          forOwners: { component: SectionForOwners },
+          sectionSpaceOwner: { component: SectionSpaceOwner },
           faq: { component: SectionFaq },
         },
       }}

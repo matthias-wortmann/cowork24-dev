@@ -1,0 +1,146 @@
+@import '../../../../styles/customMediaQueries.css';
+
+/* ================ Root ================ */
+
+.root {
+  background-color: #f7f7f7;
+}
+
+/* ================ Wrapper ================ */
+
+.wrapper {
+  max-width: var(--contentMaxWidthPages, 1120px);
+  margin: 0 auto;
+  padding: 36px 18px;
+}
+
+@media (--viewportMedium) {
+  .wrapper {
+    padding: 64px 48px;
+  }
+}
+
+@media (--viewportLarge) {
+  .wrapper {
+    padding: 80px 48px;
+  }
+}
+
+/* ================ Grid: 1 col mobile, 2 col desktop ================ */
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 30px;
+  align-items: center;
+}
+
+@media (--viewportMedium) {
+  .grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 48px;
+  }
+}
+
+/* ================ Text column ================ */
+
+.textColumn {
+  text-align: left;
+}
+
+.title {
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1.25;
+  margin: 0 0 12px;
+  color: var(--colorGrey900, #222);
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+@media (--viewportMedium) {
+  .title {
+    font-size: 32px;
+    margin: 0 0 16px;
+  }
+}
+
+.description {
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--colorGrey700, #717171);
+  margin: 0 0 24px;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+@media (--viewportMedium) {
+  .description {
+    font-size: 18px;
+    margin: 0 0 32px;
+  }
+}
+
+/* ================ CTA button ================ */
+
+.cta {
+  display: inline-block;
+  padding: 16px 36px;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  color: var(--colorWhite, #fff);
+  background-color: var(--marketplaceColor);
+  border-radius: 8px;
+  text-decoration: none;
+  min-height: 52px;
+  box-shadow: 0 4px 14px rgba(105, 56, 239, 0.35);
+  transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+@media (--viewportMedium) {
+  .cta {
+    padding: 18px 42px;
+    font-size: 18px;
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .cta:hover {
+    background-color: var(--marketplaceColorDark, #8d68f3);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(105, 56, 239, 0.45);
+    text-decoration: none;
+  }
+}
+
+.cta:focus-visible {
+  outline: 2px solid var(--marketplaceColor);
+  outline-offset: 3px;
+}
+
+/* ================ Image column ================ */
+
+.imageColumn {
+  order: 2;
+}
+
+@media (--viewportMedium) {
+  .imageColumn {
+    order: unset;
+  }
+}
+
+.imagePlaceholder {
+  width: 100%;
+  min-height: 280px;
+  aspect-ratio: 4 / 3;
+  background-color: #e0e0e0;
+  border-radius: 12px;
+}
+
+@media (--viewportMedium) {
+  .imagePlaceholder {
+    min-height: 360px;
+  }
+}
