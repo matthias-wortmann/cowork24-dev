@@ -6,7 +6,7 @@ import { stringify } from '../../../../util/urlHelpers';
 import { constructQueryParamName } from '../../../../util/search';
 import { NamedLink } from '../../../../components';
 import SectionContainer from '../SectionContainer';
-import { CategoryIcon } from './CategoryIcons';
+import { getCategoryImage } from './categoryImages';
 import css from './SectionCategoryShortcuts.module.css';
 
 /**
@@ -72,7 +72,13 @@ const SectionCategoryShortcuts = props => {
                 to={{ search: searchString ? `?${searchString}` : '' }}
                 className={css.card}
               >
-                <CategoryIcon category={category} />
+                <img
+                  src={getCategoryImage(category)}
+                  alt=""
+                  className={css.cardImage}
+                  loading="lazy"
+                />
+                <span className={css.cardOverlay} aria-hidden="true" />
                 <span className={css.cardLabel}>{category.name}</span>
               </NamedLink>
             );
