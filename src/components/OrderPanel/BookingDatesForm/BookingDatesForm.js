@@ -16,8 +16,15 @@ import {
   monthIdString,
   parseDateFromISO8601,
   stringifyDateToISO8601,
+  weeksBetween,
+  monthsBetween,
 } from '../../../util/dates';
-import { LINE_ITEM_DAY, propTypes } from '../../../util/types';
+import {
+  LINE_ITEM_DAY,
+  LINE_ITEM_WEEK,
+  LINE_ITEM_MONTH,
+  propTypes,
+} from '../../../util/types';
 import { timeSlotsPerDate } from '../../../util/generators';
 import { BOOKING_PROCESS_NAME } from '../../../transactions/transaction';
 
@@ -139,15 +146,16 @@ const isOneBoundaryeSelected = (hasTimeSlots, startDate, endDate) => {
   return hasTimeSlots && oneBoundarySelected;
 };
 
+const isDayBasedUnit = unitType =>
+  [LINE_ITEM_DAY, LINE_ITEM_WEEK, LINE_ITEM_MONTH].includes(unitType);
+
 const endDateToPickerDate = (unitType, endDate, timeZone) => {
   const isValid = endDate instanceof Date;
-  const isDaily = unitType === LINE_ITEM_DAY;
 
   if (!isValid) {
     return null;
-  } else if (isDaily) {
-    // API end dates are exlusive, so we need to shift them with daily
-    // booking.
+  } else if (isDayBasedUnit(unitType)) {
+    // API end dates are exclusive, so we need to shift them for day-based bookings.
     return getStartOf(endDate, 'day', timeZone, -1, 'days');
   } else {
     return endDate;
@@ -239,7 +247,7 @@ const isOutsideRangeFn = (
  * a DateRangePicker component.
  */
 const isDayBlockedFn = params => {
-  const { allTimeSlots, monthlyTimeSlots, isDaily, startDate, endDate, timeZone } = params || {};
+  const { allTimeSlots, monthlyTimeSlots, isDayBased, startDate, endDate, timeZone } = params || {};
 
   const [startMonth, endMonth] = getMonthlyFetchRange(monthlyTimeSlots, timeZone);
   const timeSlotsData = timeSlotsPerDate(startMonth, endMonth, allTimeSlots, timeZone);
@@ -251,7 +259,7 @@ const isDayBlockedFn = params => {
     const dayIdString = stringifyDateToISO8601(dayInListingTZ, timeZone);
     const hasAvailabilityOnDay = timeSlotsData[dayIdString]?.hasAvailability === true;
 
-    if (!isDaily && startDate) {
+    if (!isDayBased && startDate) {
       // Nightly
       // For the unit type night, we check that the time slot of the selected startDate
       // ends on a given _day_
@@ -478,6 +486,23 @@ const combineConsecutiveTimeSlots = (slots, startDate) => {
   return [combinedSlot];
 };
 
+/**
+ * Validate that the selected date range meets the minimum duration for week/month unit types.
+ * Uses the same calendar-aware calculations as the server (weeksBetween / monthsBetween)
+ * so that ranges like Feb 1–Feb 28 (27 days but ~1 calendar month) are accepted consistently.
+ */
+const minimumDurationRequired = (lineItemUnitType, intl) => value => {
+  if (!value?.startDate || !value?.endDate) return undefined;
+
+  if (lineItemUnitType === LINE_ITEM_WEEK && weeksBetween(value.startDate, value.endDate) < 1) {
+    return intl.formatMessage({ id: 'BookingDatesForm.minimumWeek' });
+  }
+  if (lineItemUnitType === LINE_ITEM_MONTH && monthsBetween(value.startDate, value.endDate) < 1) {
+    return intl.formatMessage({ id: 'BookingDatesForm.minimumMonth' });
+  }
+  return undefined;
+};
+
 const onPriceVariantChange = props => value => {
   const { form: formApi, seatsEnabled } = props;
 
@@ -671,10 +696,11 @@ export const BookingDatesForm = props => {
           listingId,
           onFetchTimeSlots
         );
+        const isDayBased = isDayBasedUnit(lineItemUnitType);
         const isDayBlocked = isDayBlockedFn({
           allTimeSlots: relevantTimeSlots,
           monthlyTimeSlots,
-          isDaily: lineItemUnitType === LINE_ITEM_DAY,
+          isDayBased,
           startDate,
           endDate,
           timeZone,
@@ -696,7 +722,7 @@ export const BookingDatesForm = props => {
           values?.bookingDates?.endDate
         );
 
-        const isDaily = lineItemUnitType === LINE_ITEM_DAY;
+        const isDaily = isDayBased;
         const submitDisabled = isPriceVariationsInUse && !isPublishedListing;
 
         return (
@@ -749,7 +775,8 @@ export const BookingDatesForm = props => {
                     id: 'BookingDatesForm.requiredDate',
                   })
                 ),
-                bookingDatesRequired(startDateErrorMessage, endDateErrorMessage)
+                bookingDatesRequired(startDateErrorMessage, endDateErrorMessage),
+                minimumDurationRequired(lineItemUnitType, intl)
               )}
               isDayBlocked={isDayBlocked}
               isOutsideRange={isOutsideRange}
