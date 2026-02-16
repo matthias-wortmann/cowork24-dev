@@ -12,18 +12,16 @@
 
 /* Airbnb-style hero (when landing-page asset returns 404) */
 .heroSection {
-  min-height: 85vh;
   display: flex;
   align-items: center;
   justify-content: center;
   background: linear-gradient(180deg, #fff5f5 0%, #fff 24%, var(--colorGrey50) 100%);
-  padding: 56px 16px 72px;
+  padding: 40px 16px 48px;
 }
 
 @media (--viewportMedium) {
   .heroSection {
-    min-height: 88vh;
-    padding: 72px 48px 96px;
+    padding: 48px 48px 56px;
   }
 }
 
@@ -57,13 +55,13 @@
   font-size: 18px;
   line-height: 1.5;
   color: var(--colorGrey700);
-  margin: 0 0 40px;
+  margin: 0 0 28px;
 }
 
 @media (--viewportMedium) {
   .heroDescription {
     font-size: 20px;
-    margin-bottom: 48px;
+    margin-bottom: 32px;
   }
 }
 

@@ -98,18 +98,18 @@
 }
 
 .menu {
-  padding: 15px 24px;
+  padding: 12px 24px;
   position: relative;
 
   @media (--viewportMedium) {
-    padding: 21px 24px;
+    padding: 16px 24px;
   }
 }
 .searchMenu {
-  padding: 12px 24px;
+  padding: 10px 24px;
 
   @media (--viewportMedium) {
-    padding: 18px 24px;
+    padding: 14px 24px;
   }
 }
 

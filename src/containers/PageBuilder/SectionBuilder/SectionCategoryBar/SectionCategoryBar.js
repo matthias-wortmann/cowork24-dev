@@ -133,14 +133,6 @@ const SectionCategoryBar = props => {
   // Use hosted categories if available, otherwise fall back to hardcoded list
   const categories = hostedCategories.length > 0 ? hostedCategories : FALLBACK_CATEGORIES;
 
-  // Debug: remove after confirming correct mapping
-  if (typeof window !== 'undefined') {
-    console.log(
-      '[SectionCategoryBar]',
-      categories.map(c => ({ id: c.id, name: c.name, resolved: resolveCategoryDisplay(c).label }))
-    );
-  }
-
   const paramName = constructQueryParamName(`${categoryKey}1`, 'public');
   const searchPagePath = pathByRouteName('SearchPage', routeConfiguration);
 

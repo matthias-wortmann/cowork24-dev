@@ -6,7 +6,7 @@
   display: grid;
   justify-content: start;
   margin: 0 auto;
-  padding: 0 32px;
+  padding: 0 24px;
   position: relative;
 
   & h1 + p,
@@ -98,28 +98,35 @@
   & h6 + h6 {
     margin-top: 12px;
   }
+}
 
-  @media (--viewportMedium) {
-    justify-content: center;
+@media (--viewportMedium) {
+  .sectionDetails {
+    padding: 0 48px;
   }
 }
 
 .blockContainer {
-  padding: 64px 32px 0 32px;
+  padding: 64px 24px 0 24px;
 
   &:first-child {
-    padding: 0 32px;
+    padding: 0 24px;
+  }
+}
+
+@media (--viewportMedium) {
+  .blockContainer {
+    padding: 64px 48px 0 48px;
+
+    &:first-child {
+      padding: 0 48px;
+    }
   }
 }
 
 .align {
   text-align: left;
   justify-self: start;
-
-  @media (--viewportMedium) {
-    text-align: center;
-    justify-self: center;
-  }
 }
 
 .title {

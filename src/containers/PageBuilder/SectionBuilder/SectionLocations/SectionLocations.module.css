@@ -26,6 +26,7 @@
   font-weight: var(--fontWeightBold, 700);
   color: #222222;
   margin: 0 0 6px 0;
+  text-align: left;
 }
 
 @media (--viewportMedium) {
@@ -41,6 +42,7 @@
   line-height: 22px;
   color: #717171;
   margin: 0;
+  text-align: left;
 }
 
 /* ================ Grid / Slider ================ */

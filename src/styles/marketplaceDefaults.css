@@ -146,10 +146,10 @@
 
   /* ================ Topbar related ================ */
 
-  --topbarHeight: 60px;
-  --topbarHeightDesktop: 72px;
+  --topbarHeight: 56px;
+  --topbarHeightDesktop: 64px;
 
-  --TopbarMobileMenu_topMargin: 96px;
+  --TopbarMobileMenu_topMargin: 80px;
 
   --Topbar_logoHeight: 25px;
   --CheckoutPage_logoHeight: 25px;
