@@ -1,0 +1,228 @@
+@import '../../../styles/customMediaQueries.css';
+
+/* ───── Outer container ───── */
+.strip {
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08);
+  background: var(--colorWhite);
+  overflow: visible;
+}
+
+@media (--viewportMedium) {
+  .strip {
+    border-radius: 60px;
+  }
+}
+
+.form {
+  width: 100%;
+}
+
+/* ───── Fields wrapper ───── */
+.fields {
+  display: flex;
+  flex-direction: column;
+  padding: 12px 16px;
+  gap: 0;
+}
+
+@media (--viewportMedium) {
+  .fields {
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: nowrap;
+    padding: 8px 8px 8px 24px;
+    gap: 0;
+  }
+}
+
+/* ───── Location field ───── */
+.fieldLocation {
+  position: relative;
+  width: 100%;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--colorGrey100);
+}
+
+@media (--viewportMedium) {
+  .fieldLocation {
+    flex: 1 1 auto;
+    min-width: 0;
+    width: auto;
+    padding-bottom: 0;
+    border-bottom: none;
+  }
+}
+
+.locationRoot {
+  width: 100%;
+}
+
+.locationInput {
+  flex-grow: 1;
+  width: 100%;
+  border: none;
+  border-bottom: none;
+  padding: 10px 0;
+  margin: 0;
+  font-size: 15px;
+  line-height: unset;
+  min-height: 44px;
+  height: 44px;
+  background: transparent;
+  outline: none;
+
+  /* Safari bugfix */
+  &::-webkit-input-placeholder {
+    line-height: normal;
+  }
+}
+
+.locationInput:hover,
+.locationInput:focus {
+  border: none;
+  border-bottom: none;
+  outline: none;
+}
+
+.locationInput::placeholder {
+  color: var(--colorGrey500);
+}
+
+/* ───── Location icon override ───── */
+.locationIcon {
+  display: none;
+}
+
+/* ───── Predictions dropdown ───── */
+.predictions {
+  position: absolute;
+  top: 100%;
+  left: -16px;
+  right: -16px;
+  margin-top: 4px;
+  background: var(--colorWhite);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  z-index: calc(var(--zIndexPopup) + 1);
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+@media (--viewportMedium) {
+  .predictions {
+    left: -24px;
+    right: -8px;
+  }
+}
+
+/* ───── Date field wrapper ───── */
+.fieldDateWrap {
+  position: relative;
+  width: 100%;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  padding: 4px 0 12px;
+}
+
+@media (--viewportMedium) {
+  .fieldDateWrap {
+    flex: 0 0 auto;
+    width: auto;
+    min-height: 44px;
+    padding: 0;
+    border-left: 1px solid var(--colorGrey200);
+  }
+}
+
+/* ───── Date trigger button ───── */
+.dateTrigger {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 4px;
+  font-size: 15px;
+  color: var(--colorGrey700);
+  background: none;
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
+  width: 100%;
+}
+
+.dateTrigger:hover {
+  color: var(--colorGrey900);
+}
+
+@media (--viewportMedium) {
+  .dateTrigger {
+    padding: 10px 16px;
+    width: auto;
+  }
+}
+
+.dateIcon {
+  flex-shrink: 0;
+  stroke: var(--colorGrey500);
+}
+
+.dateLabel {
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ───── Date dropdown ───── */
+.dateDropdown {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-top: 8px;
+  padding: 16px;
+  background: var(--colorWhite);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+  z-index: var(--zIndexPopup);
+}
+
+@media (--viewportMedium) {
+  .dateDropdown {
+    left: auto;
+    right: 0;
+    transform: none;
+  }
+}
+
+.datePicker {
+  min-width: 280px;
+}
+
+/* ───── Submit button ───── */
+.submitBtn {
+  flex-shrink: 0;
+  width: 100%;
+  padding: 14px 20px;
+  font-size: 15px;
+  font-weight: 600;
+  border-radius: 12px;
+  white-space: nowrap;
+  min-height: 48px;
+}
+
+@media (--viewportMedium) {
+  .submitBtn {
+    width: auto;
+    margin-left: 8px;
+    padding: 12px 24px;
+    border-radius: 24px;
+    min-height: unset;
+  }
+}

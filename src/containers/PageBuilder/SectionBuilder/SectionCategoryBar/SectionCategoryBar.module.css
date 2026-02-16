@@ -1,0 +1,133 @@
+@import '../../../../styles/customMediaQueries.css';
+
+/* ================ Root: sticky below header ================ */
+
+.root {
+  position: sticky;
+  top: var(--topbarHeight, 60px);
+  z-index: var(--zIndexNav, 9);
+  background: #fff;
+  border-bottom: 1px solid var(--colorGrey100, #e5e5e5);
+
+  /* Ensure element is never collapsed to zero height */
+  min-height: 54px;
+}
+
+@media (--viewportMedium) {
+  .root {
+    top: var(--topbarHeightDesktop, 72px);
+  }
+}
+
+/* ================ Scroll container ================ */
+
+.scrollContainer {
+  max-width: var(--contentMaxWidthPages, 1120px);
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+@media (--viewportMedium) {
+  .scrollContainer {
+    padding: 0 48px;
+  }
+}
+
+/* ================ Horizontal track ================ */
+
+.track {
+  display: flex;
+  justify-content: center;
+  gap: 48px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+
+  /* Hide scrollbar across browsers */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE / Edge */
+}
+
+@media (--viewportMedium) {
+  .track {
+    gap: 56px;
+  }
+}
+
+.track::-webkit-scrollbar {
+  display: none; /* Chrome / Safari */
+}
+
+/* ================ Category item (button) ================ */
+
+.categoryItem {
+  flex: 0 0 auto;
+  min-width: fit-content;
+  scroll-snap-align: start;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 8px 12px;
+
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  text-align: center;
+
+  /* Inactive state */
+  color: #717171;
+  opacity: 0.7;
+
+  transition: opacity 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.categoryItem:hover {
+  opacity: 1;
+  color: #222222;
+}
+
+.categoryItem:focus-visible {
+  outline: 2px solid var(--marketplaceColor, #6938ef);
+  outline-offset: -2px;
+  border-radius: 2px;
+}
+
+/* Active state */
+
+.categoryItemActive {
+  color: #222222;
+  opacity: 1;
+  border-bottom-color: #222222;
+}
+
+/* ================ Icon ================ */
+
+.categoryIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+}
+
+/* Ensure SVGs rendered by lucide-react are visible */
+.categoryIcon svg {
+  width: 24px;
+  height: 24px;
+  display: block;
+}
+
+/* ================ Label ================ */
+
+.categoryLabel {
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: var(--fontWeightSemiBold, 600);
+  white-space: nowrap;
+  text-align: center;
+}

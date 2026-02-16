@@ -1,42 +1,58 @@
 import React from 'react';
 import loadable from '@loadable/component';
 
-import { bool, object } from 'prop-types';
 import { compose } from 'redux';
 import { connect } from 'react-redux';
 
-import { camelize } from '../../util/string';
 import { propTypes } from '../../util/types';
 
 import FallbackPage from './FallbackPage';
-import { ASSET_NAME } from './LandingPage.duck';
+import {
+  getDefaultLandingPageData,
+  SectionDefaultLandingHero,
+} from './FallbackPage';
+import SectionCategoryBar from '../PageBuilder/SectionBuilder/SectionCategoryBar';
+import SectionCategoryShortcuts from '../PageBuilder/SectionBuilder/SectionCategoryShortcuts';
+import SectionForOwners from '../PageBuilder/SectionBuilder/SectionForOwners';
+import SectionFaq from '../PageBuilder/SectionBuilder/SectionFaq';
 
 const PageBuilder = loadable(() =>
   import(/* webpackChunkName: "PageBuilder" */ '../PageBuilder/PageBuilder')
 );
 
+/**
+ * Landing page always shows the custom Airbnb-style start page
+ * (hero + category bar + category shortcuts). Hosted landing-page asset from Console is not used.
+ */
 export const LandingPageComponent = props => {
-  const { pageAssetsData, inProgress, error } = props;
+  const { error } = props;
 
   return (
     <PageBuilder
-      pageAssetsData={pageAssetsData?.[camelize(ASSET_NAME)]?.data}
-      inProgress={inProgress}
+      pageAssetsData={getDefaultLandingPageData()}
+      inProgress={false}
       error={error}
       fallbackPage={<FallbackPage error={error} />}
+      options={{
+        sectionComponents: {
+          defaultLandingHero: { component: SectionDefaultLandingHero },
+          categoryBar: { component: SectionCategoryBar },
+          categoryShortcuts: { component: SectionCategoryShortcuts },
+          forOwners: { component: SectionForOwners },
+          faq: { component: SectionFaq },
+        },
+      }}
     />
   );
 };
 
 LandingPageComponent.propTypes = {
-  pageAssetsData: object,
-  inProgress: bool,
   error: propTypes.error,
 };
 
 const mapStateToProps = state => {
-  const { pageAssetsData, inProgress, error } = state.hostedAssets || {};
-  return { pageAssetsData, inProgress, error };
+  const { error } = state.hostedAssets || {};
+  return { error };
 };
 
 // Note: it is important that the withRouter HOC is **outside** the

@@ -140,7 +140,9 @@ const PageBuilder = props => {
                 {sections.length === 0 && inProgress ? (
                   <LoadingSpinner />
                 ) : (
-                  <SectionBuilder sections={sections} options={options} />
+                  <div className={css.sectionFlow}>
+                    <SectionBuilder sections={sections} options={options} />
+                  </div>
                 )}
               </Main>
               <Footer>

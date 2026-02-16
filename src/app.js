@@ -42,30 +42,17 @@ import defaultMessages from './translations/en.json';
 // This used to collect billing address in StripePaymentAddress on CheckoutPage
 
 // Step 2:
-// If you are using a non-english locale with moment library,
-// you should also import time specific formatting rules for that locale
-// There are 2 ways to do it:
-// - you can add your preferred locale to MomentLocaleLoader or
-// - stop using MomentLocaleLoader component and directly import the locale here.
-// E.g. for French:
-// import 'moment/locale/fr';
-// const hardCodedLocale = process.env.NODE_ENV === 'test' ? 'en' : 'fr';
+// Import correct locale rules for Moment library for German (de).
+import 'moment/locale/de';
+const hardCodedLocale = process.env.NODE_ENV === 'test' ? 'en' : 'de';
 
 // Step 3:
-// The "./translations/en.json" has generic English translations
-// that should work as a default translation if some translation keys are missing
-// from the hosted translation.json (which can be edited in Console). The other files
-// (e.g. en.json) in that directory has Biketribe themed translations.
-//
-// If you are using a non-english locale, point `messagesInLocale` to correct <lang>.json file.
-// That way the priority order would be:
-//   1. hosted translation.json
-//   2. <lang>.json
-//   3. en.json
-//
-// I.e. remove "const messagesInLocale" and add import for the correct locale:
-// import messagesInLocale from './translations/fr.json';
-const messagesInLocale = {};
+// German (de) translations. English (en.json) is used as fallback for any missing keys.
+// Priority order:
+//   1. hosted translation.json (from Sharetribe Console)
+//   2. de.json (local German translations)
+//   3. en.json (default English fallback)
+import messagesInLocale from './translations/de.json';
 
 // If translation key is missing from `messagesInLocale` (e.g. fr.json),
 // corresponding key will be added to messages from `defaultMessages` (en.json)

@@ -1,3 +1,5 @@
+@import '../../styles/customMediaQueries.css';
+
 .root {
   padding: 20vh 36px;
 }
@@ -6,4 +8,102 @@
   text-align: center;
   max-width: 650px;
   margin: 0 auto;
+}
+
+/* Airbnb-style hero (when landing-page asset returns 404) */
+.heroSection {
+  min-height: 85vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, #fff5f5 0%, #fff 24%, var(--colorGrey50) 100%);
+  padding: 56px 16px 72px;
+}
+
+@media (--viewportMedium) {
+  .heroSection {
+    min-height: 88vh;
+    padding: 72px 48px 96px;
+  }
+}
+
+.heroContent {
+  text-align: center;
+  max-width: 680px;
+  width: 100%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.heroTitle {
+  font-size: 36px;
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  margin: 0 0 16px;
+  color: var(--colorGrey900);
+}
+
+@media (--viewportMedium) {
+  .heroTitle {
+    font-size: 48px;
+    margin-bottom: 20px;
+  }
+}
+
+.heroDescription {
+  font-size: 18px;
+  line-height: 1.5;
+  color: var(--colorGrey700);
+  margin: 0 0 40px;
+}
+
+@media (--viewportMedium) {
+  .heroDescription {
+    font-size: 20px;
+    margin-bottom: 48px;
+  }
+}
+
+/* Floating search strip (Airbnb-style) */
+.heroSearchStrip {
+  display: inline-block;
+  width: 100%;
+  max-width: 560px;
+  border-radius: 60px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08);
+  background: var(--colorWhite);
+  overflow: hidden;
+}
+
+.heroSearchStripInner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px 14px 24px;
+  text-decoration: none;
+  color: inherit;
+  transition: box-shadow 0.2s ease;
+}
+
+.heroSearchStripInner:hover,
+.heroSearchStripInner:focus {
+  box-shadow: 0 6px 28px rgba(0, 0, 0, 0.14);
+}
+
+.heroSearchPlaceholder {
+  font-size: 15px;
+  color: var(--colorGrey600);
+}
+
+.heroSearchButton {
+  padding: 10px 20px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--colorWhite);
+  background-color: var(--colorMarketplace);
+  border-radius: 24px;
+  white-space: nowrap;
 }

@@ -17,6 +17,14 @@
   }
 }
 
+/* Wrapper around SectionBuilder output.
+   A single grid item inside .main so that sections inside flow in
+   normal block layout. This is required for position: sticky to
+   work correctly on child sections (e.g. SectionCategoryBar). */
+.sectionFlow {
+  min-height: 0;
+}
+
 .loading {
   width: 100%;
   height: 100%;
