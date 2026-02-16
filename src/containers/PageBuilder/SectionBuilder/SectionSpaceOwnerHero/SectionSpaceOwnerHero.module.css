@@ -1,0 +1,122 @@
+@import '../../../../styles/customMediaQueries.css';
+
+.root {
+  background:
+    radial-gradient(ellipse 80% 60% at 10% 20%, rgba(124, 58, 237, 0.08) 0%, transparent 70%),
+    radial-gradient(ellipse 60% 80% at 90% 80%, rgba(124, 58, 237, 0.04) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 50% at 50% 0%, rgba(124, 58, 237, 0.06) 0%, transparent 50%),
+    linear-gradient(180deg, #faf8ff 0%, #ffffff 100%);
+}
+
+.wrapper {
+  max-width: var(--contentMaxWidthPages, 1120px);
+  margin: 0 auto;
+  padding: 48px 18px 54px;
+}
+
+@media (--viewportMedium) {
+  .wrapper {
+    padding: 80px 48px 88px;
+  }
+}
+
+@media (--viewportLarge) {
+  .wrapper {
+    padding: 100px 48px 108px;
+  }
+}
+
+.content {
+  max-width: 720px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.title {
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 1.2;
+  color: var(--colorGrey900, #222);
+  margin: 0 0 16px;
+  letter-spacing: -0.02em;
+}
+
+@media (--viewportMedium) {
+  .title {
+    font-size: 44px;
+    margin: 0 0 20px;
+  }
+}
+
+@media (--viewportLarge) {
+  .title {
+    font-size: 52px;
+    margin: 0 0 24px;
+  }
+}
+
+.subtitle {
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--colorGrey700, #717171);
+  margin: 0 0 32px;
+  max-width: 560px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+@media (--viewportMedium) {
+  .subtitle {
+    font-size: 19px;
+    margin-bottom: 40px;
+  }
+}
+
+.cta {
+  display: inline-block;
+  padding: 16px 40px;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  color: var(--colorWhite, #fff);
+  background-color: var(--marketplaceColor);
+  border-radius: 10px;
+  text-decoration: none;
+  min-height: 54px;
+  box-shadow: 0 4px 16px rgba(124, 58, 237, 0.3);
+  transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+@media (--viewportMedium) {
+  .cta {
+    padding: 18px 48px;
+    font-size: 18px;
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .cta:hover {
+    background-color: var(--marketplaceColorDark, #6d28d9);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 24px rgba(124, 58, 237, 0.4);
+    text-decoration: none;
+  }
+}
+
+.cta:focus-visible {
+  outline: 2px solid var(--marketplaceColor);
+  outline-offset: 3px;
+}
+
+.ctaHint {
+  font-size: 13px;
+  color: var(--colorGrey500, #b0b0b0);
+  margin: 14px 0 0;
+}
+
+@media (--viewportMedium) {
+  .ctaHint {
+    font-size: 14px;
+    margin-top: 16px;
+  }
+}

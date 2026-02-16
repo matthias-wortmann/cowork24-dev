@@ -18,6 +18,7 @@ import { loadData as ProfilePageLoader } from './ProfilePage/ProfilePage.duck';
 import { loadData as RequestQuotePageLoader } from './RequestQuotePage/RequestQuotePage.duck';
 import { loadData as SearchPageLoader } from './SearchPage/SearchPage.duck';
 import { loadData as StripePayoutPageLoader } from './StripePayoutPage/StripePayoutPage.duck';
+import { loadData as SpaceOwnerLandingPageLoader } from './SpaceOwnerLandingPage/SpaceOwnerLandingPage.duck';
 import { loadData as TermsOfServicePageLoader } from './TermsOfServicePage/TermsOfServicePage.duck';
 import {
   loadData as TransactionPageLoader,
@@ -73,6 +74,9 @@ const getPageDataLoadingAPI = () => {
     },
     SearchPage: {
       loadData: SearchPageLoader,
+    },
+    SpaceOwnerLandingPage: {
+      loadData: SpaceOwnerLandingPageLoader,
     },
     StripePayoutPage: {
       loadData: StripePayoutPageLoader,

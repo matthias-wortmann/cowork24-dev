@@ -1,0 +1,90 @@
+@import '../../../../styles/customMediaQueries.css';
+
+.root {
+  background: linear-gradient(135deg, var(--marketplaceColor) 0%, #5b21b6 100%);
+}
+
+.wrapper {
+  max-width: var(--contentMaxWidthPages, 1120px);
+  margin: 0 auto;
+  padding: 48px 18px;
+  text-align: center;
+}
+
+@media (--viewportMedium) {
+  .wrapper {
+    padding: 80px 48px;
+  }
+}
+
+@media (--viewportLarge) {
+  .wrapper {
+    padding: 96px 48px;
+  }
+}
+
+.title {
+  font-size: 24px;
+  font-weight: 800;
+  line-height: 1.2;
+  color: var(--colorWhite, #fff);
+  margin: 0 0 12px;
+}
+
+@media (--viewportMedium) {
+  .title {
+    font-size: 36px;
+    margin-bottom: 16px;
+  }
+}
+
+.subtitle {
+  font-size: 16px;
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.85);
+  margin: 0 0 32px;
+  max-width: 520px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+@media (--viewportMedium) {
+  .subtitle {
+    font-size: 18px;
+    margin-bottom: 40px;
+  }
+}
+
+.cta {
+  display: inline-block;
+  padding: 16px 40px;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--marketplaceColor);
+  background-color: var(--colorWhite, #fff);
+  border-radius: 10px;
+  text-decoration: none;
+  min-height: 54px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+@media (--viewportMedium) {
+  .cta {
+    padding: 18px 48px;
+    font-size: 18px;
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .cta:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.2);
+    text-decoration: none;
+  }
+}
+
+.cta:focus-visible {
+  outline: 2px solid var(--colorWhite, #fff);
+  outline-offset: 3px;
+}

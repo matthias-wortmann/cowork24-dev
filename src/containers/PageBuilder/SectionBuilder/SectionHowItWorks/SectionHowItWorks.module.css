@@ -1,0 +1,146 @@
+@import '../../../../styles/customMediaQueries.css';
+
+.root {
+  background-color: #f9f7fc;
+}
+
+.wrapper {
+  max-width: var(--contentMaxWidthPages, 1120px);
+  margin: 0 auto;
+  padding: 42px 18px;
+}
+
+@media (--viewportMedium) {
+  .wrapper {
+    padding: 72px 48px;
+  }
+}
+
+@media (--viewportLarge) {
+  .wrapper {
+    padding: 88px 48px;
+  }
+}
+
+.sectionTitle {
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1.25;
+  color: var(--colorGrey900, #222);
+  margin: 0 0 8px;
+  text-align: center;
+}
+
+@media (--viewportMedium) {
+  .sectionTitle {
+    font-size: 32px;
+    margin-bottom: 12px;
+  }
+}
+
+.sectionSubtitle {
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--colorGrey600, #717171);
+  margin: 0 0 36px;
+  text-align: center;
+  max-width: 560px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+@media (--viewportMedium) {
+  .sectionSubtitle {
+    font-size: 17px;
+    margin-bottom: 56px;
+  }
+}
+
+.stepsGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 30px;
+}
+
+@media (--viewportMedium) {
+  .stepsGrid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 40px;
+  }
+}
+
+.step {
+  text-align: center;
+  position: relative;
+}
+
+.stepNumber {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background-color: var(--marketplaceColor);
+  color: var(--colorWhite, #fff);
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0 auto 18px;
+}
+
+@media (--viewportMedium) {
+  .stepNumber {
+    width: 56px;
+    height: 56px;
+    font-size: 22px;
+    margin-bottom: 22px;
+  }
+}
+
+/* Connector line between steps (desktop only) */
+.connector {
+  display: none;
+}
+
+@media (--viewportMedium) {
+  .connector {
+    display: block;
+    position: absolute;
+    top: 28px;
+    left: calc(50% + 36px);
+    width: calc(100% - 72px);
+    height: 2px;
+    background: linear-gradient(90deg, var(--marketplaceColor), rgba(124, 58, 237, 0.2));
+    transform: translateX(18px);
+  }
+}
+
+.stepTitle {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--colorGrey900, #222);
+  margin: 0 0 8px;
+}
+
+@media (--viewportMedium) {
+  .stepTitle {
+    font-size: 19px;
+    margin-bottom: 10px;
+  }
+}
+
+.stepDesc {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--colorGrey600, #717171);
+  margin: 0;
+  max-width: 280px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+@media (--viewportMedium) {
+  .stepDesc {
+    font-size: 15px;
+  }
+}
