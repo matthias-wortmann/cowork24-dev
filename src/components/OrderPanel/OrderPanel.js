@@ -17,6 +17,8 @@ import {
   LINE_ITEM_DAY,
   LINE_ITEM_HOUR,
   LINE_ITEM_FIXED,
+  LINE_ITEM_WEEK,
+  LINE_ITEM_MONTH,
   LINE_ITEM_ITEM,
   STOCK_MULTIPLE_ITEMS,
   STOCK_INFINITE_MULTIPLE_ITEMS,
@@ -336,7 +338,8 @@ const OrderPanel = props => {
   const showBookingTimeForm = mounted && shouldHaveBookingTime && !isClosed && timeZone;
 
   const shouldHaveBookingDates =
-    isBooking && [LINE_ITEM_DAY, LINE_ITEM_NIGHT].includes(lineItemUnitType);
+    isBooking &&
+    [LINE_ITEM_DAY, LINE_ITEM_NIGHT, LINE_ITEM_WEEK, LINE_ITEM_MONTH].includes(lineItemUnitType);
   const showBookingDatesForm = mounted && shouldHaveBookingDates && !isClosed && timeZone;
 
   // The listing resource has a relationship: `currentStock`,

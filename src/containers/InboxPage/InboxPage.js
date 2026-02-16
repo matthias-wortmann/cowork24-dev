@@ -16,6 +16,8 @@ import {
   DATE_TYPE_DATETIME,
   LINE_ITEM_DAY,
   LINE_ITEM_HOUR,
+  LINE_ITEM_WEEK,
+  LINE_ITEM_MONTH,
   LISTING_UNIT_TYPES,
   STOCK_MULTIPLE_ITEMS,
   AVAILABILITY_MULTIPLE_SEATS,
@@ -76,8 +78,8 @@ const bookingData = (tx, lineItemUnitType, timeZone) => {
   const bookingStart = displayStart || start;
   const bookingEndRaw = displayEnd || end;
 
-  // LINE_ITEM_DAY uses exclusive end day, so we subtract one day from the end date
-  const isDayBooking = [LINE_ITEM_DAY].includes(lineItemUnitType);
+  // Day-based bookings use exclusive end day, so we subtract one day from the end date
+  const isDayBooking = [LINE_ITEM_DAY, LINE_ITEM_WEEK, LINE_ITEM_MONTH].includes(lineItemUnitType);
   const bookingEnd = isDayBooking
     ? subtractTime(bookingEndRaw, 1, 'days', timeZone)
     : bookingEndRaw;

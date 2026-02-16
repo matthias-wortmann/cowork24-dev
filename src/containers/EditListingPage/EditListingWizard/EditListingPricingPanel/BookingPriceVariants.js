@@ -12,7 +12,7 @@ import { createSlug } from '../../../../util/urlHelpers';
 import { isPriceVariationsEnabled } from '../../../../util/configHelpers';
 import * as validators from '../../../../util/validators';
 import { formatMoney } from '../../../../util/currency';
-import { stringifyDateToISO8601 } from '../../../../util/dates';
+import { stringifyDateToISO8601, parseDateFromISO8601 } from '../../../../util/dates';
 import { FIXED } from '../../../../transactions/transaction';
 
 // Import shared components
@@ -91,8 +91,16 @@ export const getInitialValuesForPriceVariants = (props, isUsingBookingPriceVaria
     ? priceVariants.map(variant => {
         const nameMaybe = variant.name ? { name: variant.name } : {};
         const bookingLengthInMinutes = setDefault(variant.bookingLengthInMinutes, 60);
-        const bookingStartDate = variant.bookingStartDate || null;
-        const bookingStartDateMaybe = isFixedUnitType && bookingStartDate ? { bookingStartDate } : {};
+        const rawStartDate = variant.bookingStartDate || null;
+        // FieldSingleDatePicker expects { date: Date }, so parse ISO strings from publicData
+        const bookingStartDateValue =
+          rawStartDate && typeof rawStartDate === 'string'
+            ? { date: parseDateFromISO8601(rawStartDate) }
+            : rawStartDate && rawStartDate instanceof Date
+            ? { date: rawStartDate }
+            : rawStartDate; // already { date: Date } or null
+        const bookingStartDateMaybe =
+          isFixedUnitType && bookingStartDateValue ? { bookingStartDate: bookingStartDateValue } : {};
         const bookingLengthInMinutesMaybe = isFixedUnitType ? { bookingLengthInMinutes } : {};
         const priceInSubunits = setDefault(variant.priceInSubunits, null);
         return {

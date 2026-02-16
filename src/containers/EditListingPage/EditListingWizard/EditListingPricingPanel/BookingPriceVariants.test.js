@@ -18,22 +18,31 @@ describe('BookingPriceVariants helpers', () => {
     },
   };
 
-  it('includes bookingStartDate in initial values for fixed unitType', () => {
+  it('includes bookingStartDate as { date: Date } in initial values for fixed unitType', () => {
     const initial = getInitialValuesForPriceVariants({ listing }, false);
     expect(initial).toBeDefined();
     expect(initial.priceVariants).toBeDefined();
-    expect(initial.priceVariants[0].bookingStartDate).toBe('2026-03-01');
+    // FieldSingleDatePicker expects { date: Date }, so the ISO string must be parsed
+    const startDate = initial.priceVariants[0].bookingStartDate;
+    expect(startDate).toBeDefined();
+    expect(startDate.date).toBeInstanceOf(Date);
+    // Check local date parts instead of toISOString() which converts to UTC and
+    // would shift the date backwards in timezones with positive UTC offsets.
+    expect(startDate.date.getFullYear()).toBe(2026);
+    expect(startDate.date.getMonth()).toBe(2); // March = 2 (0-indexed)
+    expect(startDate.date.getDate()).toBe(1);
     expect(initial.priceVariants[0].bookingLengthInMinutes).toBe(43200);
   });
 
   it('normalizes bookingLengthInMinutes stored as object on submit', () => {
+    // On submit, bookingStartDate comes from FieldSingleDatePicker as { date: Date }
     const values = {
       priceVariants: [
         {
           name: 'Monthly',
           price: { amount: 1000, currency: 'USD' },
           bookingLengthInMinutes: { __minutes: 43200, unit: 'months', value: 1 },
-          bookingStartDate: '2026-03-01',
+          bookingStartDate: { date: new Date('2026-03-01') },
         },
       ],
     };

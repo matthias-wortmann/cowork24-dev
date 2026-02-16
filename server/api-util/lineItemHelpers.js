@@ -4,9 +4,11 @@ const { types } = require('sharetribe-flex-sdk');
 const { Money } = types;
 
 const { getAmountAsDecimalJS, convertDecimalJSToNumber } = require('./currency');
-const { nightsBetween, daysBetween } = require('./dates');
+const { nightsBetween, daysBetween, weeksBetween, monthsBetween } = require('./dates');
 const LINE_ITEM_NIGHT = 'line-item/night';
 const LINE_ITEM_DAY = 'line-item/day';
+const LINE_ITEM_WEEK = 'line-item/week';
+const LINE_ITEM_MONTH = 'line-item/month';
 
 /** Helper functions for constructing line items*/
 
@@ -177,6 +179,10 @@ exports.calculateQuantityFromDates = (startDate, endDate, type) => {
     return nightsBetween(startDate, endDate);
   } else if (type === LINE_ITEM_DAY) {
     return daysBetween(startDate, endDate);
+  } else if (type === LINE_ITEM_WEEK) {
+    return weeksBetween(startDate, endDate);
+  } else if (type === LINE_ITEM_MONTH) {
+    return monthsBetween(startDate, endDate);
   }
   throw new Error(`Can't calculate quantity from dates to unit type: ${type}`);
 };

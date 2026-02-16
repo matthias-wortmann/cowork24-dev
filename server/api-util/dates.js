@@ -52,3 +52,39 @@ exports.daysBetween = (startDate, endDate) => {
   }
   return days;
 };
+
+/**
+ * Calculate the number of weeks between the given dates (rounded up).
+ * A partial week counts as a full week.
+ *
+ * @param {Date} startDate start of the time period
+ * @param {Date} endDate end of the time period (exclusive)
+ *
+ * @throws Will throw if the end date is before the start date
+ * @returns {Number} number of weeks between the given dates
+ */
+exports.weeksBetween = (startDate, endDate) => {
+  const days = moment(endDate).diff(startDate, 'days');
+  if (days < 0) {
+    throw new Error('End date cannot be before start date');
+  }
+  return Math.ceil(days / 7);
+};
+
+/**
+ * Calculate the number of months between the given dates (rounded up).
+ * A partial month counts as a full month.
+ *
+ * @param {Date} startDate start of the time period
+ * @param {Date} endDate end of the time period (exclusive)
+ *
+ * @throws Will throw if the end date is before the start date
+ * @returns {Number} number of months between the given dates
+ */
+exports.monthsBetween = (startDate, endDate) => {
+  const totalMonths = moment(endDate).diff(moment(startDate), 'months', true);
+  if (totalMonths < 0) {
+    throw new Error('End date cannot be before start date');
+  }
+  return Math.ceil(totalMonths);
+};

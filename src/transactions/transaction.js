@@ -11,6 +11,8 @@ export const ITEM = 'item';
 export const DAY = 'day';
 export const NIGHT = 'night';
 export const HOUR = 'hour';
+export const WEEK = 'week';
+export const MONTH = 'month';
 export const FIXED = 'fixed';
 export const INQUIRY = 'inquiry';
 export const OFFER = 'offer'; // The unitType 'offer' means that provider created the listing on default-negotiation process
@@ -46,7 +48,7 @@ const PROCESSES = [
     name: BOOKING_PROCESS_NAME,
     alias: `${BOOKING_PROCESS_NAME}/release-1`,
     process: bookingProcess,
-    unitTypes: [DAY, NIGHT, HOUR, FIXED],
+    unitTypes: [DAY, NIGHT, HOUR, FIXED, WEEK, MONTH],
   },
   {
     name: INQUIRY_PROCESS_NAME,
@@ -366,7 +368,7 @@ export const isNegotiationProcessAlias = processAlias => {
  * @param {String} unitType
  */
 export const isFullDay = unitType => {
-  return [DAY, NIGHT].includes(unitType);
+  return [DAY, NIGHT, WEEK, MONTH].includes(unitType);
 };
 
 /**

@@ -138,10 +138,10 @@ const getDateRangeQuantityAndLineItems = (orderData, code) => {
 exports.transactionLineItems = (listing, orderData, providerCommission, customerCommission) => {
   const publicData = listing.attributes.publicData;
   // Note: the unitType needs to be one of the following:
-  // day, night, hour, fixed, or item (these are related to payment processes)
+  // day, night, hour, fixed, week, month, or item (these are related to payment processes)
   const { unitType, priceVariants, priceVariationsEnabled } = publicData;
 
-  const isBookable = ['day', 'night', 'hour', 'fixed'].includes(unitType);
+  const isBookable = ['day', 'night', 'hour', 'fixed', 'week', 'month'].includes(unitType);
   const isNegotiationUnitType = ['offer', 'request'].includes(unitType);
   const priceAttribute = listing.attributes.price;
   const currency = priceAttribute?.currency || orderData.currency;
@@ -182,7 +182,7 @@ exports.transactionLineItems = (listing, orderData, providerCommission, customer
       ? getFixedQuantityAndLineItems(orderData)
       : unitType === 'hour'
       ? getHourQuantityAndLineItems(orderData)
-      : ['day', 'night'].includes(unitType)
+      : ['day', 'night', 'week', 'month'].includes(unitType)
       ? getDateRangeQuantityAndLineItems(orderData, code)
       : isNegotiationUnitType
       ? getOfferQuantityAndLineItems(orderData)

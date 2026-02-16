@@ -398,6 +398,8 @@ export const LINE_ITEM_NIGHT = 'line-item/night';
 export const LINE_ITEM_DAY = 'line-item/day';
 export const LINE_ITEM_HOUR = 'line-item/hour';
 export const LINE_ITEM_FIXED = 'line-item/fixed';
+export const LINE_ITEM_WEEK = 'line-item/week';
+export const LINE_ITEM_MONTH = 'line-item/month';
 export const LINE_ITEM_ITEM = 'line-item/item';
 export const LINE_ITEM_OFFER = 'line-item/offer';
 export const LINE_ITEM_REQUEST = 'line-item/request';
@@ -411,6 +413,8 @@ export const LINE_ITEMS = [
   LINE_ITEM_DAY,
   LINE_ITEM_HOUR,
   LINE_ITEM_FIXED,
+  LINE_ITEM_WEEK,
+  LINE_ITEM_MONTH,
   LINE_ITEM_ITEM,
   LINE_ITEM_OFFER,
   LINE_ITEM_REQUEST,
@@ -424,6 +428,8 @@ export const LISTING_UNIT_TYPES = [
   LINE_ITEM_DAY,
   LINE_ITEM_HOUR,
   LINE_ITEM_FIXED,
+  LINE_ITEM_WEEK,
+  LINE_ITEM_MONTH,
   LINE_ITEM_ITEM,
   LINE_ITEM_OFFER,
   LINE_ITEM_REQUEST,

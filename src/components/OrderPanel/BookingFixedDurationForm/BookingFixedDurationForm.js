@@ -118,9 +118,15 @@ export const BookingFixedDurationForm = props => {
       ? { initialValues: { priceVariantName: priceVariants?.[0]?.name || null } }
       : {};
 
-  const minDurationStartingInInterval = priceVariants.reduce((min, priceVariant) => {
+  const MINUTES_IN_A_DAY = 1440;
+  const rawMinDuration = priceVariants.reduce((min, priceVariant) => {
     return Math.min(min, priceVariant.bookingLengthInMinutes);
   }, Number.MAX_SAFE_INTEGER);
+  // For multi-day bookings (>= 1 day), the per-day minimum duration check is not
+  // meaningful (a single day's time slot can't cover 30 days). Use a small default
+  // so the date picker shows any day with availability.
+  const minDurationStartingInInterval =
+    rawMinDuration >= MINUTES_IN_A_DAY ? 5 : rawMinDuration;
   const classes = classNames(rootClassName || css.root, className);
 
   return (
@@ -154,6 +160,12 @@ export const BookingFixedDurationForm = props => {
         const startDate = startTime ? timestampToDate(startTime) : null;
         const endDate = endTime ? timestampToDate(endTime) : null;
         const priceVariantName = values?.priceVariantName || null;
+
+        // Earliest bookable date from the selected price variant (ISO string in publicData)
+        const selectedVariant = priceVariantName
+          ? priceVariants.find(pv => pv.name === priceVariantName)
+          : priceVariants?.[0];
+        const variantBookingStartDate = selectedVariant?.bookingStartDate || null;
 
         // This is the place to collect breakdown estimation data. See the
         // EstimatedCustomerBreakdownMaybe component to change the calculations
@@ -198,6 +210,7 @@ export const BookingFixedDurationForm = props => {
                 minDurationStartingInInterval={minDurationStartingInInterval}
                 values={values}
                 priceVariants={priceVariants}
+                variantBookingStartDate={variantBookingStartDate}
                 intl={intl}
                 form={form}
                 pristine={pristine}

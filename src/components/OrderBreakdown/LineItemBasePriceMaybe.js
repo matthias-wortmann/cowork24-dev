@@ -6,6 +6,8 @@ import {
   LINE_ITEM_FIXED,
   LINE_ITEM_HOUR,
   LINE_ITEM_NIGHT,
+  LINE_ITEM_WEEK,
+  LINE_ITEM_MONTH,
   LINE_ITEM_OFFER,
   LINE_ITEM_REQUEST,
   propTypes,
@@ -29,6 +31,8 @@ const LineItemBasePriceMaybe = props => {
   const isDaily = code === LINE_ITEM_DAY;
   const isHourly = code === LINE_ITEM_HOUR;
   const isFixed = code === LINE_ITEM_FIXED;
+  const isWeekly = code === LINE_ITEM_WEEK;
+  const isMonthly = code === LINE_ITEM_MONTH;
   const isRequest = code === LINE_ITEM_REQUEST;
   const isOffer = code === LINE_ITEM_OFFER;
   const translationKey = isNightly
@@ -37,6 +41,10 @@ const LineItemBasePriceMaybe = props => {
     ? 'OrderBreakdown.baseUnitDay'
     : isHourly
     ? 'OrderBreakdown.baseUnitHour'
+    : isWeekly
+    ? 'OrderBreakdown.baseUnitWeek'
+    : isMonthly
+    ? 'OrderBreakdown.baseUnitMonth'
     : isFixed
     ? 'OrderBreakdown.baseUnitFixedBooking'
     : isRequest

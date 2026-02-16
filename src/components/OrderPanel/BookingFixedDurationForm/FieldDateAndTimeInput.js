@@ -14,6 +14,7 @@ import {
   monthIdString,
   getStartOf,
   stringifyDateToISO8601,
+  parseDateFromISO8601,
   getBoundaries,
   bookingTimeUnits,
 } from '../../../util/dates';
@@ -55,6 +56,8 @@ const findLastAdjacent = (index, timeSlots) => {
 // See also the API reference for querying time slots:
 // https://www.sharetribe.com/api-reference/marketplace.html#query-time-slots
 
+const MINUTES_IN_A_DAY = 1440;
+
 const getAvailableStartTimes = params => {
   const {
     intl,
@@ -69,8 +72,21 @@ const getAvailableStartTimes = params => {
     return [];
   }
   const bookingStartDate = getStartOf(bookingStart, 'day', timeZone);
+
+  // Multi-day bookings (>= 1 day): the only valid start time is the beginning of the day.
+  // The hourly start-time logic does not apply because the booking spans multiple days.
+  if (bookingLengthInMinutes >= MINUTES_IN_A_DAY) {
+    const timestamp = bookingStartDate.getTime();
+    const timeOfDay = intl.formatDate(bookingStartDate, {
+      hour: 'numeric',
+      minute: 'numeric',
+      timeZone,
+    });
+    return [{ timestamp, timeOfDay }];
+  }
+
   const nextDay = getStartOf(bookingStartDate, 'day', timeZone, 1, 'days');
-  const timeUnitConfig = bookingTimeUnits[startTimeInterval];
+  const timeUnitConfig = bookingTimeUnits[startTimeInterval] || bookingTimeUnits['hour'];
   const overlapWithNextDay = !!timeUnitConfig?.timeUnitInMinutes
     ? bookingLengthInMinutes - timeUnitConfig.timeUnitInMinutes
     : bookingLengthInMinutes;
@@ -564,6 +580,7 @@ const FieldDateAndTimeInput = props => {
     setSeatsOptions,
     seatsEnabled,
     priceVariants,
+    variantBookingStartDate,
     intl,
     dayCountAvailableForBooking,
   } = props;
@@ -706,7 +723,17 @@ const FieldDateAndTimeInput = props => {
 
   const endOfAvailableRange = dayCountAvailableForBooking;
   const endOfAvailableRangeDate = getStartOf(TODAY, 'day', timeZone, endOfAvailableRange, 'days');
-  const startOfAvailableRangeDate = getStartOf(TODAY, 'day', timeZone);
+  const todayStart = getStartOf(TODAY, 'day', timeZone);
+
+  // If the price variant has a bookingStartDate (ISO string like "2026-03-01"),
+  // use it as the earliest selectable date. Otherwise default to today.
+  const variantStartDate = variantBookingStartDate
+    ? getStartOf(parseDateFromISO8601(variantBookingStartDate, timeZone), 'day', timeZone)
+    : null;
+  const startOfAvailableRangeDate =
+    variantStartDate && isDateSameOrAfter(variantStartDate, todayStart)
+      ? variantStartDate
+      : todayStart;
 
   const isOutsideRange = day => {
     const timeOfDay = timeOfDayFromLocalToTimeZone(day, timeZone);
@@ -726,6 +753,9 @@ const FieldDateAndTimeInput = props => {
   };
 
   let placeholderTime = getPlaceholder('08:00', timeZone, intl);
+
+  // Hide the start time selector for multi-day bookings (the start is always beginning of day)
+  const isMultiDayBooking = bookingLengthInMinutes >= MINUTES_IN_A_DAY;
 
   const startOfToday = getStartOf(TODAY, 'day', timeZone);
   return (
@@ -782,29 +812,33 @@ const FieldDateAndTimeInput = props => {
           />
         </div>
 
-        <div className={classNames(css.field, css.startTime)}>
-          <FieldSelect
-            name="bookingStartTime"
-            id={formId ? `${formId}.bookingStartTime` : 'bookingStartTime'}
-            className={bookingStartDate ? css.fieldSelect : css.fieldSelectDisabled}
-            selectClassName={bookingStartDate ? css.select : css.selectDisabled}
-            label={intl.formatMessage({ id: 'FieldDateAndTimeInput.startTime' })}
-            disabled={!bookingStartDate}
-            showLabelAsDisabled={!bookingStartDate}
-            onChange={onBookingStartTimeChange(props)}
-          >
-            {bookingStartDate ? (
-              availableStartTimes.map(p => (
-                <option key={p.timestamp} value={p.timestamp}>
-                  {p.timeOfDay}
-                </option>
-              ))
-            ) : (
-              <option>{placeholderTime}</option>
-            )}
-          </FieldSelect>
-          <FieldHidden name="bookingEndTime" value={bookingEndTime} />
-        </div>
+        {!isMultiDayBooking ? (
+          <div className={classNames(css.field, css.startTime)}>
+            <FieldSelect
+              name="bookingStartTime"
+              id={formId ? `${formId}.bookingStartTime` : 'bookingStartTime'}
+              className={bookingStartDate ? css.fieldSelect : css.fieldSelectDisabled}
+              selectClassName={bookingStartDate ? css.select : css.selectDisabled}
+              label={intl.formatMessage({ id: 'FieldDateAndTimeInput.startTime' })}
+              disabled={!bookingStartDate}
+              showLabelAsDisabled={!bookingStartDate}
+              onChange={onBookingStartTimeChange(props)}
+            >
+              {bookingStartDate ? (
+                availableStartTimes.map(p => (
+                  <option key={p.timestamp} value={p.timestamp}>
+                    {p.timeOfDay}
+                  </option>
+                ))
+              ) : (
+                <option>{placeholderTime}</option>
+              )}
+            </FieldSelect>
+          </div>
+        ) : (
+          <FieldHidden name="bookingStartTime" />
+        )}
+        <FieldHidden name="bookingEndTime" value={bookingEndTime} />
       </div>
     </div>
   );
