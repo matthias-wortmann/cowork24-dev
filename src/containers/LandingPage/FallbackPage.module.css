@@ -102,6 +102,42 @@
   }
 }
 
+/* ───── Hero CTA link below search bar ───── */
+.heroCta {
+  display: inline-block;
+  margin-top: 16px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--colorGrey700);
+  text-decoration: none;
+  padding: 8px 20px;
+  border: 1px solid var(--colorGrey200);
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.7);
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.heroCta:focus-visible {
+  outline: 2px solid var(--marketplaceColor);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .heroCta:hover {
+    color: var(--marketplaceColor);
+    border-color: var(--marketplaceColor);
+    background: rgba(255, 255, 255, 0.95);
+  }
+}
+
+@media (--viewportMedium) {
+  .heroCta {
+    margin-top: 20px;
+    font-size: 15px;
+    padding: 10px 24px;
+  }
+}
+
 /* Floating search strip (Airbnb-style) */
 .heroSearchStrip {
   display: inline-block;
@@ -146,7 +182,7 @@
   font-size: 15px;
   font-weight: 600;
   color: var(--colorWhite);
-  background-color: var(--colorMarketplace);
+  background-color: var(--marketplaceColor);
   border-radius: 24px;
   white-space: nowrap;
 }

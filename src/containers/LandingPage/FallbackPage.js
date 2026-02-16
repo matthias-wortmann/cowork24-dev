@@ -1,6 +1,7 @@
 import React from 'react';
 import loadable from '@loadable/component';
 import { FormattedMessage } from '../../util/reactIntl';
+import { NamedLink } from '../../components';
 
 import SectionCategoryBar from '../PageBuilder/SectionBuilder/SectionCategoryBar';
 import SectionCategoryShortcuts from '../PageBuilder/SectionBuilder/SectionCategoryShortcuts';
@@ -87,6 +88,9 @@ export const SectionDefaultLandingHero = props => {
           <FormattedMessage id="LandingPage.defaultHeroDescription" />
         </p>
         <HeroSearchForm />
+        <NamedLink name="NewListingPage" className={css.heroCta}>
+          <FormattedMessage id="LandingPage.heroListSpaceCta" />
+        </NamedLink>
       </div>
     </section>
   );
