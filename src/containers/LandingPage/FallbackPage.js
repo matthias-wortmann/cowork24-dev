@@ -4,6 +4,7 @@ import { FormattedMessage } from '../../util/reactIntl';
 
 import SectionCategoryBar from '../PageBuilder/SectionBuilder/SectionCategoryBar';
 import SectionCategoryShortcuts from '../PageBuilder/SectionBuilder/SectionCategoryShortcuts';
+import SectionLogoSlider from '../PageBuilder/SectionBuilder/SectionLogoSlider';
 import SectionSpaceOwner from '../PageBuilder/SectionBuilder/SectionSpaceOwner';
 import SectionFaq from '../PageBuilder/SectionBuilder/SectionFaq';
 import SectionLocations from '../PageBuilder/SectionBuilder/SectionLocations';
@@ -21,6 +22,7 @@ const is404 = error => error?.status === 404;
 const defaultLandingSections = () => [
   { sectionType: 'defaultLandingHero', sectionId: 'hero' },
   { sectionType: 'categoryBar', sectionId: 'category-bar' },
+  { sectionType: 'logoSlider', sectionId: 'logo-slider' },
   { sectionType: 'categoryShortcuts', sectionId: 'category-shortcuts' },
   { sectionType: 'sectionLocations', sectionId: 'locations' },
   { sectionType: 'sectionSpaceOwner', sectionId: 'space-owner' },
@@ -116,6 +118,7 @@ const FallbackPage = props => {
           customMaintenance: { component: SectionMaintenanceMode },
           defaultLandingHero: { component: SectionDefaultLandingHero },
           categoryBar: { component: SectionCategoryBar },
+          logoSlider: { component: SectionLogoSlider },
           categoryShortcuts: { component: SectionCategoryShortcuts },
           sectionLocations: { component: SectionLocations },
           sectionSpaceOwner: { component: SectionSpaceOwner },

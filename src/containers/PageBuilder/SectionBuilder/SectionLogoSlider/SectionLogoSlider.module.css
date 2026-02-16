@@ -1,0 +1,189 @@
+@import '../../../../styles/customMediaQueries.css';
+
+/* ================ Keyframes ================ */
+
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+/* ================ Root ================ */
+
+.root {
+  background-color: var(--colorWhite, #fff);
+}
+
+/* ================ Wrapper ================ */
+
+.wrapper {
+  max-width: var(--contentMaxWidthPages, 1120px);
+  margin: 0 auto;
+  padding: 30px 0 24px;
+  text-align: center;
+}
+
+@media (--viewportMedium) {
+  .wrapper {
+    padding: 40px 0 32px;
+  }
+}
+
+@media (--viewportLarge) {
+  .wrapper {
+    padding: 48px 0 40px;
+  }
+}
+
+/* ================ Marquee container ================ */
+
+.marqueeContainer {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+}
+
+/* Fade edges for smooth visual transition */
+.fadeLeft,
+.fadeRight {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 48px;
+  z-index: 2;
+  pointer-events: none;
+}
+
+@media (--viewportMedium) {
+  .fadeLeft,
+  .fadeRight {
+    width: 80px;
+  }
+}
+
+.fadeLeft {
+  left: 0;
+  background: linear-gradient(to right, var(--colorWhite, #fff) 0%, transparent 100%);
+}
+
+.fadeRight {
+  right: 0;
+  background: linear-gradient(to left, var(--colorWhite, #fff) 0%, transparent 100%);
+}
+
+/* ================ Marquee track ================ */
+
+.marqueeTrack {
+  display: flex;
+  width: max-content;
+  animation: marquee 30s linear infinite;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .marqueeTrack:hover {
+    animation-play-state: paused;
+  }
+}
+
+/* Each content set sits side by side */
+.marqueeContent {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+  padding: 0 15px;
+  flex-shrink: 0;
+}
+
+@media (--viewportMedium) {
+  .marqueeContent {
+    gap: 48px;
+    padding: 0 24px;
+  }
+}
+
+/* ================ Logo item ================ */
+
+.logoItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  opacity: 0.75;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .logoItem:hover {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+}
+
+/* Real logo image */
+.logoImage {
+  width: 80px;
+  height: 40px;
+  object-fit: contain;
+}
+
+@media (--viewportMedium) {
+  .logoImage {
+    width: 120px;
+    height: 48px;
+  }
+}
+
+/* ================ Placeholder (coloured circle + initials) ================ */
+
+.logoPlaceholder {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+@media (--viewportMedium) {
+  .logoPlaceholder {
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
+  }
+}
+
+.logoInitials {
+  color: var(--colorWhite, #fff);
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1;
+  user-select: none;
+}
+
+@media (--viewportMedium) {
+  .logoInitials {
+    font-size: 18px;
+  }
+}
+
+.logoName {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--colorGrey700, #717171);
+  white-space: nowrap;
+  max-width: 90px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (--viewportMedium) {
+  .logoName {
+    font-size: 12px;
+    max-width: 120px;
+  }
+}
