@@ -14,6 +14,7 @@ import configureStore from '../store';
 import defaultConfig from '../config/configDefault';
 import { ConfigurationProvider } from '../context/configurationContext';
 import { RouteConfigurationProvider } from '../context/routeConfigurationContext';
+import { LocaleProvider } from '../context/localeContext';
 import routeConfiguration from '../routing/routeConfiguration';
 
 // In case you have translated the template and have new translations that
@@ -732,16 +733,19 @@ export const TestProvider = ({ children, initialState, config, routeConfiguratio
   // Allow passing customized messages from a single test suite in addition to the
   // default translation keys
   const mergedMessages = { ...testMessages, ...messages };
+  const allMessages = { en: mergedMessages };
   return (
     <ConfigurationProvider value={mergeConfig(hostedConfig, getDefaultConfiguration())}>
       <RouteConfigurationProvider value={routeConfiguration || getRouteConfiguration()}>
-        <IntlProvider locale="en" messages={mergedMessages} textComponent="span">
-          <Provider store={store}>
-            <HelmetProvider>
-              <MemoryRouter>{children}</MemoryRouter>
-            </HelmetProvider>
-          </Provider>
-        </IntlProvider>
+        <LocaleProvider defaultLocale="en" allMessages={allMessages}>
+          <IntlProvider locale="en" messages={mergedMessages} textComponent="span">
+            <Provider store={store}>
+              <HelmetProvider>
+                <MemoryRouter>{children}</MemoryRouter>
+              </HelmetProvider>
+            </Provider>
+          </IntlProvider>
+        </LocaleProvider>
       </RouteConfigurationProvider>
     </ConfigurationProvider>
   );

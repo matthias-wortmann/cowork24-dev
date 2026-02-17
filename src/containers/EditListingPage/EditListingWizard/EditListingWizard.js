@@ -555,9 +555,6 @@ class EditListingWizard extends Component {
         .reverse()
         .find(t => tabsStatus[t]);
 
-      console.log(
-        `You tried to access an EditListingWizard tab (${selectedTab}), which was not yet activated.`
-      );
       return <NamedRedirect name="EditListingPage" params={{ ...params, tab: nearestActiveTab }} />;
     }
 
