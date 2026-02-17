@@ -232,11 +232,6 @@ exports.authenticateApple = (req, res, next) => {
 
   // #region agent log
   console.error('[APPLE_DEBUG] authenticateApple called, state:', paramsAsString);
-  const origRedirect = res.redirect.bind(res);
-  res.redirect = function(url) {
-    console.error('[APPLE_DEBUG] Redirect URL:', url);
-    return origRedirect(url);
-  };
   // #endregion
 
   passport.authenticate('apple', {
@@ -260,14 +255,6 @@ exports.authenticateAppleCallback = (req, res, next) => {
   console.error('[APPLE_DEBUG] req.body keys:', Object.keys(req.body || {}));
   console.error('[APPLE_DEBUG] req.body.code length:', req.body && req.body.code ? req.body.code.length : 0);
   console.error('[APPLE_DEBUG] req.body.state:', req.body && req.body.state ? req.body.state.substring(0, 80) : '(empty)');
-
-  // Intercept res.redirect to see where passport-apple redirects on failure
-  const origRedirect2 = res.redirect.bind(res);
-  res.redirect = function(statusOrUrl, url) {
-    const redirectUrl = url || statusOrUrl;
-    console.error('[APPLE_DEBUG] CALLBACK res.redirect called:', typeof statusOrUrl, String(statusOrUrl).substring(0, 100), url ? String(url).substring(0, 100) : '');
-    return origRedirect2(statusOrUrl, url);
-  };
   // #endregion
 
   const sessionFn = (err, user) => {
