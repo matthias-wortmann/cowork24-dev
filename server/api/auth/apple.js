@@ -149,6 +149,11 @@ exports.authenticateApple = (req, res, next) => {
 
   // #region agent log
   console.error('[APPLE_DEBUG] authenticateApple called, state:', paramsAsString);
+  const origRedirect = res.redirect.bind(res);
+  res.redirect = function(url) {
+    console.error('[APPLE_DEBUG] Redirect URL:', url);
+    return origRedirect(url);
+  };
   // #endregion
 
   passport.authenticate('apple', {
