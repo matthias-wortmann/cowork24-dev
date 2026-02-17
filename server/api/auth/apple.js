@@ -35,6 +35,22 @@ const strategyOptions = {
   passReqToCallback: true,
 };
 
+// #region agent log
+console.error('[APPLE_DEBUG] Strategy config:', JSON.stringify({
+  clientID: clientID || '(empty)',
+  teamID: teamID || '(empty)',
+  keyID: keyID || '(empty)',
+  callbackURL,
+  privateKeyFirst30: privateKeyString ? privateKeyString.substring(0, 30) : '(empty)',
+  privateKeyLast30: privateKeyString ? privateKeyString.substring(privateKeyString.length - 30) : '(empty)',
+  privateKeyLength: privateKeyString ? privateKeyString.length : 0,
+  privateKeyHasBeginMarker: privateKeyString ? privateKeyString.includes('-----BEGIN') : false,
+  privateKeyHasEndMarker: privateKeyString ? privateKeyString.includes('-----END') : false,
+  privateKeyHasNewlines: privateKeyString ? privateKeyString.includes('\n') : false,
+  rawKeyFirst30: rawPrivateKey ? rawPrivateKey.substring(0, 30) : '(empty)',
+}));
+// #endregion
+
 /**
  * Function Passport calls when a redirect returns the user from Apple to the application.
  *
@@ -50,6 +66,10 @@ const strategyOptions = {
  * @param {Function} done Session management function, introduced in `authenticateAppleCallback`
  */
 const verifyCallback = (req, accessToken, refreshToken, idToken, profile, done) => {
+  // #region agent log
+  console.error('[APPLE_DEBUG] verifyCallback called, idToken length:', idToken ? idToken.length : 0);
+  // #endregion
+
   // Decode the JWT to extract claims (email, sub, etc.)
   // We use manual base64 decoding to avoid an extra dependency import.
   let decodedToken = {};
@@ -57,6 +77,9 @@ const verifyCallback = (req, accessToken, refreshToken, idToken, profile, done) 
     const payloadBase64 = idToken.split('.')[1];
     decodedToken = JSON.parse(Buffer.from(payloadBase64, 'base64').toString('utf8'));
   } catch (e) {
+    // #region agent log
+    console.error('[APPLE_DEBUG] JWT decode FAILED:', e.message);
+    // #endregion
     return done(new Error('Failed to decode Apple id_token'));
   }
 
@@ -91,7 +114,18 @@ const verifyCallback = (req, accessToken, refreshToken, idToken, profile, done) 
 
 // ClientId is required when adding a new Apple strategy to passport
 if (clientID) {
-  passport.use(new AppleStrategy(strategyOptions, verifyCallback));
+  // #region agent log
+  try {
+    passport.use(new AppleStrategy(strategyOptions, verifyCallback));
+    console.error('[APPLE_DEBUG] Strategy registered successfully');
+  } catch (e) {
+    console.error('[APPLE_DEBUG] Strategy registration FAILED:', e.message, e.stack);
+  }
+  // #endregion
+} else {
+  // #region agent log
+  console.error('[APPLE_DEBUG] Strategy NOT registered - clientID is empty');
+  // #endregion
 }
 
 /**
@@ -113,6 +147,10 @@ exports.authenticateApple = (req, res, next) => {
 
   const paramsAsString = JSON.stringify(params);
 
+  // #region agent log
+  console.error('[APPLE_DEBUG] authenticateApple called, state:', paramsAsString);
+  // #endregion
+
   passport.authenticate('apple', {
     state: paramsAsString,
   })(req, res, next);
@@ -129,7 +167,18 @@ exports.authenticateApple = (req, res, next) => {
  * @param {Function} next Call the next middleware function in the stack
  */
 exports.authenticateAppleCallback = (req, res, next) => {
-  const sessionFn = (err, user) => loginWithIdp(err, user, req, res, clientID, 'apple');
+  // #region agent log
+  console.error('[APPLE_DEBUG] authenticateAppleCallback called');
+  console.error('[APPLE_DEBUG] req.body keys:', Object.keys(req.body || {}));
+  console.error('[APPLE_DEBUG] req.query keys:', Object.keys(req.query || {}));
+  // #endregion
+
+  const sessionFn = (err, user) => {
+    // #region agent log
+    console.error('[APPLE_DEBUG] sessionFn called, err:', err ? err.message : 'null', 'user email:', user ? user.email : 'null');
+    // #endregion
+    loginWithIdp(err, user, req, res, clientID, 'apple');
+  };
 
   passport.authenticate('apple', sessionFn)(req, res, next);
 };
