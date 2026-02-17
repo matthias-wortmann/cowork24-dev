@@ -62,6 +62,9 @@ const defaultDirectives = {
 
     'fonts.googleapis.com',
 
+    // Apple Sign-In
+    'appleid.apple.com',
+
     'sentry.io',
     '*.sentry.io',
     '*.stripe.com',

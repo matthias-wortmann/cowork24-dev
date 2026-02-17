@@ -56,14 +56,14 @@ import NotFoundPage from '../NotFoundPage/NotFoundPage';
 import { TOS_ASSET_NAME, PRIVACY_POLICY_ASSET_NAME } from './AuthenticationPage.duck';
 
 import css from './AuthenticationPage.module.css';
-import { FacebookLogo, GoogleLogo } from './socialLoginLogos';
+import { FacebookLogo, GoogleLogo, AppleLogo } from './socialLoginLogos';
 
 // Social login buttons are needed by AuthenticationForms
 export const SocialLoginButtonsMaybe = props => {
   const routeConfiguration = useRouteConfiguration();
   const intl = useIntl();
-  const { isLogin, showFacebookLogin, showGoogleLogin, from, userType } = props;
-  const showSocialLogins = showFacebookLogin || showGoogleLogin;
+  const { isLogin, showFacebookLogin, showGoogleLogin, showAppleLogin, from, userType } = props;
+  const showSocialLogins = showFacebookLogin || showGoogleLogin || showAppleLogin;
 
   const getDataForSSORoutes = () => {
     const baseUrl = apiBaseUrl();
@@ -97,6 +97,11 @@ export const SocialLoginButtonsMaybe = props => {
     window.location.href = `${baseUrl}/api/auth/google?${queryParams}`;
   };
 
+  const authWithApple = () => {
+    const { baseUrl, queryParams } = getDataForSSORoutes();
+    window.location.href = `${baseUrl}/api/auth/apple?${queryParams}`;
+  };
+
   const facebookAuthenticationMessage = isLogin
     ? intl.formatMessage({ id: 'AuthenticationPage.loginWithFacebook' })
     : intl.formatMessage({ id: 'AuthenticationPage.signupWithFacebook' });
@@ -104,6 +109,11 @@ export const SocialLoginButtonsMaybe = props => {
   const googleAuthenticationMessage = isLogin
     ? intl.formatMessage({ id: 'AuthenticationPage.loginWithGoogle' })
     : intl.formatMessage({ id: 'AuthenticationPage.signupWithGoogle' });
+
+  const appleAuthenticationMessage = isLogin
+    ? intl.formatMessage({ id: 'AuthenticationPage.loginWithApple' })
+    : intl.formatMessage({ id: 'AuthenticationPage.signupWithApple' });
+
   return showSocialLogins ? (
     <div className={css.idpButtons}>
       <div className={css.socialButtonsOr}>
@@ -133,6 +143,17 @@ export const SocialLoginButtonsMaybe = props => {
           </SocialLoginButton>
         </div>
       ) : null}
+
+      {showAppleLogin ? (
+        <div className={css.socialButtonWrapper}>
+          <SocialLoginButton onClick={() => authWithApple()}>
+            <span className={css.buttonIcon}>
+              <AppleLogo ariaLabelledBy="apple-authentication-msg" />
+            </span>
+            <span id="apple-authentication-msg">{appleAuthenticationMessage}</span>
+          </SocialLoginButton>
+        </div>
+      ) : null}
     </div>
   ) : null;
 };
@@ -158,6 +179,7 @@ export const AuthenticationForms = props => {
     isLogin,
     showFacebookLogin,
     showGoogleLogin,
+    showAppleLogin,
     userType,
     from,
     submitLogin,
@@ -289,6 +311,7 @@ export const AuthenticationForms = props => {
         isLogin={isLogin}
         showFacebookLogin={showFacebookLogin}
         showGoogleLogin={showGoogleLogin}
+        showAppleLogin={showAppleLogin}
         {...fromMaybe}
         {...userTypeMaybe}
       />
@@ -406,6 +429,7 @@ export const AuthenticationOrConfirmInfoForm = props => {
     from,
     showFacebookLogin,
     showGoogleLogin,
+    showAppleLogin,
     submitLogin,
     submitSignup,
     submitSingupWithIdp,
@@ -433,6 +457,7 @@ export const AuthenticationOrConfirmInfoForm = props => {
       isLogin={isLogin}
       showFacebookLogin={showFacebookLogin}
       showGoogleLogin={showGoogleLogin}
+      showAppleLogin={showAppleLogin}
       userType={userType}
       from={from}
       loginError={loginError}
@@ -674,6 +699,7 @@ export const AuthenticationPageComponent = props => {
               from={from}
               showFacebookLogin={!!process.env.REACT_APP_FACEBOOK_APP_ID}
               showGoogleLogin={!!process.env.REACT_APP_GOOGLE_CLIENT_ID}
+              showAppleLogin={!!process.env.REACT_APP_APPLE_CLIENT_ID}
               submitLogin={submitLogin}
               submitSignup={submitSignup}
               submitSingupWithIdp={submitSingupWithIdp}

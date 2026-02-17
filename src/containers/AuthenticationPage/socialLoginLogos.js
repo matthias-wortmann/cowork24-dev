@@ -17,6 +17,24 @@ export const FacebookLogo = ({ ariaLabelledBy }) => (
   </svg>
 );
 
+// This is Apple's logo, you are not allowed to change its color
+export const AppleLogo = ({ ariaLabelledBy }) => (
+  <svg
+    width="20"
+    height="20"
+    viewBox="0 0 20 20"
+    xmlns="http://www.w3.org/2000/svg"
+    role="img"
+    aria-labelledby={ariaLabelledBy}
+  >
+    <path
+      d="M15.462 10.544c-.022-2.234 1.823-3.306 1.906-3.358-.037-.055-1.039-1.587-2.645-1.91-.694-.131-1.434-.131-2.072.19-.366.184-.687.444-1.066.444-.387 0-.769-.267-1.264-.257-.978.01-1.88.568-2.384 1.443-1.018 1.764-.26 4.379.731 5.813.485.702 1.064 1.49 1.824 1.462.731-.029 1.008-.474 1.892-.474.878 0 1.135.474 1.904.459.787-.013 1.285-.715 1.766-1.42.366-.518.638-1.087.804-1.69-1.254-.54-1.397-2.155-.396-2.702zM13.162 4.104c.36-.46.61-1.072.543-1.704-.527.027-1.166.372-1.54.816-.34.396-.638 1.03-.558 1.634.585.045 1.183-.313 1.555-.746z"
+      fill="#000000"
+      fillRule="nonzero"
+    />
+  </svg>
+);
+
 // This is Google's logo, you are not allowed to change its color
 export const GoogleLogo = ({ ariaLabelledBy }) => (
   <svg
