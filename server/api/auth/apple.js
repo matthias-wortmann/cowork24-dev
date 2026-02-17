@@ -125,6 +125,67 @@ if (clientID) {
   try {
     passport.use(new AppleStrategy(strategyOptions, verifyCallback));
     console.error('[APPLE_DEBUG] Strategy registered successfully');
+
+    // Deep instrumentation: wrap passport action methods via prototype
+    const OrigAppleAuth = AppleStrategy.prototype.authenticate;
+    AppleStrategy.prototype.authenticate = function appleAuthWrapped(req, options) {
+      console.error('[APPLE_DEBUG] PROTO_AUTH entry, req.body.code:', req.body && req.body.code ? 'len=' + req.body.code.length : 'MISSING');
+      console.error('[APPLE_DEBUG] PROTO_AUTH req.query.code BEFORE merge:', req.query && req.query.code ? 'exists' : 'MISSING');
+
+      // Wrap passport action methods (set on this instance by passport middleware)
+      if (typeof this.redirect === 'function') {
+        const origRedir = this.redirect;
+        this.redirect = function(url, status) {
+          console.error('[APPLE_DEBUG] ACTION_REDIRECT:', url ? url.substring(0, 200) : '(none)');
+          return origRedir.call(this, url, status);
+        };
+      }
+      if (typeof this.error === 'function') {
+        const origErr = this.error;
+        this.error = function(err) {
+          console.error('[APPLE_DEBUG] ACTION_ERROR:', err ? (err.message || String(err)).substring(0, 300) : '(none)');
+          if (err && err.stack) console.error('[APPLE_DEBUG] ACTION_ERROR stack:', err.stack.substring(0, 500));
+          return origErr.call(this, err);
+        };
+      }
+      if (typeof this.fail === 'function') {
+        const origFail = this.fail;
+        this.fail = function(challenge, status) {
+          console.error('[APPLE_DEBUG] ACTION_FAIL:', JSON.stringify(challenge).substring(0, 200), 'status:', status);
+          return origFail.call(this, challenge, status);
+        };
+      }
+      if (typeof this.success === 'function') {
+        const origSuccess = this.success;
+        this.success = function(user, info) {
+          console.error('[APPLE_DEBUG] ACTION_SUCCESS');
+          return origSuccess.call(this, user, info);
+        };
+      }
+
+      // Call original passport-apple authenticate (does merge + OAuth2Strategy)
+      return OrigAppleAuth.call(this, req, options);
+    };
+
+    // Deep instrumentation: wrap getOAuthAccessToken on the strategy's _oauth2
+    const registeredStrategy = passport._strategy('apple');
+    if (registeredStrategy && registeredStrategy._oauth2) {
+      const origGetToken = registeredStrategy._oauth2.getOAuthAccessToken;
+      registeredStrategy._oauth2.getOAuthAccessToken = function(code, params, callback) {
+        console.error('[APPLE_DEBUG] getOAuthAccessToken ENTRY, code len:', code ? code.length : 0);
+        const wrappedCb = function(err, accessToken, refreshToken, extra) {
+          console.error('[APPLE_DEBUG] getOAuthAccessToken EXIT, err:', err ? String(err).substring(0, 300) : 'null', 'hasAccessToken:', !!accessToken);
+          callback(err, accessToken, refreshToken, extra);
+        };
+        try {
+          origGetToken.call(this, code, params, wrappedCb);
+        } catch (e) {
+          console.error('[APPLE_DEBUG] getOAuthAccessToken THREW:', e.message);
+          wrappedCb(e);
+        }
+      };
+      console.error('[APPLE_DEBUG] Deep instrumentation installed');
+    }
   } catch (e) {
     console.error('[APPLE_DEBUG] Strategy registration FAILED:', e.message, e.stack);
   }
