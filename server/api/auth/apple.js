@@ -112,6 +112,13 @@ const verifyCallback = (req, accessToken, refreshToken, idToken, profile, done) 
   done(null, userData);
 };
 
+// #region agent log
+// Catch unhandled rejections from passport-apple's async token exchange
+process.on('unhandledRejection', (reason) => {
+  console.error('[APPLE_DEBUG] Unhandled rejection:', reason);
+});
+// #endregion
+
 // ClientId is required when adding a new Apple strategy to passport
 if (clientID) {
   // #region agent log
@@ -175,15 +182,33 @@ exports.authenticateAppleCallback = (req, res, next) => {
   // #region agent log
   console.error('[APPLE_DEBUG] authenticateAppleCallback called');
   console.error('[APPLE_DEBUG] req.body keys:', Object.keys(req.body || {}));
-  console.error('[APPLE_DEBUG] req.query keys:', Object.keys(req.query || {}));
+  console.error('[APPLE_DEBUG] req.body.code length:', req.body && req.body.code ? req.body.code.length : 0);
+  console.error('[APPLE_DEBUG] req.body.state:', req.body && req.body.state ? req.body.state.substring(0, 80) : '(empty)');
+
+  // Intercept res.redirect to see where passport-apple redirects on failure
+  const origRedirect2 = res.redirect.bind(res);
+  res.redirect = function(statusOrUrl, url) {
+    const redirectUrl = url || statusOrUrl;
+    console.error('[APPLE_DEBUG] CALLBACK res.redirect called:', typeof statusOrUrl, String(statusOrUrl).substring(0, 100), url ? String(url).substring(0, 100) : '');
+    return origRedirect2(statusOrUrl, url);
+  };
   // #endregion
 
   const sessionFn = (err, user) => {
     // #region agent log
     console.error('[APPLE_DEBUG] sessionFn called, err:', err ? err.message : 'null', 'user email:', user ? user.email : 'null');
+    if (err) console.error('[APPLE_DEBUG] sessionFn error stack:', err.stack);
     // #endregion
     loginWithIdp(err, user, req, res, clientID, 'apple');
   };
 
-  passport.authenticate('apple', sessionFn)(req, res, next);
+  try {
+    passport.authenticate('apple', sessionFn)(req, res, next);
+  } catch (e) {
+    // #region agent log
+    console.error('[APPLE_DEBUG] passport.authenticate THREW:', e.message, e.stack);
+    // #endregion
+    next(e);
+  }
+  // #endregion
 };
