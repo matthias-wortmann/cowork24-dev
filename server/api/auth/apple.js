@@ -126,35 +126,35 @@ if (clientID) {
     passport.use(new AppleStrategy(strategyOptions, verifyCallback));
     console.error('[APPLE_DEBUG] Strategy registered successfully');
 
-    // Deep instrumentation: replace passport-apple's authenticate to debug merge issue
+    // FIX: Express 5 makes req.query a read-only getter. passport-apple's
+    // `req.query = { ...req.query, ...req.body }` silently fails, causing
+    // OAuth2Strategy to never see the authorization code and redirect in a loop.
+    // We override passport-apple's authenticate to use Object.defineProperty,
+    // which forces a writable own property that shadows the Express 5 getter.
     const OAuth2Strategy = require('passport-oauth2');
     AppleStrategy.prototype.authenticate = function appleAuthWrapped(req, options) {
-      console.error('[APPLE_DEBUG] PROTO_AUTH entry');
-      console.error('[APPLE_DEBUG] req.body.code:', req.body && req.body.code ? 'len=' + req.body.code.length : 'MISSING');
+      // #region agent log
+      console.error('[APPLE_DEBUG] PROTO_AUTH entry, req.body.code:', req.body && req.body.code ? 'len=' + req.body.code.length : 'MISSING');
+      // #endregion
 
-      // Check req.query property descriptor BEFORE merge
-      const desc = Object.getOwnPropertyDescriptor(req, 'query');
-      console.error('[APPLE_DEBUG] req.query descriptor:', desc ? JSON.stringify({ hasValue: 'value' in desc, hasGet: !!desc.get, hasSet: !!desc.set, writable: desc.writable, configurable: desc.configurable }) : 'NO_OWN_PROP');
-      const protoDesc = Object.getOwnPropertyDescriptor(Object.getPrototypeOf(req), 'query');
-      console.error('[APPLE_DEBUG] req proto query descriptor:', protoDesc ? JSON.stringify({ hasGet: !!protoDesc.get, hasSet: !!protoDesc.set }) : 'NO_PROTO_PROP');
+      // Merge req.body into req.query using Object.defineProperty (Express 5 compat)
+      Object.defineProperty(req, 'query', {
+        value: { ...req.query, ...req.body },
+        writable: true,
+        configurable: true,
+        enumerable: true,
+      });
 
-      console.error('[APPLE_DEBUG] req.query BEFORE merge:', req.query ? JSON.stringify(Object.keys(req.query)) : 'null/undefined');
-
-      // Reproduce passport-apple's merge
-      req.query = { ...req.query, ...req.body };
-
-      console.error('[APPLE_DEBUG] req.query AFTER merge keys:', req.query ? JSON.stringify(Object.keys(req.query)) : 'null/undefined');
-      console.error('[APPLE_DEBUG] req.query.code AFTER merge:', req.query && req.query.code ? 'len=' + req.query.code.length : 'MISSING');
-
-      // Re-read req.query to check if assignment stuck
-      const reReadQuery = req.query;
-      console.error('[APPLE_DEBUG] re-read req.query.code:', reReadQuery && reReadQuery.code ? 'len=' + reReadQuery.code.length : 'MISSING');
+      // #region agent log
+      console.error('[APPLE_DEBUG] req.query.code AFTER defineProperty merge:', req.query && req.query.code ? 'len=' + req.query.code.length : 'MISSING');
+      // #endregion
 
       if (req.body && req.body.user) {
         req.appleProfile = JSON.parse(req.body.user);
       }
 
-      // Wrap passport action methods (set on this instance by passport middleware)
+      // #region agent log
+      // Wrap passport action methods for verification logging
       if (typeof this.redirect === 'function') {
         const origRedir = this.redirect;
         this.redirect = function(url, status) {
@@ -169,13 +169,6 @@ if (clientID) {
           return origErr.call(this, err);
         };
       }
-      if (typeof this.fail === 'function') {
-        const origFail = this.fail;
-        this.fail = function(challenge, status) {
-          console.error('[APPLE_DEBUG] ACTION_FAIL:', JSON.stringify(challenge).substring(0, 200), 'status:', status);
-          return origFail.call(this, challenge, status);
-        };
-      }
       if (typeof this.success === 'function') {
         const origSuccess = this.success;
         this.success = function(user, info) {
@@ -183,8 +176,9 @@ if (clientID) {
           return origSuccess.call(this, user, info);
         };
       }
+      // #endregion
 
-      // Call OAuth2Strategy directly (bypassing passport-apple which we reproduced above)
+      // Call OAuth2Strategy directly (passport-apple's merge is replaced above)
       OAuth2Strategy.prototype.authenticate.call(this, req, options);
     };
 
