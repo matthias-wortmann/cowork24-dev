@@ -13,6 +13,7 @@ import configureStore from './store';
 // utils
 import { RouteConfigurationProvider } from './context/routeConfigurationContext';
 import { ConfigurationProvider } from './context/configurationContext';
+import { LocaleProvider, useLocale } from './context/localeContext';
 import { difference } from './util/common';
 import { mergeConfig } from './util/configHelpers';
 import { IntlProvider } from './util/reactIntl';
@@ -42,20 +43,19 @@ import defaultMessages from './translations/en.json';
 // This used to collect billing address in StripePaymentAddress on CheckoutPage
 
 // Step 2:
-// Import correct locale rules for Moment library for German (de).
+// Import locale rules for Moment library. The MomentLocaleLoader below handles dynamic loading,
+// but we pre-import 'de' since it's the primary locale.
 import 'moment/locale/de';
 const hardCodedLocale = process.env.NODE_ENV === 'test' ? 'en' : 'de';
 
 // Step 3:
-// German (de) translations. English (en.json) is used as fallback for any missing keys.
-// Priority order:
-//   1. hosted translation.json (from Sharetribe Console)
-//   2. de.json (local German translations)
-//   3. en.json (default English fallback)
-import messagesInLocale from './translations/de.json';
+// Import all supported translation files. English (en.json) is used as fallback for missing keys.
+import messagesDE from './translations/de.json';
+import messagesES from './translations/es.json';
+import messagesFR from './translations/fr.json';
 
-// If translation key is missing from `messagesInLocale` (e.g. fr.json),
-// corresponding key will be added to messages from `defaultMessages` (en.json)
+// If translation key is missing from a locale file,
+// the corresponding key will be added from `defaultMessages` (en.json)
 // to prevent missing translation key errors.
 const addMissingTranslations = (sourceLangTranslations, targetLangTranslations) => {
   const sourceKeys = Object.keys(sourceLangTranslations);
@@ -81,9 +81,23 @@ const addMissingTranslations = (sourceLangTranslations, targetLangTranslations) 
 //       messages with the key as the value of each message and discard the value.
 //       { 'My.translationKey1': 'My.translationKey1', 'My.translationKey2': 'My.translationKey2' }
 const isTestEnv = process.env.NODE_ENV === 'test';
-const localeMessages = isTestEnv
-  ? Object.fromEntries(Object.entries(defaultMessages).map(([key]) => [key, key]))
-  : addMissingTranslations(defaultMessages, messagesInLocale);
+const testMessages = Object.fromEntries(
+  Object.entries(defaultMessages).map(([key]) => [key, key])
+);
+
+// Build a map of all supported locales to their merged translations.
+// Each locale's messages are merged with English defaults so no keys are missing.
+const buildAllMessages = hostedTranslations => {
+  if (isTestEnv) {
+    return { en: testMessages };
+  }
+  return {
+    en: { ...defaultMessages, ...hostedTranslations },
+    de: { ...addMissingTranslations(defaultMessages, messagesDE), ...hostedTranslations },
+    es: { ...addMissingTranslations(defaultMessages, messagesES), ...hostedTranslations },
+    fr: { ...addMissingTranslations(defaultMessages, messagesFR), ...hostedTranslations },
+  };
+};
 
 // For customized apps, this dynamic loading of locale files is not necessary.
 // It helps locale change from configDefault.js file or hosted configs, but customizers should probably
@@ -126,9 +140,8 @@ const MomentLocaleLoader = props => {
 };
 
 const Configurations = props => {
-  const { appConfig, children } = props;
+  const { appConfig, locale, children } = props;
   const routeConfig = routeConfiguration(appConfig.layout, appConfig?.accessControl);
-  const locale = isTestEnv ? 'en' : appConfig.localization.locale;
 
   return (
     <ConfigurationProvider value={appConfig}>
@@ -136,6 +149,23 @@ const Configurations = props => {
         <RouteConfigurationProvider value={routeConfig}>{children}</RouteConfigurationProvider>
       </MomentLocaleLoader>
     </ConfigurationProvider>
+  );
+};
+
+/**
+ * Reads the active locale from LocaleContext and renders IntlProvider + Configurations
+ * with the correct locale and messages.
+ */
+const LocaleAwareApp = ({ appConfig, hostedTranslations, children }) => {
+  const { locale, messages } = useLocale();
+  const activeLocale = isTestEnv ? 'en' : locale;
+
+  return (
+    <Configurations appConfig={appConfig} locale={activeLocale}>
+      <IntlProvider locale={activeLocale} messages={messages} textComponent="span">
+        {children}
+      </IntlProvider>
+    </Configurations>
   );
 };
 
@@ -215,10 +245,12 @@ export const ClientApp = props => {
 
   // Show MaintenanceMode if the mandatory configurations are not available
   if (!appConfig.hasMandatoryConfigurations) {
+    const maintenanceMessages = buildAllMessages(hostedTranslations);
+    const maintenanceLocale = appConfig.localization.locale;
     return (
       <MaintenanceModeError
-        locale={appConfig.localization.locale}
-        messages={{ ...localeMessages, ...hostedTranslations }}
+        locale={maintenanceLocale}
+        messages={maintenanceMessages[maintenanceLocale] || maintenanceMessages['en']}
       />
     );
   }
@@ -232,14 +264,14 @@ export const ClientApp = props => {
 
   // This gives good input for debugging issues on live environments, but with test it's not needed.
   const logLoadDataCalls = appSettings?.env !== 'test';
+  const allMessages = buildAllMessages(hostedTranslations);
 
   return (
-    <Configurations appConfig={appConfig}>
-      <IntlProvider
-        locale={appConfig.localization.locale}
-        messages={{ ...localeMessages, ...hostedTranslations }}
-        textComponent="span"
-      >
+    <LocaleProvider
+      defaultLocale={appConfig.localization.locale}
+      allMessages={allMessages}
+    >
+      <LocaleAwareApp appConfig={appConfig} hostedTranslations={hostedTranslations}>
         <Provider store={store}>
           <HelmetProvider>
             <IncludeScripts config={appConfig} initialPathname={window.location.pathname} />
@@ -248,8 +280,8 @@ export const ClientApp = props => {
             </BrowserRouter>
           </HelmetProvider>
         </Provider>
-      </IntlProvider>
-    </Configurations>
+      </LocaleAwareApp>
+    </LocaleProvider>
   );
 };
 
@@ -271,32 +303,36 @@ export const ServerApp = props => {
 
   // Show MaintenanceMode if the mandatory configurations are not available
   if (!appConfig.hasMandatoryConfigurations) {
+    const maintenanceMessages = buildAllMessages(hostedTranslations);
+    const maintenanceLocale = appConfig.localization.locale;
     return (
       <MaintenanceModeError
-        locale={appConfig.localization.locale}
-        messages={{ ...localeMessages, ...hostedTranslations }}
+        locale={maintenanceLocale}
+        messages={maintenanceMessages[maintenanceLocale] || maintenanceMessages['en']}
         helmetContext={helmetContext}
       />
     );
   }
 
+  const allMessages = buildAllMessages(hostedTranslations);
+  const serverLocale = appConfig.localization.locale;
+  const serverMessages = allMessages[serverLocale] || allMessages['en'];
+
   return (
-    <Configurations appConfig={appConfig}>
-      <IntlProvider
-        locale={appConfig.localization.locale}
-        messages={{ ...localeMessages, ...hostedTranslations }}
-        textComponent="span"
-      >
-        <Provider store={store}>
-          <HelmetProvider context={helmetContext}>
-            <IncludeScripts config={appConfig} initialPathname={url} />
-            <StaticRouter location={url} context={context}>
-              <Routes />
-            </StaticRouter>
-          </HelmetProvider>
-        </Provider>
-      </IntlProvider>
-    </Configurations>
+    <LocaleProvider defaultLocale={serverLocale} allMessages={allMessages}>
+      <Configurations appConfig={appConfig} locale={serverLocale}>
+        <IntlProvider locale={serverLocale} messages={serverMessages} textComponent="span">
+          <Provider store={store}>
+            <HelmetProvider context={helmetContext}>
+              <IncludeScripts config={appConfig} initialPathname={url} />
+              <StaticRouter location={url} context={context}>
+                <Routes />
+              </StaticRouter>
+            </HelmetProvider>
+          </Provider>
+        </IntlProvider>
+      </Configurations>
+    </LocaleProvider>
   );
 };
 

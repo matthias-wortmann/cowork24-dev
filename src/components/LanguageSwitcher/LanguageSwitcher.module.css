@@ -1,0 +1,178 @@
+@import '../../styles/customMediaQueries.css';
+
+.root {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
+/* Menu label (trigger button) */
+.menuLabel {
+  border-bottom: 0px solid;
+  transition: var(--transitionStyleButton);
+
+  font-weight: var(--fontWeightMedium);
+  font-size: 14px;
+  line-height: 18px;
+  letter-spacing: 0;
+  color: var(--colorGrey700);
+
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  height: 100%;
+  margin: 0;
+  padding: 0 12px;
+
+  &:hover {
+    color: var(--colorBlack);
+    border-bottom: 4px solid var(--marketplaceColor);
+    border-radius: 0;
+    text-decoration: none;
+  }
+
+  &:active {
+    border-bottom: 0;
+  }
+}
+
+.menuLabelOpen {
+  &:hover {
+    border-bottom: 0;
+  }
+}
+
+.labelContent {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.flag {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.code {
+  composes: textSmall from global;
+  display: inline-block;
+  margin: 0;
+}
+
+/* Dropdown content */
+.menuContent {
+  min-width: 200px;
+  padding-top: 12px;
+  padding-bottom: 12px;
+}
+
+/* Individual menu items */
+.menuItem {
+  composes: textSmall from global;
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  width: 100%;
+  min-width: 200px;
+  margin: 0;
+  padding: 8px 24px;
+
+  color: var(--colorGrey700);
+  text-align: left;
+  transition: var(--transitionStyleButton);
+  border: none;
+
+  &:hover {
+    cursor: pointer;
+    color: var(--colorBlack);
+    text-decoration: none;
+
+    & .menuItemBorder {
+      width: 6px;
+      background-color: var(--marketplaceColor);
+    }
+  }
+
+  @media (--viewportMedium) {
+    margin: 0;
+  }
+}
+
+.menuItemActive {
+  color: var(--colorBlack);
+  font-weight: var(--fontWeightSemiBold);
+
+  & .menuItemBorder {
+    width: 6px;
+    background-color: var(--colorBlack);
+  }
+
+  &:hover {
+    & .menuItemBorder {
+      background-color: var(--colorBlack);
+    }
+  }
+}
+
+/* Left animated border (hover indicator) */
+.menuItemBorder {
+  position: absolute;
+  top: 2px;
+  left: 0;
+  height: calc(100% - 4px);
+  width: 0;
+  transition: width var(--transitionStyleButton);
+}
+
+.menuItemFlag {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.menuItemLabel {
+  flex: 1;
+}
+
+/* Mobile-specific overrides */
+.mobileRoot {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 12px 0;
+}
+
+.mobileItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 24px;
+  width: 100%;
+  border: none;
+  color: var(--colorGrey700);
+  text-align: left;
+  transition: var(--transitionStyleButton);
+
+  &:hover {
+    color: var(--colorBlack);
+    text-decoration: none;
+    cursor: pointer;
+  }
+}
+
+.mobileItemActive {
+  color: var(--colorBlack);
+  font-weight: var(--fontWeightSemiBold);
+}
+
+.mobileItemFlag {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.mobileItemLabel {
+  composes: textSmall from global;
+  margin: 0;
+}

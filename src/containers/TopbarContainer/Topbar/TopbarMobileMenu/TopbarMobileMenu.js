@@ -6,8 +6,9 @@ import React from 'react';
 import classNames from 'classnames';
 
 import { ACCOUNT_SETTINGS_PAGES } from '../../../../routing/routeConfiguration';
-import { FormattedMessage } from '../../../../util/reactIntl';
+import { FormattedMessage, useIntl } from '../../../../util/reactIntl';
 import { ensureCurrentUser } from '../../../../util/data';
+import { useLocale } from '../../../../context/localeContext';
 
 import {
   AvatarLarge,
@@ -18,6 +19,42 @@ import {
 } from '../../../../components';
 
 import css from './TopbarMobileMenu.module.css';
+
+const SUPPORTED_LANGUAGES = [
+  { code: 'de', flag: '\u{1F1E9}\u{1F1EA}', labelKey: 'LanguageSwitcher.de' },
+  { code: 'en', flag: '\u{1F1EC}\u{1F1E7}', labelKey: 'LanguageSwitcher.en' },
+  { code: 'es', flag: '\u{1F1EA}\u{1F1F8}', labelKey: 'LanguageSwitcher.es' },
+  { code: 'fr', flag: '\u{1F1EB}\u{1F1F7}', labelKey: 'LanguageSwitcher.fr' },
+];
+
+const MobileLanguageSwitcher = () => {
+  const { locale, setLocale } = useLocale();
+  const intl = useIntl();
+
+  return (
+    <div className={css.languageSwitcher}>
+      <span className={css.languageSwitcherLabel}>
+        <FormattedMessage id="LanguageSwitcher.label" />
+      </span>
+      <div className={css.languageOptions}>
+        {SUPPORTED_LANGUAGES.map(lang => (
+          <InlineTextButton
+            key={lang.code}
+            rootClassName={classNames(css.languageOption, {
+              [css.languageOptionActive]: lang.code === locale,
+            })}
+            onClick={() => setLocale(lang.code)}
+          >
+            <span className={css.languageFlag}>{lang.flag}</span>
+            <span className={css.languageName}>
+              {intl.formatMessage({ id: lang.labelKey })}
+            </span>
+          </InlineTextButton>
+        ))}
+      </div>
+    </div>
+  );
+};
 
 const CustomLinkComponent = ({ linkConfig, currentPage }) => {
   const { group, text, type, href, route } = linkConfig;
@@ -134,6 +171,7 @@ const TopbarMobileMenu = props => {
 
           <ul className={css.customLinksWrapper}>{extraLinks}</ul>
 
+          <MobileLanguageSwitcher />
           <div className={css.spacer} />
         </div>
         <div className={css.footer}>{createListingsLinkMaybe}</div>
@@ -193,6 +231,7 @@ const TopbarMobileMenu = props => {
           </li>
         </ul>
         <ul className={css.customLinksWrapper}>{extraLinks}</ul>
+        <MobileLanguageSwitcher />
         <div className={css.spacer} />
       </div>
       <div className={css.footer}>{createListingsLinkMaybe}</div>

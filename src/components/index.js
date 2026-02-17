@@ -87,6 +87,9 @@ export { default as MenuContent } from './MenuContent/MenuContent';
 export { default as MenuLabel } from './MenuLabel/MenuLabel';
 export { default as Menu } from './Menu/Menu';
 
+// Language switcher (uses Menu components)
+export { default as LanguageSwitcher } from './LanguageSwitcher/LanguageSwitcher';
+
 // Modal
 export { default as Modal } from './Modal/Modal';
 export { default as ModalInMobile } from './ModalInMobile/ModalInMobile';

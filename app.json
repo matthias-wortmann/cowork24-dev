@@ -1,0 +1,61 @@
+{
+  "name": "cowork24",
+  "description": "Cowork24 Marketplace – Sharetribe Web Template",
+  "buildpacks": [
+    {
+      "url": "heroku/nodejs"
+    }
+  ],
+  "env": {
+    "REACT_APP_SHARETRIBE_SDK_CLIENT_ID": {
+      "description": "Sharetribe SDK Client ID from Console → Build → Applications",
+      "required": true
+    },
+    "SHARETRIBE_SDK_CLIENT_SECRET": {
+      "description": "Sharetribe SDK Client Secret from Console → Build → Applications",
+      "required": true
+    },
+    "REACT_APP_MARKETPLACE_NAME": {
+      "description": "Marketplace name displayed in the app",
+      "required": true
+    },
+    "REACT_APP_MARKETPLACE_ROOT_URL": {
+      "description": "Full public URL of the marketplace (no trailing slash)",
+      "required": true
+    },
+    "REACT_APP_SHARETRIBE_USING_SSL": {
+      "description": "Enable SSL redirect",
+      "value": "true"
+    },
+    "SERVER_SHARETRIBE_TRUST_PROXY": {
+      "description": "Trust Heroku reverse proxy for correct IP/protocol detection",
+      "value": "true"
+    },
+    "NODE_ENV": {
+      "description": "Node environment",
+      "value": "production"
+    },
+    "REACT_APP_ENV": {
+      "description": "App environment",
+      "value": "production"
+    },
+    "REACT_APP_CSP": {
+      "description": "Content Security Policy mode: 'report' or 'block'",
+      "value": "report"
+    },
+    "REACT_APP_STRIPE_PUBLISHABLE_KEY": {
+      "description": "Stripe publishable key for payments",
+      "required": false
+    },
+    "REACT_APP_MAPBOX_ACCESS_TOKEN": {
+      "description": "Mapbox access token for maps",
+      "required": false
+    }
+  },
+  "formation": {
+    "web": {
+      "quantity": 1,
+      "size": "basic"
+    }
+  }
+}
