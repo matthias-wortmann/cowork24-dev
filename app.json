@@ -50,6 +50,38 @@
     "REACT_APP_MAPBOX_ACCESS_TOKEN": {
       "description": "Mapbox access token for maps",
       "required": false
+    },
+    "REACT_APP_GOOGLE_CLIENT_ID": {
+      "description": "Google OAuth Client ID for Google Sign-In",
+      "required": false
+    },
+    "GOOGLE_CLIENT_SECRET": {
+      "description": "Google OAuth Client Secret (server-side only)",
+      "required": false
+    },
+    "REACT_APP_APPLE_CLIENT_ID": {
+      "description": "Apple Service ID for Sign in with Apple",
+      "required": false
+    },
+    "APPLE_TEAM_ID": {
+      "description": "Apple Developer Team ID for Sign in with Apple",
+      "required": false
+    },
+    "APPLE_KEY_ID": {
+      "description": "Apple Sign-In private key ID",
+      "required": false
+    },
+    "APPLE_PRIVATE_KEY": {
+      "description": "Apple Sign-In private key (full PEM content)",
+      "required": false
+    },
+    "REACT_APP_SENTRY_DSN": {
+      "description": "Sentry DSN for error tracking (client and server)",
+      "required": false
+    },
+    "REACT_APP_GOOGLE_ANALYTICS_ID": {
+      "description": "Google Analytics 4 Measurement ID (starts with G-)",
+      "required": false
     }
   },
   "formation": {
