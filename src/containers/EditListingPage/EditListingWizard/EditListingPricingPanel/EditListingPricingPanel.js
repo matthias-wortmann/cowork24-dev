@@ -22,6 +22,10 @@ import {
   getInitialValuesForStartTimeInterval,
   handleSubmitValuesForStartTimeInterval,
 } from './StartTimeInverval';
+import {
+  getInitialValuesForEveningSurcharge,
+  handleSubmitValuesForEveningSurcharge,
+} from './EveningSurchargeConfig';
 import css from './EditListingPricingPanel.module.css';
 
 const { Money } = sdkTypes;
@@ -35,19 +39,24 @@ const getListingTypeConfig = (publicData, listingTypes) => {
 // exporting helper functions that handle the initial values and the submission values.
 // This is a tentative approach to contain logic in one place.
 const getInitialValues = props => {
-  const { listing, listingTypes } = props;
+  const { listing, listingTypes, marketplaceCurrency } = props;
   const { publicData } = listing?.attributes || {};
   const { unitType } = publicData || {};
   const listingTypeConfig = getListingTypeConfig(publicData, listingTypes);
-  // Note: publicData contains priceVariationsEnabled if listing is created with priceVariations enabled.
   const isPriceVariationsInUse = isPriceVariationsEnabled(publicData, listingTypeConfig);
+
+  const surchargeInitialValues =
+    unitType === 'hour'
+      ? getInitialValuesForEveningSurcharge({ listing, marketplaceCurrency })
+      : {};
 
   return unitType === FIXED || isPriceVariationsInUse
     ? {
         ...getInitialValuesForPriceVariants(props, isPriceVariationsInUse),
         ...getInitialValuesForStartTimeInterval(props),
+        ...surchargeInitialValues,
       }
-    : { price: listing?.attributes?.price };
+    : { price: listing?.attributes?.price, ...surchargeInitialValues };
 };
 
 // This is needed to show the listing's price consistently over XHR calls.
@@ -167,6 +176,10 @@ const EditListingPricingPanel = props => {
             // New values for listing attributes
             let updateValues = {};
 
+            // Evening surcharge publicData (for hourly listings)
+            const surchargeChanges =
+              unitType === 'hour' ? handleSubmitValuesForEveningSurcharge(values) : {};
+
             if (unitType === FIXED || isPriceVariationsInUse) {
               let publicDataUpdates = { priceVariationsEnabled: isPriceVariationsInUse };
               // NOTE: components that handle price variants and start time interval are currently
@@ -193,6 +206,7 @@ const EditListingPricingPanel = props => {
                   priceVariationsEnabled: isPriceVariationsInUse,
                   ...startTimeIntervalChanges.publicData,
                   ...priceVariantChanges.publicData,
+                  ...surchargeChanges.publicData,
                 },
               };
             } else {
@@ -200,6 +214,7 @@ const EditListingPricingPanel = props => {
                 ? {
                     publicData: {
                       priceVariationsEnabled: false,
+                      ...surchargeChanges.publicData,
                     },
                   }
                 : {};
@@ -212,6 +227,7 @@ const EditListingPricingPanel = props => {
               initialValues: getInitialValues({
                 listing: getOptimisticListing(listing, updateValues),
                 listingTypes,
+                marketplaceCurrency,
               }),
             });
             onSubmit(updateValues);

@@ -199,12 +199,42 @@ exports.calculateQuantityFromDates = (startDate, endDate, type) => {
  * @param {Date} startDate
  * @param {Date} endDate
  *
- * @returns {int} quantity of hours between start and end
+ * @returns {number} quantity of hours between start and end (can be fractional)
  *
  */
 exports.calculateQuantityFromHours = (startDate, endDate) => {
   // Note: the last parameter (true) ensures that floats are returned.
   return moment(endDate).diff(moment(startDate), 'hours', true);
+};
+
+/**
+ * Calculate the number of non-business hours within a booking period.
+ * Non-business hours are defined as hours at or after businessHoursEnd (default 17:00)
+ * until midnight, in the listing's timezone. Assumes same-day bookings.
+ *
+ * @param {Date|string} startDate booking start
+ * @param {Date|string} endDate booking end
+ * @param {string} timezone IANA timezone (default: Europe/Zurich)
+ * @param {number} businessHoursEnd hour when business hours end (default: 17)
+ * @returns {number} fractional hours outside business hours
+ */
+exports.calculateNonBusinessHours = (
+  startDate,
+  endDate,
+  timezone = 'Europe/Zurich',
+  businessHoursEnd = 17
+) => {
+  const start = moment(startDate).tz(timezone);
+  const end = moment(endDate).tz(timezone);
+  const threshold = start.clone().startOf('day').add(businessHoursEnd, 'hours');
+
+  if (end.isSameOrBefore(threshold)) {
+    return 0;
+  }
+  if (start.isSameOrAfter(threshold)) {
+    return end.diff(start, 'hours', true);
+  }
+  return end.diff(threshold, 'hours', true);
 };
 
 /**
@@ -345,12 +375,11 @@ exports.hasMinimumCommission = commission => {
 /**
  * Get provider commission
  * @param {Object} providerCommission object containing provider commission info
- * @param {Object} order object containing order line items
- * @param {Object} priceAttribute object containing listing price information
+ * @param {Array} orderLineItems array of commissionable line items (base order + surcharges)
+ * @param {string} currency
  * @returns {Array} provider commission line item
  */
-exports.getProviderCommissionMaybe = (providerCommission, order, currency) => {
-  // Check if either minimum commission or percentage are defined in the commission object
+exports.getProviderCommissionMaybe = (providerCommission, orderLineItems, currency) => {
   const hasMinimumCommission = this.hasMinimumCommission(providerCommission);
   const hasCommissionPercentage = this.hasCommissionPercentage(providerCommission);
 
@@ -358,15 +387,13 @@ exports.getProviderCommissionMaybe = (providerCommission, order, currency) => {
     return [];
   }
 
-  // Calculate the total money paid into the transaction
-  const totalMoneyIn = this.calculateTotalFromLineItems([order]);
-  // Calculate the estimated commission with percentage applied, if applicable
+  const lineItems = Array.isArray(orderLineItems) ? orderLineItems : [orderLineItems];
+  const totalMoneyIn = this.calculateTotalFromLineItems(lineItems);
   const estimatedCommissionFromPercentage = calculateCommissionWithPercentage(
     providerCommission?.percentage,
     totalMoneyIn.amount
   );
 
-  // Minimum commission is preferred if it is greated than the estimated transaction amount
   const useMinimumCommission =
     providerCommission?.minimum_amount > estimatedCommissionFromPercentage;
 
@@ -374,12 +401,6 @@ exports.getProviderCommissionMaybe = (providerCommission, order, currency) => {
     throw new Error('Minimum commission amount is greater than the amount of money paid in');
   }
 
-  // Note: extraLineItems for product selling (aka shipping fee)
-  // is not included in either customer or provider commission calculation.
-
-  // The provider commission is what the provider pays for the transaction, and
-  // it is the subtracted from the order price to get the provider payout:
-  // orderPrice - providerCommission = providerPayout
   return useMinimumCommission
     ? [
         {
@@ -402,11 +423,11 @@ exports.getProviderCommissionMaybe = (providerCommission, order, currency) => {
 /**
  * Get customer commission
  * @param {Object} customerCommission object containing customer commission info
- * @param {Object} order object containing order line items
+ * @param {Array} orderLineItems array of commissionable line items (base order + surcharges)
+ * @param {string} currency
  * @returns {Array} customer commission line item
  */
-exports.getCustomerCommissionMaybe = (customerCommission, order, currency) => {
-  // Check if either minimum commission or percentage are defined in the commission object
+exports.getCustomerCommissionMaybe = (customerCommission, orderLineItems, currency) => {
   const hasMinimumCommission = this.hasMinimumCommission(customerCommission);
   const hasCommissionPercentage = this.hasCommissionPercentage(customerCommission);
 
@@ -414,21 +435,16 @@ exports.getCustomerCommissionMaybe = (customerCommission, order, currency) => {
     return [];
   }
 
-  // Calculate the total money paid into the transaction
-  const totalMoneyIn = this.calculateTotalFromLineItems([order]);
-  // Calculate the estimated commission with percentage applied, if applicable
+  const lineItems = Array.isArray(orderLineItems) ? orderLineItems : [orderLineItems];
+  const totalMoneyIn = this.calculateTotalFromLineItems(lineItems);
   const estimatedCommissionFromPercentage = calculateCommissionWithPercentage(
     customerCommission?.percentage,
     totalMoneyIn.amount
   );
 
-  // Minimum commission is preferred if it is greated than the estimated transaction amount
   const useMinimumCommission =
     customerCommission?.minimum_amount > estimatedCommissionFromPercentage;
 
-  // The customer commission is what the customer pays for the transaction, and
-  // it is added on top of the order price to get the customer's payin price:
-  // orderPrice + customerCommission = customerPayin
   return useMinimumCommission
     ? [
         {
@@ -441,7 +457,7 @@ exports.getCustomerCommissionMaybe = (customerCommission, order, currency) => {
     : [
         {
           code: 'line-item/customer-commission',
-          unitPrice: this.calculateTotalFromLineItems([order]),
+          unitPrice: totalMoneyIn,
           percentage: customerCommission.percentage,
           includeFor: ['customer'],
         },

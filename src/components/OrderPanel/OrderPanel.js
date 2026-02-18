@@ -505,6 +505,7 @@ const OrderPanel = props => {
             onFetchTimeSlots={onFetchTimeSlots}
             startDatePlaceholder={intl.formatDate(TODAY, dateFormattingOptions)}
             endDatePlaceholder={intl.formatDate(TODAY, dateFormattingOptions)}
+            startTimeInterval={startTimeInterval}
             timeZone={timeZone}
             finePrintComponent={SubmitFinePrint}
             {...priceVariantsMaybe}

@@ -1,6 +1,7 @@
 const {
   calculateQuantityFromDates,
   calculateQuantityFromHours,
+  calculateNonBusinessHours,
   calculateShippingFee,
   getProviderCommissionMaybe,
   getCustomerCommissionMaybe,
@@ -65,6 +66,49 @@ const getFixedQuantityAndLineItems = orderData => {
   // If there are seats, the quantity is split to factors: units and seats.
   // E.g. 1 session x 2 seats (aka unit price is multiplied by 2)
   return hasSeats ? { units: 1, seats, extraLineItems: [] } : { quantity: 1, extraLineItems: [] };
+};
+
+/**
+ * Get evening surcharge line items for bookings that span non-business hours.
+ * Business hours: 08:00–17:00, non-business hours: 17:00–24:00.
+ * The surcharge amount is defined in listing publicData.eveningSurchargePerHourSubunits.
+ *
+ * @param {Object} orderData
+ * @param {Object} listing full listing object
+ * @param {string} currency
+ * @returns {Array} surcharge line items (empty array if not applicable)
+ */
+const getEveningSurchargeLineItems = (orderData, listing, currency) => {
+  const { bookingStart, bookingEnd } = orderData || {};
+  const publicData = listing?.attributes?.publicData || {};
+  const surchargePerHourSubunits = publicData.eveningSurchargePerHourSubunits;
+  const availabilityPlanTz = listing?.attributes?.availabilityPlan?.timezone;
+  const timezone = publicData.listingTimezone || availabilityPlanTz || 'Europe/Zurich';
+  const businessHoursEnd = publicData.businessHoursEnd || 17;
+
+  if (!surchargePerHourSubunits || surchargePerHourSubunits <= 0 || !bookingStart || !bookingEnd) {
+    return [];
+  }
+
+  const nonBusinessHours = calculateNonBusinessHours(
+    bookingStart,
+    bookingEnd,
+    timezone,
+    businessHoursEnd
+  );
+
+  if (nonBusinessHours <= 0) {
+    return [];
+  }
+
+  return [
+    {
+      code: 'line-item/evening-surcharge',
+      unitPrice: new Money(surchargePerHourSubunits, currency),
+      quantity: nonBusinessHours,
+      includeFor: ['customer', 'provider'],
+    },
+  ];
 };
 
 /**
@@ -227,13 +271,21 @@ exports.transactionLineItems = (listing, orderData, providerCommission, customer
     includeFor: ['customer', 'provider'],
   };
 
+  // Evening surcharge for hourly bookings with eveningSurchargePerHourSubunits in publicData
+  const surchargeLineItems =
+    unitType === 'hour' ? getEveningSurchargeLineItems(orderData, listing, currency) : [];
+
+  // Commission is calculated on commissionable line items (base order + surcharges)
+  const commissionableLineItems = [order, ...surchargeLineItems];
+
   // Let's keep the base price (order) as first line item and provider and customer commissions as last.
   // Note: the order matters only if OrderBreakdown component doesn't recognize line-item.
   const lineItems = [
     order,
     ...extraLineItems,
-    ...getProviderCommissionMaybe(providerCommission, order, currency),
-    ...getCustomerCommissionMaybe(customerCommission, order, currency),
+    ...surchargeLineItems,
+    ...getProviderCommissionMaybe(providerCommission, commissionableLineItems, currency),
+    ...getCustomerCommissionMaybe(customerCommission, commissionableLineItems, currency),
   ];
 
   return lineItems;

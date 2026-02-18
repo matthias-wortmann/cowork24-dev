@@ -729,6 +729,102 @@ describe('transactionLineItems', () => {
     });
   });
 
+  describe('Evening Surcharge for Hourly Bookings', () => {
+    const eventSpaceListing = {
+      attributes: {
+        price: new Money(30000, 'CHF'), // CHF 300/hour
+        availabilityPlan: { timezone: 'Europe/Zurich' },
+        publicData: {
+          unitType: 'hour',
+          priceVariationsEnabled: false,
+          eveningSurchargePerHourSubunits: 10000, // CHF 100/hour surcharge
+          businessHoursEnd: 17,
+        },
+      },
+    };
+
+    it('should NOT add surcharge for a booking entirely within business hours (08:00-15:00 CEST)', () => {
+      const orderData = {
+        bookingStart: '2025-06-15T06:00:00.000Z', // 08:00 CEST
+        bookingEnd: '2025-06-15T13:00:00.000Z', // 15:00 CEST
+      };
+
+      const result = transactionLineItems(eventSpaceListing, orderData, null, null);
+
+      expect(result).toHaveLength(1); // only base order
+      expect(result[0].code).toBe('line-item/hour');
+      expect(result[0].quantity).toBe(7);
+    });
+
+    it('should add surcharge for a booking entirely in non-business hours (18:00-21:00 CEST)', () => {
+      const orderData = {
+        bookingStart: '2025-06-15T16:00:00.000Z', // 18:00 CEST
+        bookingEnd: '2025-06-15T19:00:00.000Z', // 21:00 CEST
+      };
+
+      const result = transactionLineItems(eventSpaceListing, orderData, null, null);
+
+      expect(result).toHaveLength(2); // base order + surcharge
+      expect(result[0].code).toBe('line-item/hour');
+      expect(result[0].quantity).toBe(3);
+      expect(result[1].code).toBe('line-item/evening-surcharge');
+      expect(result[1].unitPrice).toEqual(new Money(10000, 'CHF'));
+      expect(result[1].quantity).toBe(3);
+    });
+
+    it('should add surcharge only for non-business hours portion (15:00-20:00 CEST = 3h surcharge)', () => {
+      const orderData = {
+        bookingStart: '2025-06-15T13:00:00.000Z', // 15:00 CEST
+        bookingEnd: '2025-06-15T18:00:00.000Z', // 20:00 CEST
+      };
+
+      const result = transactionLineItems(eventSpaceListing, orderData, null, null);
+
+      expect(result).toHaveLength(2);
+      expect(result[0].code).toBe('line-item/hour');
+      expect(result[0].quantity).toBe(5);
+      expect(result[1].code).toBe('line-item/evening-surcharge');
+      expect(result[1].quantity).toBe(3); // 17:00-20:00 = 3h
+    });
+
+    it('should NOT add surcharge when listing has no eveningSurchargePerHourSubunits', () => {
+      const listingWithoutSurcharge = {
+        attributes: {
+          price: new Money(30000, 'CHF'),
+          publicData: { unitType: 'hour', priceVariationsEnabled: false },
+        },
+      };
+
+      const orderData = {
+        bookingStart: '2025-06-15T16:00:00.000Z', // 18:00 CEST
+        bookingEnd: '2025-06-15T19:00:00.000Z', // 21:00 CEST
+      };
+
+      const result = transactionLineItems(listingWithoutSurcharge, orderData, null, null);
+
+      expect(result).toHaveLength(1); // only base order
+      expect(result[0].code).toBe('line-item/hour');
+    });
+
+    it('should include surcharge in commission calculation', () => {
+      const orderData = {
+        bookingStart: '2025-06-15T16:00:00.000Z', // 18:00 CEST
+        bookingEnd: '2025-06-15T19:00:00.000Z', // 21:00 CEST (3h, all non-business)
+      };
+
+      const commission = { percentage: 10 };
+
+      const result = transactionLineItems(eventSpaceListing, orderData, commission, null);
+
+      // base: CHF 300 * 3h = CHF 900, surcharge: CHF 100 * 3h = CHF 300, total = CHF 1200
+      // provider commission = -10% of CHF 1200 = -CHF 120
+      const providerCommission = result.find(li => li.code === 'line-item/provider-commission');
+      expect(providerCommission).toBeDefined();
+      expect(providerCommission.unitPrice).toEqual(new Money(120000, 'CHF')); // Total of base + surcharge
+      expect(providerCommission.percentage).toBe(-10);
+    });
+  });
+
   describe('Currency Handling', () => {
     it('should use currency from orderData when listing price has no currency', () => {
       const listing = {

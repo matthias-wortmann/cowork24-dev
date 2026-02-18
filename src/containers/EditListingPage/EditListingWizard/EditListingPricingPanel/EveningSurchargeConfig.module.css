@@ -1,0 +1,57 @@
+@import '../../../../styles/customMediaQueries.css';
+
+.root {
+  display: flex;
+  flex-direction: column;
+  margin: 24px 0 0 0;
+  padding: 18px 0 0 0;
+  border: none;
+  border-top: 1px solid var(--colorGrey100);
+
+  @media (--viewportMedium) {
+    margin-top: 32px;
+    padding-top: 24px;
+  }
+}
+
+.legend {
+  composes: h4 from global;
+  font-weight: var(--fontWeightSemiBold);
+  margin: 0 0 12px 0;
+  padding: 0;
+
+  @media (--viewportMedium) {
+    margin-bottom: 16px;
+  }
+}
+
+.fields {
+  margin-top: 12px;
+
+  @media (--viewportMedium) {
+    margin-top: 16px;
+  }
+}
+
+.surchargeInput {
+  margin-bottom: 18px;
+
+  @media (--viewportMedium) {
+    margin-bottom: 24px;
+  }
+}
+
+.selectInput {
+  margin-bottom: 12px;
+
+  @media (--viewportMedium) {
+    margin-bottom: 16px;
+    max-width: 300px;
+  }
+}
+
+.hint {
+  composes: marketplaceTinyFontSize from global;
+  color: var(--colorGrey300);
+  margin: 0;
+}

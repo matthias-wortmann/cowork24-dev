@@ -102,6 +102,7 @@ export const BookingTimeForm = props => {
     dayCountAvailableForBooking,
     marketplaceName,
     seatsEnabled,
+    startTimeInterval,
     isPriceVariationsInUse,
     priceVariants = [],
     priceVariantFieldComponent: PriceVariantFieldComponent,
@@ -184,6 +185,7 @@ export const BookingTimeForm = props => {
               <FieldDateAndTimeInput
                 seatsEnabled={seatsEnabled}
                 setSeatsOptions={setSeatsOptions}
+                startTimeInterval={startTimeInterval}
                 startDateInputProps={{
                   label: intl.formatMessage({ id: 'BookingTimeForm.bookingStartTitle' }),
                   placeholderText: startDatePlaceholder,
@@ -207,7 +209,7 @@ export const BookingTimeForm = props => {
                 handleFetchLineItems={onHandleFetchLineItems}
               />
             ) : null}
-            {seatsEnabled ? (
+            {seatsEnabled && seatsOptions.length > 1 ? (
               <FieldSelect
                 name="seats"
                 id="seats"

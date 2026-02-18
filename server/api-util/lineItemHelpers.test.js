@@ -7,6 +7,7 @@ const {
   calculateTotalPriceFromSeats,
   calculateQuantityFromDates,
   calculateQuantityFromHours,
+  calculateNonBusinessHours,
   calculateLineTotal,
   calculateShippingFee,
   calculateTotalFromLineItems,
@@ -726,5 +727,50 @@ describe('getCustomerCommissionMaybe()', () => {
       },
     ];
     expect(getCustomerCommissionMaybe(commission, order, currency)).toEqual(expectedLineItems);
+  });
+});
+
+describe('calculateNonBusinessHours()', () => {
+  const tz = 'Europe/Zurich';
+
+  it('should return 0 for a booking entirely within business hours (08:00-15:00)', () => {
+    const start = new Date('2025-06-15T06:00:00.000Z'); // 08:00 CEST
+    const end = new Date('2025-06-15T13:00:00.000Z'); // 15:00 CEST
+    expect(calculateNonBusinessHours(start, end, tz, 17)).toBe(0);
+  });
+
+  it('should return full duration for a booking entirely in non-business hours (18:00-21:00)', () => {
+    const start = new Date('2025-06-15T16:00:00.000Z'); // 18:00 CEST
+    const end = new Date('2025-06-15T19:00:00.000Z'); // 21:00 CEST
+    expect(calculateNonBusinessHours(start, end, tz, 17)).toBe(3);
+  });
+
+  it('should return only non-business portion for a booking crossing the threshold (15:00-20:00)', () => {
+    const start = new Date('2025-06-15T13:00:00.000Z'); // 15:00 CEST
+    const end = new Date('2025-06-15T18:00:00.000Z'); // 20:00 CEST
+    expect(calculateNonBusinessHours(start, end, tz, 17)).toBe(3);
+  });
+
+  it('should return 0 for a booking ending exactly at 17:00 (10:00-17:00)', () => {
+    const start = new Date('2025-06-15T08:00:00.000Z'); // 10:00 CEST
+    const end = new Date('2025-06-15T15:00:00.000Z'); // 17:00 CEST
+    expect(calculateNonBusinessHours(start, end, tz, 17)).toBe(0);
+  });
+
+  it('should handle fractional hours crossing the threshold (16:30-18:00)', () => {
+    const start = new Date('2025-06-15T14:30:00.000Z'); // 16:30 CEST
+    const end = new Date('2025-06-15T16:00:00.000Z'); // 18:00 CEST
+    expect(calculateNonBusinessHours(start, end, tz, 17)).toBe(1);
+  });
+
+  it('should return 0 when start equals end', () => {
+    const start = new Date('2025-06-15T10:00:00.000Z');
+    expect(calculateNonBusinessHours(start, start, tz, 17)).toBe(0);
+  });
+
+  it('should use default timezone and businessHoursEnd when not provided', () => {
+    const start = new Date('2025-06-15T13:00:00.000Z'); // 15:00 CEST in Europe/Zurich
+    const end = new Date('2025-06-15T18:00:00.000Z'); // 20:00 CEST in Europe/Zurich
+    expect(calculateNonBusinessHours(start, end)).toBe(3);
   });
 });

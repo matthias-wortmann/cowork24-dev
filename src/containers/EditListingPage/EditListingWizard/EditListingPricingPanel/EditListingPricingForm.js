@@ -16,6 +16,7 @@ import { Button, Form, FieldCurrencyInput } from '../../../../components';
 
 import BookingPriceVariants from './BookingPriceVariants';
 import StartTimeInterval from './StartTimeInverval';
+import EveningSurchargeConfig from './EveningSurchargeConfig';
 
 // Import modules from this directory
 import css from './EditListingPricingForm.module.css';
@@ -133,6 +134,7 @@ export const EditListingPricingForm = props => (
       const { process } = transactionType || {};
       const isBooking = isBookingProcess(process);
 
+      const isHourlyBooking = isBooking && unitType === 'hour';
       const isFixedLengthBooking = isBooking && unitType === FIXED;
       const isBookingPriceVariationsInUse = isBooking && isPriceVariationsInUse;
       const isUsingPriceVariants = isFixedLengthBooking || isBookingPriceVariationsInUse;
@@ -198,6 +200,14 @@ export const EditListingPricingForm = props => (
       {/* When the start time interval is hidden we don't mutate the form
         during render. Downstream code will treat a missing
         `startTimeInterval` as start-of-day. */}
+
+          {isHourlyBooking ? (
+            <EveningSurchargeConfig
+              formId={formId}
+              marketplaceCurrency={marketplaceCurrency}
+              formValues={formValues}
+            />
+          ) : null}
 
           <Button
             className={css.submitButton}
