@@ -2,7 +2,6 @@ const {
   calculateQuantityFromDates,
   calculateQuantityFromHours,
   calculateOverlappingHours,
-  calculateNonBusinessHours,
   calculateShippingFee,
   slugifyLabel,
   getProviderCommissionMaybe,
