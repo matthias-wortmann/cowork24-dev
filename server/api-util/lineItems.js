@@ -1,8 +1,10 @@
 const {
   calculateQuantityFromDates,
   calculateQuantityFromHours,
+  calculateOverlappingHours,
   calculateNonBusinessHours,
   calculateShippingFee,
+  slugifyLabel,
   getProviderCommissionMaybe,
   getCustomerCommissionMaybe,
 } = require('./lineItemHelpers');
@@ -69,46 +71,98 @@ const getFixedQuantityAndLineItems = orderData => {
 };
 
 /**
- * Get evening surcharge line items for bookings that span non-business hours.
- * Business hours: 08:00–17:00, non-business hours: 17:00–24:00.
- * The surcharge amount is defined in listing publicData.eveningSurchargePerHourSubunits.
+ * Rule-type handler map. Each handler receives a rule config, orderData, timezone,
+ * and currency, and returns a line item object or null.
+ */
+const RULE_TYPE_HANDLERS = {
+  'time-of-day': (rule, orderData, timezone, currency) => {
+    const { bookingStart, bookingEnd } = orderData || {};
+    const { surchargePerHourSubunits, fromHour = 17, toHour = 24 } = rule;
+
+    if (!surchargePerHourSubunits || surchargePerHourSubunits <= 0 || !bookingStart || !bookingEnd) {
+      return null;
+    }
+
+    const hours = calculateOverlappingHours(bookingStart, bookingEnd, timezone, fromHour, toHour);
+
+    if (hours <= 0) {
+      return null;
+    }
+
+    const slug = slugifyLabel(rule.label);
+    return {
+      code: `line-item/${slug}`,
+      unitPrice: new Money(surchargePerHourSubunits, currency),
+      quantity: hours,
+      includeFor: ['customer', 'provider'],
+    };
+  },
+};
+
+/**
+ * Ensure all line item codes in a set are unique by appending a numeric suffix on collision.
+ * @param {Array<Object>} lineItems
+ * @returns {Array<Object>} lineItems with unique codes
+ */
+const deduplicateLineItemCodes = lineItems => {
+  const seenCodes = new Set();
+  return lineItems.map(item => {
+    let code = item.code;
+    if (seenCodes.has(code)) {
+      let counter = 2;
+      while (seenCodes.has(`${code}-${counter}`)) {
+        counter++;
+      }
+      code = `${code}-${counter}`;
+    }
+    seenCodes.add(code);
+    return { ...item, code };
+  });
+};
+
+/**
+ * Get pricing rule line items for hourly bookings.
+ * Reads pricingRules from publicData, with backward compatibility for legacy
+ * eveningSurchargePerHourSubunits field.
  *
  * @param {Object} orderData
  * @param {Object} listing full listing object
  * @param {string} currency
  * @returns {Array} surcharge line items (empty array if not applicable)
  */
-const getEveningSurchargeLineItems = (orderData, listing, currency) => {
-  const { bookingStart, bookingEnd } = orderData || {};
+const getPricingRuleLineItems = (orderData, listing, currency) => {
   const publicData = listing?.attributes?.publicData || {};
-  const surchargePerHourSubunits = publicData.eveningSurchargePerHourSubunits;
   const availabilityPlanTz = listing?.attributes?.availabilityPlan?.timezone;
   const timezone = publicData.listingTimezone || availabilityPlanTz || 'Europe/Zurich';
-  const businessHoursEnd = publicData.businessHoursEnd || 17;
 
-  if (!surchargePerHourSubunits || surchargePerHourSubunits <= 0 || !bookingStart || !bookingEnd) {
-    return [];
+  let rules = publicData.pricingRules;
+
+  // Backward compatibility: convert legacy evening surcharge to a pricing rule
+  if (!Array.isArray(rules) || rules.length === 0) {
+    const { eveningSurchargePerHourSubunits, businessHoursEnd } = publicData;
+    if (eveningSurchargePerHourSubunits && eveningSurchargePerHourSubunits > 0) {
+      rules = [
+        {
+          type: 'time-of-day',
+          label: 'evening-surcharge',
+          surchargePerHourSubunits: eveningSurchargePerHourSubunits,
+          fromHour: businessHoursEnd || 17,
+          toHour: 24,
+        },
+      ];
+    } else {
+      return [];
+    }
   }
 
-  const nonBusinessHours = calculateNonBusinessHours(
-    bookingStart,
-    bookingEnd,
-    timezone,
-    businessHoursEnd
-  );
+  const lineItems = rules
+    .map(rule => {
+      const handler = RULE_TYPE_HANDLERS[rule.type];
+      return handler ? handler(rule, orderData, timezone, currency) : null;
+    })
+    .filter(Boolean);
 
-  if (nonBusinessHours <= 0) {
-    return [];
-  }
-
-  return [
-    {
-      code: 'line-item/evening-surcharge',
-      unitPrice: new Money(surchargePerHourSubunits, currency),
-      quantity: nonBusinessHours,
-      includeFor: ['customer', 'provider'],
-    },
-  ];
+  return deduplicateLineItemCodes(lineItems);
 };
 
 /**
@@ -271,9 +325,9 @@ exports.transactionLineItems = (listing, orderData, providerCommission, customer
     includeFor: ['customer', 'provider'],
   };
 
-  // Evening surcharge for hourly bookings with eveningSurchargePerHourSubunits in publicData
+  // Dynamic pricing rules for hourly bookings (surcharges based on time-of-day, etc.)
   const surchargeLineItems =
-    unitType === 'hour' ? getEveningSurchargeLineItems(orderData, listing, currency) : [];
+    unitType === 'hour' ? getPricingRuleLineItems(orderData, listing, currency) : [];
 
   // Commission is calculated on commissionable line items (base order + surcharges)
   const commissionableLineItems = [order, ...surchargeLineItems];

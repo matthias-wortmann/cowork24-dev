@@ -23,9 +23,9 @@ import {
   handleSubmitValuesForStartTimeInterval,
 } from './StartTimeInverval';
 import {
-  getInitialValuesForEveningSurcharge,
-  handleSubmitValuesForEveningSurcharge,
-} from './EveningSurchargeConfig';
+  getInitialValuesForPricingRules,
+  handleSubmitValuesForPricingRules,
+} from './PricingRulesConfig';
 import css from './EditListingPricingPanel.module.css';
 
 const { Money } = sdkTypes;
@@ -39,24 +39,24 @@ const getListingTypeConfig = (publicData, listingTypes) => {
 // exporting helper functions that handle the initial values and the submission values.
 // This is a tentative approach to contain logic in one place.
 const getInitialValues = props => {
-  const { listing, listingTypes, marketplaceCurrency } = props;
+  const { listing, listingTypes, marketplaceCurrency, intl } = props;
   const { publicData } = listing?.attributes || {};
   const { unitType } = publicData || {};
   const listingTypeConfig = getListingTypeConfig(publicData, listingTypes);
   const isPriceVariationsInUse = isPriceVariationsEnabled(publicData, listingTypeConfig);
 
-  const surchargeInitialValues =
+  const pricingRulesInitialValues =
     unitType === 'hour'
-      ? getInitialValuesForEveningSurcharge({ listing, marketplaceCurrency })
+      ? getInitialValuesForPricingRules({ listing, marketplaceCurrency, intl })
       : {};
 
   return unitType === FIXED || isPriceVariationsInUse
     ? {
         ...getInitialValuesForPriceVariants(props, isPriceVariationsInUse),
         ...getInitialValuesForStartTimeInterval(props),
-        ...surchargeInitialValues,
+        ...pricingRulesInitialValues,
       }
-    : { price: listing?.attributes?.price, ...surchargeInitialValues };
+    : { price: listing?.attributes?.price, ...pricingRulesInitialValues };
 };
 
 // This is needed to show the listing's price consistently over XHR calls.
@@ -176,9 +176,9 @@ const EditListingPricingPanel = props => {
             // New values for listing attributes
             let updateValues = {};
 
-            // Evening surcharge publicData (for hourly listings)
+            // Dynamic pricing rules publicData (for hourly listings)
             const surchargeChanges =
-              unitType === 'hour' ? handleSubmitValuesForEveningSurcharge(values) : {};
+              unitType === 'hour' ? handleSubmitValuesForPricingRules(values) : {};
 
             if (unitType === FIXED || isPriceVariationsInUse) {
               let publicDataUpdates = { priceVariationsEnabled: isPriceVariationsInUse };

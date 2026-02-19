@@ -730,6 +730,161 @@ describe('getCustomerCommissionMaybe()', () => {
   });
 });
 
+describe('calculateOverlappingHours()', () => {
+  const { calculateOverlappingHours } = require('./lineItemHelpers');
+  const tz = 'Europe/Zurich';
+
+  it('should return full overlap when booking is entirely within the window', () => {
+    // 18:00-21:00 CEST, window [17, 24)
+    const start = new Date('2025-06-15T16:00:00.000Z');
+    const end = new Date('2025-06-15T19:00:00.000Z');
+    expect(calculateOverlappingHours(start, end, tz, 17, 24)).toBe(3);
+  });
+
+  it('should return 0 when booking is entirely outside the window', () => {
+    // 08:00-12:00 CEST, window [17, 24)
+    const start = new Date('2025-06-15T06:00:00.000Z');
+    const end = new Date('2025-06-15T10:00:00.000Z');
+    expect(calculateOverlappingHours(start, end, tz, 17, 24)).toBe(0);
+  });
+
+  it('should return only the overlapping portion when booking crosses into the window', () => {
+    // 15:00-20:00 CEST, window [17, 24) => 3h overlap (17:00-20:00)
+    const start = new Date('2025-06-15T13:00:00.000Z');
+    const end = new Date('2025-06-15T18:00:00.000Z');
+    expect(calculateOverlappingHours(start, end, tz, 17, 24)).toBe(3);
+  });
+
+  it('should return only the overlapping portion when booking extends past the window end', () => {
+    // 07:00-11:00 CEST, window [6, 9) => 2h overlap (07:00-09:00)
+    const start = new Date('2025-06-15T05:00:00.000Z');
+    const end = new Date('2025-06-15T09:00:00.000Z');
+    expect(calculateOverlappingHours(start, end, tz, 6, 9)).toBe(2);
+  });
+
+  it('should handle a narrow morning window [6, 9)', () => {
+    // 05:00-10:00 CEST, window [6, 9) => 3h overlap
+    const start = new Date('2025-06-15T03:00:00.000Z');
+    const end = new Date('2025-06-15T08:00:00.000Z');
+    expect(calculateOverlappingHours(start, end, tz, 6, 9)).toBe(3);
+  });
+
+  it('should return 0 when booking ends exactly at window start', () => {
+    // 10:00-17:00 CEST, window [17, 24)
+    const start = new Date('2025-06-15T08:00:00.000Z');
+    const end = new Date('2025-06-15T15:00:00.000Z');
+    expect(calculateOverlappingHours(start, end, tz, 17, 24)).toBe(0);
+  });
+
+  it('should return 0 when booking starts exactly at window end', () => {
+    // 09:00-12:00 CEST, window [6, 9)
+    const start = new Date('2025-06-15T07:00:00.000Z');
+    const end = new Date('2025-06-15T10:00:00.000Z');
+    expect(calculateOverlappingHours(start, end, tz, 6, 9)).toBe(0);
+  });
+
+  it('should handle fractional hours within the window', () => {
+    // 17:30-19:00 CEST, window [17, 24) => 1.5h
+    const start = new Date('2025-06-15T15:30:00.000Z');
+    const end = new Date('2025-06-15T17:00:00.000Z');
+    expect(calculateOverlappingHours(start, end, tz, 17, 24)).toBe(1.5);
+  });
+
+  it('should handle fractional hours crossing the window start', () => {
+    // 16:30-18:00 CEST, window [17, 24) => 1h (17:00-18:00)
+    const start = new Date('2025-06-15T14:30:00.000Z');
+    const end = new Date('2025-06-15T16:00:00.000Z');
+    expect(calculateOverlappingHours(start, end, tz, 17, 24)).toBe(1);
+  });
+
+  it('should return 0 when start equals end', () => {
+    const t = new Date('2025-06-15T16:00:00.000Z');
+    expect(calculateOverlappingHours(t, t, tz, 17, 24)).toBe(0);
+  });
+
+  it('should handle window [0, 6) for late-night surcharges', () => {
+    // 02:00-05:00 CEST, window [0, 6) => 3h
+    const start = new Date('2025-06-15T00:00:00.000Z');
+    const end = new Date('2025-06-15T03:00:00.000Z');
+    expect(calculateOverlappingHours(start, end, tz, 0, 6)).toBe(3);
+  });
+
+  it('should handle a single-hour window [12, 13)', () => {
+    // 11:00-14:00 CEST, window [12, 13) => 1h
+    const start = new Date('2025-06-15T09:00:00.000Z');
+    const end = new Date('2025-06-15T12:00:00.000Z');
+    expect(calculateOverlappingHours(start, end, tz, 12, 13)).toBe(1);
+  });
+
+  it('should use default timezone and window when not provided', () => {
+    // 15:00-20:00 CEST in Europe/Zurich, default window [17, 24) => 3h
+    const start = new Date('2025-06-15T13:00:00.000Z');
+    const end = new Date('2025-06-15T18:00:00.000Z');
+    expect(calculateOverlappingHours(start, end)).toBe(3);
+  });
+});
+
+describe('slugifyLabel()', () => {
+  const { slugifyLabel } = require('./lineItemHelpers');
+
+  it('should lowercase and replace spaces with hyphens', () => {
+    expect(slugifyLabel('Evening Surcharge')).toBe('evening-surcharge');
+  });
+
+  it('should handle German umlauts', () => {
+    expect(slugifyLabel('Abendaufschlag')).toBe('abendaufschlag');
+    expect(slugifyLabel('Frühaufschlag')).toBe('fruhaufschlag');
+    expect(slugifyLabel('Büroöffnung')).toBe('burooffnung');
+    expect(slugifyLabel('Straße')).toBe('strasse');
+  });
+
+  it('should handle French accented characters', () => {
+    expect(slugifyLabel('Supplément soirée')).toBe('supplement-soiree');
+    expect(slugifyLabel('Après-midi')).toBe('apres-midi');
+  });
+
+  it('should handle Spanish characters', () => {
+    expect(slugifyLabel('Recargo nocturno')).toBe('recargo-nocturno');
+    expect(slugifyLabel('Mañana')).toBe('manana');
+  });
+
+  it('should strip special characters', () => {
+    expect(slugifyLabel('Price (extra)')).toBe('price-extra');
+    expect(slugifyLabel('100% surcharge!')).toBe('100-surcharge');
+    expect(slugifyLabel('@#$%^&*')).toBe('surcharge');
+  });
+
+  it('should collapse consecutive hyphens', () => {
+    expect(slugifyLabel('Evening -- Surcharge')).toBe('evening-surcharge');
+    expect(slugifyLabel('a---b')).toBe('a-b');
+  });
+
+  it('should trim leading and trailing whitespace', () => {
+    expect(slugifyLabel('  Evening Surcharge  ')).toBe('evening-surcharge');
+  });
+
+  it('should truncate to 50 characters', () => {
+    const longLabel = 'A'.repeat(60);
+    expect(slugifyLabel(longLabel).length).toBe(50);
+  });
+
+  it('should return "surcharge" for null/undefined/empty input', () => {
+    expect(slugifyLabel(null)).toBe('surcharge');
+    expect(slugifyLabel(undefined)).toBe('surcharge');
+    expect(slugifyLabel('')).toBe('surcharge');
+  });
+
+  it('should handle labels with only special characters', () => {
+    expect(slugifyLabel('***')).toBe('surcharge');
+    expect(slugifyLabel('...')).toBe('surcharge');
+  });
+
+  it('should preserve numbers in labels', () => {
+    expect(slugifyLabel('Phase 2 Aufschlag')).toBe('phase-2-aufschlag');
+    expect(slugifyLabel('17-24 Uhr')).toBe('17-24-uhr');
+  });
+});
+
 describe('calculateNonBusinessHours()', () => {
   const tz = 'Europe/Zurich';
 

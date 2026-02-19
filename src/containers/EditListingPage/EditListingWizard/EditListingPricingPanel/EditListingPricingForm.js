@@ -16,7 +16,7 @@ import { Button, Form, FieldCurrencyInput } from '../../../../components';
 
 import BookingPriceVariants from './BookingPriceVariants';
 import StartTimeInterval from './StartTimeInverval';
-import EveningSurchargeConfig from './EveningSurchargeConfig';
+import PricingRulesConfig from './PricingRulesConfig';
 
 // Import modules from this directory
 import css from './EditListingPricingForm.module.css';
@@ -202,10 +202,11 @@ export const EditListingPricingForm = props => (
         `startTimeInterval` as start-of-day. */}
 
           {isHourlyBooking ? (
-            <EveningSurchargeConfig
+            <PricingRulesConfig
               formId={formId}
               marketplaceCurrency={marketplaceCurrency}
               formValues={formValues}
+              initialRuleCount={formInitialValues?.pricingRules?.length || 0}
             />
           ) : null}
 

@@ -1,0 +1,143 @@
+@import '../../../../styles/customMediaQueries.css';
+
+.root {
+  display: flex;
+  flex-direction: column;
+  margin: 24px 0 0 0;
+  padding: 18px 0 0 0;
+  border: none;
+  border-top: 1px solid var(--colorGrey100);
+
+  @media (--viewportMedium) {
+    margin-top: 32px;
+    padding-top: 24px;
+  }
+}
+
+.legend {
+  composes: h4 from global;
+  font-weight: var(--fontWeightSemiBold);
+  margin: 0 0 6px 0;
+  padding: 0;
+
+  @media (--viewportMedium) {
+    margin-bottom: 8px;
+  }
+}
+
+.hint {
+  composes: marketplaceTinyFontSize from global;
+  color: var(--colorGrey300);
+  margin: 0 0 18px 0;
+
+  @media (--viewportMedium) {
+    margin-bottom: 24px;
+  }
+}
+
+.rules {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+
+  @media (--viewportMedium) {
+    gap: 24px;
+  }
+}
+
+.ruleCard {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 18px;
+  border: 1px solid var(--colorGrey100);
+  border-radius: 8px;
+  background-color: var(--colorWhite);
+
+  @media (--viewportMedium) {
+    padding: 24px;
+    gap: 16px;
+  }
+}
+
+.ruleHeader {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.labelInput {
+  flex: 1;
+}
+
+.deleteButton {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  padding: 8px;
+  margin-top: 24px;
+  color: var(--colorGrey300);
+
+  &:hover {
+    color: var(--colorFail);
+  }
+}
+
+.deleteIcon {
+  width: 14px;
+  height: 14px;
+}
+
+.typeSelect {
+  @media (--viewportMedium) {
+    max-width: 300px;
+  }
+}
+
+.ruleFields {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 6px;
+
+  @media (--viewportMedium) {
+    gap: 16px;
+    margin-top: 8px;
+  }
+}
+
+.surchargeInput {
+}
+
+.hourSelects {
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+
+  @media (--viewportMedium) {
+    gap: 16px;
+  }
+}
+
+.selectInput {
+  flex: 1;
+
+  @media (--viewportMedium) {
+    max-width: 200px;
+  }
+}
+
+.addRuleButton {
+  composes: marketplaceSmallFontSize from global;
+  font-weight: var(--fontWeightMedium);
+  color: var(--marketplaceColor);
+  margin-top: 18px;
+
+  @media (--viewportMedium) {
+    margin-top: 24px;
+  }
+}

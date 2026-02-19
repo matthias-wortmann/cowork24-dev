@@ -208,9 +208,43 @@ exports.calculateQuantityFromHours = (startDate, endDate) => {
 };
 
 /**
+ * Calculate the number of hours within a booking that overlap with a given
+ * time-of-day window [fromHour, toHour). Assumes same-day bookings.
+ *
+ * @param {Date|string} startDate booking start
+ * @param {Date|string} endDate booking end
+ * @param {string} timezone IANA timezone (default: Europe/Zurich)
+ * @param {number} fromHour start of the surcharge window (0-24)
+ * @param {number} toHour end of the surcharge window (0-24, exclusive)
+ * @returns {number} fractional hours that overlap with the window
+ */
+exports.calculateOverlappingHours = (
+  startDate,
+  endDate,
+  timezone = 'Europe/Zurich',
+  fromHour = 17,
+  toHour = 24
+) => {
+  const start = moment(startDate).tz(timezone);
+  const end = moment(endDate).tz(timezone);
+  const dayStart = start.clone().startOf('day');
+
+  const windowStart = dayStart.clone().add(fromHour, 'hours');
+  const windowEnd = dayStart.clone().add(toHour, 'hours');
+
+  const overlapStart = moment.max(start, windowStart);
+  const overlapEnd = moment.min(end, windowEnd);
+
+  if (overlapEnd.isSameOrBefore(overlapStart)) {
+    return 0;
+  }
+
+  return overlapEnd.diff(overlapStart, 'hours', true);
+};
+
+/**
  * Calculate the number of non-business hours within a booking period.
- * Non-business hours are defined as hours at or after businessHoursEnd (default 17:00)
- * until midnight, in the listing's timezone. Assumes same-day bookings.
+ * Delegates to calculateOverlappingHours with [businessHoursEnd, 24).
  *
  * @param {Date|string} startDate booking start
  * @param {Date|string} endDate booking end
@@ -224,17 +258,33 @@ exports.calculateNonBusinessHours = (
   timezone = 'Europe/Zurich',
   businessHoursEnd = 17
 ) => {
-  const start = moment(startDate).tz(timezone);
-  const end = moment(endDate).tz(timezone);
-  const threshold = start.clone().startOf('day').add(businessHoursEnd, 'hours');
+  return exports.calculateOverlappingHours(startDate, endDate, timezone, businessHoursEnd, 24);
+};
 
-  if (end.isSameOrBefore(threshold)) {
-    return 0;
-  }
-  if (start.isSameOrAfter(threshold)) {
-    return end.diff(start, 'hours', true);
-  }
-  return end.diff(threshold, 'hours', true);
+/**
+ * Convert a human-readable label into a valid line-item code suffix.
+ * Lowercases, removes non-alphanumeric characters (except spaces/hyphens),
+ * replaces spaces with hyphens, and collapses consecutive hyphens.
+ *
+ * @param {string} label
+ * @returns {string} slugified label suitable for line-item codes
+ */
+exports.slugifyLabel = label => {
+  return (label || 'surcharge')
+    .toLowerCase()
+    .replace(/[äàáâã]/g, 'a')
+    .replace(/[öòóôõ]/g, 'o')
+    .replace(/[üùúû]/g, 'u')
+    .replace(/[ëèéê]/g, 'e')
+    .replace(/[ïìíî]/g, 'i')
+    .replace(/ß/g, 'ss')
+    .replace(/ñ/g, 'n')
+    .replace(/ç/g, 'c')
+    .replace(/[^a-z0-9\s-]/g, '')
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .slice(0, 50) || 'surcharge';
 };
 
 /**

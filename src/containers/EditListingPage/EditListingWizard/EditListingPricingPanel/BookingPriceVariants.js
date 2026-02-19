@@ -69,6 +69,24 @@ const getDurationFactors = durationInMinutes => {
   return [hours, minutes];
 };
 
+export const minutesToUnitAndValue = totalMinutes => {
+  if (totalMinutes == null || totalMinutes <= 0) {
+    return { unit: 'hours', value: 1 };
+  }
+  const monthMinutes = 30 * 24 * 60;
+  if (totalMinutes >= monthMinutes && totalMinutes % monthMinutes === 0) {
+    return { unit: 'months', value: totalMinutes / monthMinutes };
+  }
+  const dayMinutes = 24 * 60;
+  if (totalMinutes >= dayMinutes && totalMinutes % dayMinutes === 0) {
+    return { unit: 'days', value: totalMinutes / dayMinutes };
+  }
+  if (totalMinutes >= 60 && totalMinutes % 60 === 0) {
+    return { unit: 'hours', value: totalMinutes / 60 };
+  }
+  return { unit: 'minutes', value: totalMinutes };
+};
+
 const setDefault = (value, defaultValue) => (value != null ? value : defaultValue);
 
 /**
@@ -197,7 +215,6 @@ export const handleSubmitValuesForPriceVariants = (
                 normalizedBookingLengthInMinutes = bookingLengthInMinutes;
               }
             }
-
             const bookingLengthInMinutesMaybe = isFixedUnitType
               ? { bookingLengthInMinutes: normalizedBookingLengthInMinutes }
               : {};
@@ -269,11 +286,12 @@ const FieldBookingLength = props => {
   return (
     <Field name={name} {...rest}>
       {({ input, meta }) => {
-        // input.value expected to be a number (minutes) or an object when using units
-        // For simplicity, store a small helper object in the UI for unit & value when possible
         const stored = input.value && typeof input.value === 'object' ? input.value : null;
-        const [unit, setUnit] = useState(stored?.unit || 'hours');
-        const [value, setValue] = useState(stored?.value || 1);
+        const numericInit = !stored && typeof input.value === 'number'
+          ? minutesToUnitAndValue(input.value)
+          : null;
+        const [unit, setUnit] = useState(stored?.unit || numericInit?.unit || 'hours');
+        const [value, setValue] = useState(stored?.value || numericInit?.value || 1);
         const { valid, invalid, touched, error } = meta;
 
         // When unit/value change, compute minutes and update the form value

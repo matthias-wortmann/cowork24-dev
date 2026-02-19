@@ -729,66 +729,74 @@ describe('transactionLineItems', () => {
     });
   });
 
-  describe('Evening Surcharge for Hourly Bookings', () => {
-    const eventSpaceListing = {
+  describe('Pricing Rules for Hourly Bookings', () => {
+    const listingWithPricingRules = {
       attributes: {
         price: new Money(30000, 'CHF'), // CHF 300/hour
         availabilityPlan: { timezone: 'Europe/Zurich' },
         publicData: {
           unitType: 'hour',
           priceVariationsEnabled: false,
-          eveningSurchargePerHourSubunits: 10000, // CHF 100/hour surcharge
-          businessHoursEnd: 17,
+          pricingRules: [
+            {
+              id: 'rule-1',
+              type: 'time-of-day',
+              label: 'Abendaufschlag',
+              surchargePerHourSubunits: 10000, // CHF 100/hour
+              fromHour: 17,
+              toHour: 24,
+            },
+          ],
         },
       },
     };
 
-    it('should NOT add surcharge for a booking entirely within business hours (08:00-15:00 CEST)', () => {
+    it('should NOT add surcharge for a booking entirely outside the rule window (08:00-15:00 CEST)', () => {
       const orderData = {
         bookingStart: '2025-06-15T06:00:00.000Z', // 08:00 CEST
         bookingEnd: '2025-06-15T13:00:00.000Z', // 15:00 CEST
       };
 
-      const result = transactionLineItems(eventSpaceListing, orderData, null, null);
+      const result = transactionLineItems(listingWithPricingRules, orderData, null, null);
 
-      expect(result).toHaveLength(1); // only base order
+      expect(result).toHaveLength(1);
       expect(result[0].code).toBe('line-item/hour');
       expect(result[0].quantity).toBe(7);
     });
 
-    it('should add surcharge for a booking entirely in non-business hours (18:00-21:00 CEST)', () => {
+    it('should add surcharge for a booking entirely in the rule window (18:00-21:00 CEST)', () => {
       const orderData = {
         bookingStart: '2025-06-15T16:00:00.000Z', // 18:00 CEST
         bookingEnd: '2025-06-15T19:00:00.000Z', // 21:00 CEST
       };
 
-      const result = transactionLineItems(eventSpaceListing, orderData, null, null);
+      const result = transactionLineItems(listingWithPricingRules, orderData, null, null);
 
-      expect(result).toHaveLength(2); // base order + surcharge
+      expect(result).toHaveLength(2);
       expect(result[0].code).toBe('line-item/hour');
       expect(result[0].quantity).toBe(3);
-      expect(result[1].code).toBe('line-item/evening-surcharge');
+      expect(result[1].code).toBe('line-item/abendaufschlag');
       expect(result[1].unitPrice).toEqual(new Money(10000, 'CHF'));
       expect(result[1].quantity).toBe(3);
     });
 
-    it('should add surcharge only for non-business hours portion (15:00-20:00 CEST = 3h surcharge)', () => {
+    it('should add surcharge only for overlapping hours (15:00-20:00 CEST = 3h surcharge)', () => {
       const orderData = {
         bookingStart: '2025-06-15T13:00:00.000Z', // 15:00 CEST
         bookingEnd: '2025-06-15T18:00:00.000Z', // 20:00 CEST
       };
 
-      const result = transactionLineItems(eventSpaceListing, orderData, null, null);
+      const result = transactionLineItems(listingWithPricingRules, orderData, null, null);
 
       expect(result).toHaveLength(2);
       expect(result[0].code).toBe('line-item/hour');
       expect(result[0].quantity).toBe(5);
-      expect(result[1].code).toBe('line-item/evening-surcharge');
+      expect(result[1].code).toBe('line-item/abendaufschlag');
       expect(result[1].quantity).toBe(3); // 17:00-20:00 = 3h
     });
 
-    it('should NOT add surcharge when listing has no eveningSurchargePerHourSubunits', () => {
-      const listingWithoutSurcharge = {
+    it('should NOT add surcharge when listing has no pricing rules', () => {
+      const listingWithoutRules = {
         attributes: {
           price: new Money(30000, 'CHF'),
           publicData: { unitType: 'hour', priceVariationsEnabled: false },
@@ -796,32 +804,527 @@ describe('transactionLineItems', () => {
       };
 
       const orderData = {
-        bookingStart: '2025-06-15T16:00:00.000Z', // 18:00 CEST
-        bookingEnd: '2025-06-15T19:00:00.000Z', // 21:00 CEST
+        bookingStart: '2025-06-15T16:00:00.000Z',
+        bookingEnd: '2025-06-15T19:00:00.000Z',
       };
 
-      const result = transactionLineItems(listingWithoutSurcharge, orderData, null, null);
+      const result = transactionLineItems(listingWithoutRules, orderData, null, null);
 
-      expect(result).toHaveLength(1); // only base order
+      expect(result).toHaveLength(1);
       expect(result[0].code).toBe('line-item/hour');
     });
 
     it('should include surcharge in commission calculation', () => {
       const orderData = {
         bookingStart: '2025-06-15T16:00:00.000Z', // 18:00 CEST
-        bookingEnd: '2025-06-15T19:00:00.000Z', // 21:00 CEST (3h, all non-business)
+        bookingEnd: '2025-06-15T19:00:00.000Z', // 21:00 CEST (3h, all in window)
       };
 
       const commission = { percentage: 10 };
 
-      const result = transactionLineItems(eventSpaceListing, orderData, commission, null);
+      const result = transactionLineItems(listingWithPricingRules, orderData, commission, null);
 
       // base: CHF 300 * 3h = CHF 900, surcharge: CHF 100 * 3h = CHF 300, total = CHF 1200
       // provider commission = -10% of CHF 1200 = -CHF 120
       const providerCommission = result.find(li => li.code === 'line-item/provider-commission');
       expect(providerCommission).toBeDefined();
-      expect(providerCommission.unitPrice).toEqual(new Money(120000, 'CHF')); // Total of base + surcharge
+      expect(providerCommission.unitPrice).toEqual(new Money(120000, 'CHF'));
       expect(providerCommission.percentage).toBe(-10);
+    });
+
+    it('should support multiple pricing rules simultaneously', () => {
+      const listingWithMultipleRules = {
+        attributes: {
+          price: new Money(30000, 'CHF'),
+          availabilityPlan: { timezone: 'Europe/Zurich' },
+          publicData: {
+            unitType: 'hour',
+            priceVariationsEnabled: false,
+            pricingRules: [
+              {
+                id: 'rule-1',
+                type: 'time-of-day',
+                label: 'Abendaufschlag',
+                surchargePerHourSubunits: 10000,
+                fromHour: 17,
+                toHour: 24,
+              },
+              {
+                id: 'rule-2',
+                type: 'time-of-day',
+                label: 'Morgenaufschlag',
+                surchargePerHourSubunits: 5000,
+                fromHour: 6,
+                toHour: 9,
+              },
+            ],
+          },
+        },
+      };
+
+      // Booking 07:00-10:00 CEST (05:00-08:00 UTC in summer)
+      const orderData = {
+        bookingStart: '2025-06-15T05:00:00.000Z', // 07:00 CEST
+        bookingEnd: '2025-06-15T08:00:00.000Z', // 10:00 CEST
+      };
+
+      const result = transactionLineItems(listingWithMultipleRules, orderData, null, null);
+
+      expect(result).toHaveLength(2); // base + morning surcharge only
+      expect(result[0].code).toBe('line-item/hour');
+      expect(result[0].quantity).toBe(3);
+      expect(result[1].code).toBe('line-item/morgenaufschlag');
+      expect(result[1].unitPrice).toEqual(new Money(5000, 'CHF'));
+      expect(result[1].quantity).toBe(2); // 07:00-09:00 = 2h overlap with [6, 9)
+    });
+
+    it('should handle backward-compatible legacy eveningSurcharge fields', () => {
+      const legacyListing = {
+        attributes: {
+          price: new Money(30000, 'CHF'),
+          availabilityPlan: { timezone: 'Europe/Zurich' },
+          publicData: {
+            unitType: 'hour',
+            priceVariationsEnabled: false,
+            eveningSurchargePerHourSubunits: 10000,
+            businessHoursEnd: 17,
+          },
+        },
+      };
+
+      const orderData = {
+        bookingStart: '2025-06-15T16:00:00.000Z', // 18:00 CEST
+        bookingEnd: '2025-06-15T19:00:00.000Z', // 21:00 CEST
+      };
+
+      const result = transactionLineItems(legacyListing, orderData, null, null);
+
+      expect(result).toHaveLength(2);
+      expect(result[0].code).toBe('line-item/hour');
+      expect(result[1].code).toBe('line-item/evening-surcharge');
+      expect(result[1].unitPrice).toEqual(new Money(10000, 'CHF'));
+      expect(result[1].quantity).toBe(3);
+    });
+
+    it('should deduplicate line item codes when rules produce the same slug', () => {
+      const listingWithDuplicateLabels = {
+        attributes: {
+          price: new Money(30000, 'CHF'),
+          availabilityPlan: { timezone: 'Europe/Zurich' },
+          publicData: {
+            unitType: 'hour',
+            priceVariationsEnabled: false,
+            pricingRules: [
+              {
+                id: 'rule-1',
+                type: 'time-of-day',
+                label: 'Aufschlag',
+                surchargePerHourSubunits: 10000,
+                fromHour: 17,
+                toHour: 20,
+              },
+              {
+                id: 'rule-2',
+                type: 'time-of-day',
+                label: 'Aufschlag',
+                surchargePerHourSubunits: 5000,
+                fromHour: 20,
+                toHour: 24,
+              },
+            ],
+          },
+        },
+      };
+
+      const orderData = {
+        bookingStart: '2025-06-15T16:00:00.000Z', // 18:00 CEST
+        bookingEnd: '2025-06-15T21:00:00.000Z', // 23:00 CEST
+      };
+
+      const result = transactionLineItems(listingWithDuplicateLabels, orderData, null, null);
+
+      const surchargeCodes = result.filter(li => li.code.startsWith('line-item/aufschlag'));
+      expect(surchargeCodes).toHaveLength(2);
+      expect(surchargeCodes[0].code).toBe('line-item/aufschlag');
+      expect(surchargeCodes[1].code).toBe('line-item/aufschlag-2');
+    });
+
+    it('should ignore rules with surchargePerHourSubunits of 0', () => {
+      const listing = {
+        attributes: {
+          price: new Money(30000, 'CHF'),
+          availabilityPlan: { timezone: 'Europe/Zurich' },
+          publicData: {
+            unitType: 'hour',
+            priceVariationsEnabled: false,
+            pricingRules: [
+              {
+                id: 'rule-zero',
+                type: 'time-of-day',
+                label: 'Free surcharge',
+                surchargePerHourSubunits: 0,
+                fromHour: 17,
+                toHour: 24,
+              },
+            ],
+          },
+        },
+      };
+
+      const orderData = {
+        bookingStart: '2025-06-15T16:00:00.000Z', // 18:00 CEST
+        bookingEnd: '2025-06-15T19:00:00.000Z', // 21:00 CEST
+      };
+
+      const result = transactionLineItems(listing, orderData, null, null);
+      expect(result).toHaveLength(1);
+      expect(result[0].code).toBe('line-item/hour');
+    });
+
+    it('should ignore rules with negative surchargePerHourSubunits', () => {
+      const listing = {
+        attributes: {
+          price: new Money(30000, 'CHF'),
+          availabilityPlan: { timezone: 'Europe/Zurich' },
+          publicData: {
+            unitType: 'hour',
+            priceVariationsEnabled: false,
+            pricingRules: [
+              {
+                id: 'rule-neg',
+                type: 'time-of-day',
+                label: 'Discount',
+                surchargePerHourSubunits: -5000,
+                fromHour: 17,
+                toHour: 24,
+              },
+            ],
+          },
+        },
+      };
+
+      const orderData = {
+        bookingStart: '2025-06-15T16:00:00.000Z',
+        bookingEnd: '2025-06-15T19:00:00.000Z',
+      };
+
+      const result = transactionLineItems(listing, orderData, null, null);
+      expect(result).toHaveLength(1);
+      expect(result[0].code).toBe('line-item/hour');
+    });
+
+    it('should skip rules with an unknown type', () => {
+      const listing = {
+        attributes: {
+          price: new Money(30000, 'CHF'),
+          availabilityPlan: { timezone: 'Europe/Zurich' },
+          publicData: {
+            unitType: 'hour',
+            priceVariationsEnabled: false,
+            pricingRules: [
+              {
+                id: 'rule-unknown',
+                type: 'day-of-week',
+                label: 'Weekend surcharge',
+                surchargePerHourSubunits: 5000,
+              },
+            ],
+          },
+        },
+      };
+
+      const orderData = {
+        bookingStart: '2025-06-15T06:00:00.000Z',
+        bookingEnd: '2025-06-15T10:00:00.000Z',
+      };
+
+      const result = transactionLineItems(listing, orderData, null, null);
+      expect(result).toHaveLength(1);
+      expect(result[0].code).toBe('line-item/hour');
+    });
+
+    it('should NOT apply pricing rules for non-hourly (day) bookings', () => {
+      const dayListing = {
+        attributes: {
+          price: new Money(30000, 'CHF'),
+          publicData: {
+            unitType: 'day',
+            priceVariationsEnabled: false,
+            pricingRules: [
+              {
+                id: 'rule-1',
+                type: 'time-of-day',
+                label: 'Abendaufschlag',
+                surchargePerHourSubunits: 10000,
+                fromHour: 17,
+                toHour: 24,
+              },
+            ],
+          },
+        },
+      };
+
+      const orderData = {
+        bookingStart: '2025-06-15T00:00:00.000Z',
+        bookingEnd: '2025-06-17T00:00:00.000Z',
+      };
+
+      const result = transactionLineItems(dayListing, orderData, null, null);
+      expect(result.find(li => li.code === 'line-item/abendaufschlag')).toBeUndefined();
+    });
+
+    it('should handle empty pricingRules array without errors', () => {
+      const listing = {
+        attributes: {
+          price: new Money(30000, 'CHF'),
+          publicData: {
+            unitType: 'hour',
+            priceVariationsEnabled: false,
+            pricingRules: [],
+          },
+        },
+      };
+
+      const orderData = {
+        bookingStart: '2025-06-15T16:00:00.000Z',
+        bookingEnd: '2025-06-15T19:00:00.000Z',
+      };
+
+      const result = transactionLineItems(listing, orderData, null, null);
+      expect(result).toHaveLength(1);
+      expect(result[0].code).toBe('line-item/hour');
+    });
+
+    it('should include surcharges in customer commission calculation', () => {
+      const orderData = {
+        bookingStart: '2025-06-15T16:00:00.000Z', // 18:00 CEST
+        bookingEnd: '2025-06-15T19:00:00.000Z', // 21:00 CEST (3h in window)
+      };
+
+      const customerCommission = { percentage: 5 };
+      const result = transactionLineItems(
+        listingWithPricingRules,
+        orderData,
+        null,
+        customerCommission
+      );
+
+      // base: CHF 300 * 3h = CHF 900, surcharge: CHF 100 * 3h = CHF 300, total = CHF 1200
+      // customer commission = 5% of CHF 1200 = CHF 60
+      const cc = result.find(li => li.code === 'line-item/customer-commission');
+      expect(cc).toBeDefined();
+      expect(cc.unitPrice).toEqual(new Money(120000, 'CHF'));
+      expect(cc.percentage).toBe(5);
+    });
+
+    it('should include surcharges in both provider and customer commission', () => {
+      const orderData = {
+        bookingStart: '2025-06-15T16:00:00.000Z', // 18:00 CEST
+        bookingEnd: '2025-06-15T19:00:00.000Z', // 21:00 CEST (3h in window)
+      };
+
+      const providerCommission = { percentage: 10 };
+      const customerCommission = { percentage: 5 };
+      const result = transactionLineItems(
+        listingWithPricingRules,
+        orderData,
+        providerCommission,
+        customerCommission
+      );
+
+      expect(result).toHaveLength(4); // order + surcharge + provider comm + customer comm
+      const pc = result.find(li => li.code === 'line-item/provider-commission');
+      const cc = result.find(li => li.code === 'line-item/customer-commission');
+      expect(pc).toBeDefined();
+      expect(cc).toBeDefined();
+      // Both commissions calculated on base + surcharge total (CHF 1200)
+      expect(pc.unitPrice).toEqual(new Money(120000, 'CHF'));
+      expect(cc.unitPrice).toEqual(new Money(120000, 'CHF'));
+    });
+
+    it('should use listing timezone from publicData.listingTimezone when available', () => {
+      const listing = {
+        attributes: {
+          price: new Money(30000, 'CHF'),
+          availabilityPlan: { timezone: 'Europe/Zurich' },
+          publicData: {
+            unitType: 'hour',
+            priceVariationsEnabled: false,
+            listingTimezone: 'America/New_York',
+            pricingRules: [
+              {
+                id: 'rule-ny',
+                type: 'time-of-day',
+                label: 'Evening NYC',
+                surchargePerHourSubunits: 10000,
+                fromHour: 17,
+                toHour: 24,
+              },
+            ],
+          },
+        },
+      };
+
+      // 18:00 UTC = 14:00 EDT (outside window) vs 20:00 CEST (inside window)
+      const orderData = {
+        bookingStart: '2025-06-15T18:00:00.000Z',
+        bookingEnd: '2025-06-15T21:00:00.000Z',
+      };
+
+      const result = transactionLineItems(listing, orderData, null, null);
+      // In New York (EDT = UTC-4): 14:00-17:00 => 0h overlap with [17, 24)
+      expect(result).toHaveLength(1);
+      expect(result[0].code).toBe('line-item/hour');
+    });
+
+    it('should handle legacy listing without businessHoursEnd (defaults to 17)', () => {
+      const legacyListing = {
+        attributes: {
+          price: new Money(30000, 'CHF'),
+          availabilityPlan: { timezone: 'Europe/Zurich' },
+          publicData: {
+            unitType: 'hour',
+            priceVariationsEnabled: false,
+            eveningSurchargePerHourSubunits: 8000,
+            // no businessHoursEnd => defaults to 17
+          },
+        },
+      };
+
+      const orderData = {
+        bookingStart: '2025-06-15T13:00:00.000Z', // 15:00 CEST
+        bookingEnd: '2025-06-15T18:00:00.000Z', // 20:00 CEST
+      };
+
+      const result = transactionLineItems(legacyListing, orderData, null, null);
+      expect(result).toHaveLength(2);
+      expect(result[1].code).toBe('line-item/evening-surcharge');
+      expect(result[1].quantity).toBe(3); // 17:00-20:00 = 3h
+      expect(result[1].unitPrice).toEqual(new Money(8000, 'CHF'));
+    });
+
+    it('should not apply legacy surcharge when eveningSurchargePerHourSubunits is 0', () => {
+      const legacyListing = {
+        attributes: {
+          price: new Money(30000, 'CHF'),
+          publicData: {
+            unitType: 'hour',
+            priceVariationsEnabled: false,
+            eveningSurchargePerHourSubunits: 0,
+            businessHoursEnd: 17,
+          },
+        },
+      };
+
+      const orderData = {
+        bookingStart: '2025-06-15T16:00:00.000Z',
+        bookingEnd: '2025-06-15T19:00:00.000Z',
+      };
+
+      const result = transactionLineItems(legacyListing, orderData, null, null);
+      expect(result).toHaveLength(1);
+      expect(result[0].code).toBe('line-item/hour');
+    });
+
+    it('should prefer pricingRules over legacy fields when both exist', () => {
+      const listing = {
+        attributes: {
+          price: new Money(30000, 'CHF'),
+          availabilityPlan: { timezone: 'Europe/Zurich' },
+          publicData: {
+            unitType: 'hour',
+            priceVariationsEnabled: false,
+            eveningSurchargePerHourSubunits: 10000,
+            businessHoursEnd: 17,
+            pricingRules: [
+              {
+                id: 'rule-1',
+                type: 'time-of-day',
+                label: 'Custom Surcharge',
+                surchargePerHourSubunits: 5000,
+                fromHour: 20,
+                toHour: 24,
+              },
+            ],
+          },
+        },
+      };
+
+      const orderData = {
+        bookingStart: '2025-06-15T16:00:00.000Z', // 18:00 CEST
+        bookingEnd: '2025-06-15T20:00:00.000Z', // 22:00 CEST
+      };
+
+      const result = transactionLineItems(listing, orderData, null, null);
+      // Should use pricingRules, not legacy: window [20, 24) => 2h overlap (20:00-22:00)
+      const surcharge = result.find(li => li.code === 'line-item/custom-surcharge');
+      expect(surcharge).toBeDefined();
+      expect(surcharge.quantity).toBe(2);
+      expect(surcharge.unitPrice).toEqual(new Money(5000, 'CHF'));
+      // Should NOT have legacy line item
+      expect(result.find(li => li.code === 'line-item/evening-surcharge')).toBeUndefined();
+    });
+
+    it('should correctly handle booking starting exactly at window boundary', () => {
+      const orderData = {
+        bookingStart: '2025-06-15T15:00:00.000Z', // 17:00 CEST (exact start of window)
+        bookingEnd: '2025-06-15T18:00:00.000Z', // 20:00 CEST
+      };
+
+      const result = transactionLineItems(listingWithPricingRules, orderData, null, null);
+      expect(result).toHaveLength(2);
+      expect(result[1].code).toBe('line-item/abendaufschlag');
+      expect(result[1].quantity).toBe(3); // full 17:00-20:00
+    });
+
+    it('should handle three overlapping pricing rules', () => {
+      const listing = {
+        attributes: {
+          price: new Money(10000, 'CHF'),
+          availabilityPlan: { timezone: 'Europe/Zurich' },
+          publicData: {
+            unitType: 'hour',
+            priceVariationsEnabled: false,
+            pricingRules: [
+              {
+                id: 'r1',
+                type: 'time-of-day',
+                label: 'Early',
+                surchargePerHourSubunits: 1000,
+                fromHour: 6,
+                toHour: 9,
+              },
+              {
+                id: 'r2',
+                type: 'time-of-day',
+                label: 'Lunch',
+                surchargePerHourSubunits: 2000,
+                fromHour: 12,
+                toHour: 14,
+              },
+              {
+                id: 'r3',
+                type: 'time-of-day',
+                label: 'Evening',
+                surchargePerHourSubunits: 3000,
+                fromHour: 18,
+                toHour: 22,
+              },
+            ],
+          },
+        },
+      };
+
+      // 07:00-08:00 CEST => 1h in early window, 0 in others
+      const orderData = {
+        bookingStart: '2025-06-15T05:00:00.000Z', // 07:00 CEST
+        bookingEnd: '2025-06-15T06:00:00.000Z', // 08:00 CEST
+      };
+
+      const result = transactionLineItems(listing, orderData, null, null);
+      expect(result).toHaveLength(2);
+      expect(result[1].code).toBe('line-item/early');
+      expect(result[1].quantity).toBe(1);
     });
   });
 
