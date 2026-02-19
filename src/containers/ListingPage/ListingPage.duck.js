@@ -167,6 +167,13 @@ const fetchTimeSlotsPayloadCreator = ({ listingId, start, end, timeZone, options
     page: 1,
   };
 
+  const unwrapTimeSlotsResponse = response => {
+    if (response.error) {
+      return [];
+    }
+    return response.payload || [];
+  };
+
   // For small time units, we fetch the data per date.
   // This is to avoid fetching too much data (with 15 minute intervals, there can be 24*4*31 = 2928 time slots)
   if (useFetchTimeSlotsForDate) {
@@ -179,17 +186,13 @@ const fetchTimeSlotsPayloadCreator = ({ listingId, start, end, timeZone, options
     }
 
     return dispatch(timeSlotsRequest({ listingId, start, end, ...extraParams }))
-      .then(response => {
-        return response.payload;
-      })
+      .then(unwrapTimeSlotsResponse)
       .catch(e => {
         return [];
       });
   } else {
     return dispatch(timeSlotsRequest({ listingId, start, end, ...extraParams }))
-      .then(response => {
-        return response.payload;
-      })
+      .then(unwrapTimeSlotsResponse)
       .catch(e => {
         return [];
       });
@@ -302,14 +305,20 @@ const fetchMonthlyTimeSlots = (dispatch, listing) => {
       return Math.min(min, priceVariant.bookingLengthInMinutes);
     }, Number.MAX_SAFE_INTEGER);
 
+    const MINUTES_IN_A_DAY = 1440;
+    const minDurationStartingInInterval = isFixed
+      ? bookingLengthInMinutes >= MINUTES_IN_A_DAY
+        ? 5
+        : bookingLengthInMinutes
+      : 60;
+
+    const endExtensionMinutes = isFixed ? minDurationStartingInInterval : 0;
     const nextMonthEnd = isFixed
-      ? getStartOf(nextMonth, 'minute', tz, bookingLengthInMinutes, 'minutes')
+      ? getStartOf(nextMonth, 'minute', tz, endExtensionMinutes, 'minutes')
       : nextMonth;
     const followingMonthEnd = isFixed
-      ? getStartOf(nextAfterNextMonth, 'minute', tz, bookingLengthInMinutes, 'minutes')
+      ? getStartOf(nextAfterNextMonth, 'minute', tz, endExtensionMinutes, 'minutes')
       : nextAfterNextMonth;
-
-    const minDurationStartingInInterval = isFixed ? bookingLengthInMinutes : 60;
 
     const options = intervalAlign => {
       return ['fixed', 'hour'].includes(unitType)

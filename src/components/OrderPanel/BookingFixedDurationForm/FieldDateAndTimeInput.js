@@ -368,6 +368,7 @@ const updateBookingFieldsOnStartDateChange = params => {
     intl,
     bookingLengthInMinutes,
     startTimeInterval,
+    minDurationStartingInInterval,
   } = params;
   const timeSlotsOnSelectedDate = getTimeSlotsOnSelectedDate(
     timeSlotsOnDate,
@@ -375,7 +376,7 @@ const updateBookingFieldsOnStartDateChange = params => {
     startDate,
     timeZone,
     seatsEnabled,
-    bookingLengthInMinutes
+    minDurationStartingInInterval
   );
 
   const { startTime, endTime } = getAllTimeValues(
@@ -412,6 +413,7 @@ const onBookingStartDateChange = (props, setCurrentMonth) => value => {
     startTimeInterval,
     priceVariants,
     values,
+    minDurationStartingInInterval,
   } = props;
   if (!value || !value.date) {
     formApi.batch(() => {
@@ -455,6 +457,7 @@ const onBookingStartDateChange = (props, setCurrentMonth) => value => {
     intl,
     bookingLengthInMinutes,
     startTimeInterval,
+    minDurationStartingInInterval,
   };
 
   // Update booking fields with the initial time slot from the reduced set of monthly time slots.
@@ -625,7 +628,7 @@ const FieldDateAndTimeInput = props => {
     bookingStartDate,
     timeZone,
     seatsEnabled,
-    bookingLengthInMinutes
+    minDurationStartingInInterval
   );
 
   const availableStartTimes = getAvailableStartTimes({
