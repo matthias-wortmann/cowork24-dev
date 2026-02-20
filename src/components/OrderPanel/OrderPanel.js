@@ -38,7 +38,7 @@ import {
   resolveLatestProcessName,
 } from '../../transactions/transaction';
 
-import { ModalInMobile, PrimaryButton, AvatarSmall, H1, H2 } from '../../components';
+import { ModalInMobile, PrimaryButton, AvatarSmall, ExternalLink, H1, H2 } from '../../components';
 import PriceVariantPicker from './PriceVariantPicker/PriceVariantPicker';
 import SubmitFinePrint from './SubmitFinePrint/SubmitFinePrint';
 
@@ -310,8 +310,14 @@ const OrderPanel = props => {
   } = props;
 
   const publicData = listing?.attributes?.publicData || {};
-  const { listingType, unitType, transactionProcessAlias = '', priceVariants, startTimeInterval } =
-    publicData || {};
+  const {
+    listingType,
+    unitType,
+    transactionProcessAlias = '',
+    priceVariants,
+    startTimeInterval,
+    externalBookingUrl,
+  } = publicData || {};
 
   const processName = resolveLatestProcessName(transactionProcessAlias.split('/')[0]);
   const lineItemUnitType = lineItemUnitTypeMaybe || `line-item/${unitType}`;
@@ -472,7 +478,16 @@ const OrderPanel = props => {
           </span>
         </div>
 
-        {showPriceMissing ? (
+        {externalBookingUrl ? (
+          <div className={css.externalBookingPanel}>
+            <p className={css.partnerNote}>
+              <FormattedMessage id="OrderPanel.externalBookingNote" />
+            </p>
+            <ExternalLink href={externalBookingUrl} className={css.externalBookingLink}>
+              <FormattedMessage id="OrderPanel.ctaButtonExternalBooking" />
+            </ExternalLink>
+          </div>
+        ) : showPriceMissing ? (
           <PriceMissing />
         ) : showInvalidCurrency ? (
           <InvalidCurrency />
@@ -564,49 +579,57 @@ const OrderPanel = props => {
           </p>
         ) : null}
       </ModalInMobile>
-      <div className={css.openOrderForm}>
-        <PriceMaybe
-          price={price}
-          publicData={publicData}
-          validListingTypes={validListingTypes}
-          intl={intl}
-          marketplaceCurrency={marketplaceCurrency}
-          showCurrencyMismatch
-        />
+      {externalBookingUrl ? (
+        <div className={css.openOrderForm}>
+          <ExternalLink href={externalBookingUrl} className={css.externalBookingLink}>
+            <FormattedMessage id="OrderPanel.ctaButtonExternalBooking" />
+          </ExternalLink>
+        </div>
+      ) : (
+        <div className={css.openOrderForm}>
+          <PriceMaybe
+            price={price}
+            publicData={publicData}
+            validListingTypes={validListingTypes}
+            intl={intl}
+            marketplaceCurrency={marketplaceCurrency}
+            showCurrencyMismatch
+          />
 
-        {isClosed ? (
-          <div className={css.closedListingButton}>
-            <FormattedMessage id="OrderPanel.closedListingButtonText" />
-          </div>
-        ) : (
-          <PrimaryButton
-            id={ORDER_PANEL_SUBMIT_BUTTON_ID}
-            onClick={handleSubmit(
-              isOwnListing,
-              isClosed,
-              showInquiryForm || showNegotiationForm,
-              onSubmit,
-              history,
-              location
-            )}
-            disabled={isOutOfStock}
-          >
-            {isBooking ? (
-              <FormattedMessage id="OrderPanel.ctaButtonMessageBooking" />
-            ) : isOutOfStock ? (
-              <FormattedMessage id="OrderPanel.ctaButtonMessageNoStock" />
-            ) : isPurchase ? (
-              <FormattedMessage id="OrderPanel.ctaButtonMessagePurchase" />
-            ) : showNegotiationForm ? (
-              <FormattedMessage id="OrderPanel.ctaButtonMessageMakeOffer" />
-            ) : showRequestQuoteForm ? (
-              <FormattedMessage id="OrderPanel.ctaButtonMessageRequestAQuote" />
-            ) : (
-              <FormattedMessage id="OrderPanel.ctaButtonMessageInquiry" />
-            )}
-          </PrimaryButton>
-        )}
-      </div>
+          {isClosed ? (
+            <div className={css.closedListingButton}>
+              <FormattedMessage id="OrderPanel.closedListingButtonText" />
+            </div>
+          ) : (
+            <PrimaryButton
+              id={ORDER_PANEL_SUBMIT_BUTTON_ID}
+              onClick={handleSubmit(
+                isOwnListing,
+                isClosed,
+                showInquiryForm || showNegotiationForm,
+                onSubmit,
+                history,
+                location
+              )}
+              disabled={isOutOfStock}
+            >
+              {isBooking ? (
+                <FormattedMessage id="OrderPanel.ctaButtonMessageBooking" />
+              ) : isOutOfStock ? (
+                <FormattedMessage id="OrderPanel.ctaButtonMessageNoStock" />
+              ) : isPurchase ? (
+                <FormattedMessage id="OrderPanel.ctaButtonMessagePurchase" />
+              ) : showNegotiationForm ? (
+                <FormattedMessage id="OrderPanel.ctaButtonMessageMakeOffer" />
+              ) : showRequestQuoteForm ? (
+                <FormattedMessage id="OrderPanel.ctaButtonMessageRequestAQuote" />
+              ) : (
+                <FormattedMessage id="OrderPanel.ctaButtonMessageInquiry" />
+              )}
+            </PrimaryButton>
+          )}
+        </div>
+      )}
     </div>
   );
 };

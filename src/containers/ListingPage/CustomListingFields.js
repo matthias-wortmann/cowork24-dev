@@ -33,14 +33,17 @@ const CustomListingFields = props => {
     const isTargetCategory = isFieldForCategory(currentCategories, fieldConfig);
     return isTargetCategory;
   };
-  const propsForCustomFields =
+  const HIDDEN_FIELDS = ['externalBookingUrl'];
+
+  const propsForCustomFields = (
     pickCustomFieldProps(
       publicData,
       metadata,
       listingFieldConfigs,
       'listingType',
       isFieldForSelectedCategories
-    ) || [];
+    ) || []
+  ).filter(f => !HIDDEN_FIELDS.includes(f.key));
 
   return (
     <>

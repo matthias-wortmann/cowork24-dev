@@ -278,3 +278,35 @@
     padding: 0;
   }
 }
+
+.externalBookingPanel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px;
+  gap: 16px;
+
+  @media (--viewportMedium) {
+    padding: 24px 0;
+  }
+}
+
+.partnerNote {
+  composes: marketplaceTinyFontStyles from global;
+  color: var(--colorGrey500);
+  margin: 0;
+  text-align: center;
+}
+
+.externalBookingLink {
+  composes: marketplaceButtonStyles from global;
+  composes: marketplaceButtonBorders from global;
+  composes: marketplaceButtonColors from global;
+  composes: marketplaceButtonFontStyles from global;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  text-decoration: none;
+}

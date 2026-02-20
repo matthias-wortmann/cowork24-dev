@@ -1556,5 +1556,7 @@
   "UserNav.accountSettings": "Réglages",
   "UserNav.profileSettings": "Profil",
   "UserNav.screenreader.userNav": "Aller au profile d'utilisateur",
-  "UserNav.yourListings": "Mes annonces"
+  "UserNav.yourListings": "Mes annonces",
+  "OrderPanel.ctaButtonExternalBooking": "Réserver maintenant",
+  "OrderPanel.externalBookingNote": "Réservation via notre partenaire LoungePair"
 }

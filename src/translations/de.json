@@ -1556,5 +1556,7 @@
   "UserNav.accountSettings": "Kontoeinstellungen",
   "UserNav.profileSettings": "Profileinstellungen",
   "UserNav.screenreader.userNav": "Navigation zum Benutzerprofil",
-  "UserNav.yourListings": "Deine Einträge"
+  "UserNav.yourListings": "Deine Einträge",
+  "OrderPanel.ctaButtonExternalBooking": "Jetzt buchen",
+  "OrderPanel.externalBookingNote": "Buchung über unseren Partner LoungePair"
 }

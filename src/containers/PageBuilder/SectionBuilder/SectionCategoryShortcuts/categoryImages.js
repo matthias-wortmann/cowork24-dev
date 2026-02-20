@@ -6,6 +6,7 @@ import flexDeskImg from './images/flex-desk.jpg';
 import meetingRoomImg from './images/meeting-room.jpg';
 import communitySpaceImg from './images/community-space.jpg';
 import colivingImg from './images/coliving.jpg';
+import loungeImg from './images/lounge.jpg';
 
 /**
  * Maps a category to a background image based on its id and name.
@@ -46,6 +47,10 @@ const imageMap = [
   {
     match: combined => /coliving/i.test(combined) || /wohnen/i.test(combined),
     image: colivingImg,
+  },
+  {
+    match: combined => /lounge/i.test(combined) || /airport/i.test(combined) || /flughafen/i.test(combined),
+    image: loungeImg,
   },
 ];
 

@@ -9,6 +9,7 @@ import {
   Presentation,
   Coffee,
   Bed,
+  PlaneTakeoff,
   MapPin,
 } from 'lucide-react';
 
@@ -72,6 +73,12 @@ const CATEGORY_DEFINITIONS = [
     match: (id, name) => /coliving/i.test(id) || /coliving/i.test(name) || /wohnen/i.test(name),
     icon: <Bed {...ICON_PROPS} />,
     label: 'Coliving',
+  },
+  {
+    match: (id, name) =>
+      /lounge|airport|flughafen/i.test(id) || /lounge|airport|flughafen/i.test(name),
+    icon: <PlaneTakeoff {...ICON_PROPS} />,
+    label: 'Lounge',
   },
 ];
 
