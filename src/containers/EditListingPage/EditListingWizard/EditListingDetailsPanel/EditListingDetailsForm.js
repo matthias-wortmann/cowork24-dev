@@ -19,6 +19,7 @@ import {
   Button,
   FieldSelect,
   FieldTextInput,
+  FieldRichTextEditor,
   Heading,
   CustomExtendedDataField,
 } from '../../../../components';
@@ -423,11 +424,10 @@ const EditListingDetailsForm = props => (
           )}
 
           {showDescription && isCompatibleCurrency && (
-            <FieldTextInput
+            <FieldRichTextEditor
               id={`${formId}description`}
               name="description"
               className={css.description}
-              type="textarea"
               label={intl.formatMessage({ id: 'EditListingDetailsForm.description' })}
               placeholder={intl.formatMessage({
                 id: 'EditListingDetailsForm.descriptionPlaceholder',

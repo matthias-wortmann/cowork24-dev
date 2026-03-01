@@ -1,0 +1,148 @@
+@import '../../styles/customMediaQueries.css';
+
+.root {
+}
+
+.editorWrapper {
+  border: 1px solid var(--colorGrey200);
+  border-radius: var(--borderRadiusMedium);
+  transition: border-color var(--transitionStyle);
+
+  &:focus-within {
+    border-color: var(--colorBlack);
+  }
+}
+
+.editorWrapperError {
+  border-color: var(--colorFail);
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--colorGrey100);
+  background-color: var(--colorGrey50);
+  border-radius: var(--borderRadiusMedium) var(--borderRadiusMedium) 0 0;
+}
+
+.toolbarGroup {
+  display: flex;
+  gap: 1px;
+}
+
+.toolbarDivider {
+  width: 1px;
+  margin: 4px 6px;
+  background-color: var(--colorGrey200);
+}
+
+.toolbarButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: none;
+  border-radius: var(--borderRadiusMedium);
+  background: transparent;
+  color: var(--colorGrey500);
+  cursor: pointer;
+  transition: background-color var(--transitionStyleButton), color var(--transitionStyleButton);
+
+  &:hover {
+    background-color: var(--colorGrey100);
+    color: var(--colorGrey900);
+  }
+}
+
+.toolbarButtonActive {
+  composes: toolbarButton;
+  background-color: var(--colorGrey200);
+  color: var(--colorGrey900);
+}
+
+.editor {
+  padding: 12px;
+  min-height: 150px;
+  max-height: 400px;
+  overflow-y: auto;
+  font-family: var(--fontFamily);
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--colorGrey900);
+
+  @media (--viewportMedium) {
+    min-height: 200px;
+    padding: 16px;
+  }
+}
+
+.fallbackTextarea {
+  width: 100%;
+  min-height: 120px;
+  border: none;
+  outline: none;
+  resize: vertical;
+  background: transparent;
+  font-family: var(--fontFamily);
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--colorGrey900);
+}
+
+/* Tiptap ProseMirror editor styles */
+.editor :global(.tiptap) {
+  outline: none;
+}
+
+.editor :global(.tiptap) p {
+  margin: 0 0 8px 0;
+}
+
+.editor :global(.tiptap) p:last-child {
+  margin-bottom: 0;
+}
+
+.editor :global(.tiptap) ul,
+.editor :global(.tiptap) ol {
+  padding-left: 24px;
+  margin: 0 0 8px 0;
+}
+
+.editor :global(.tiptap) li {
+  margin-bottom: 4px;
+}
+
+.editor :global(.tiptap) blockquote {
+  border-left: 3px solid var(--colorGrey300);
+  margin: 8px 0;
+  padding: 4px 0 4px 16px;
+  color: var(--colorGrey600);
+}
+
+.editor :global(.tiptap) strong {
+  font-weight: var(--fontWeightBold);
+}
+
+.editor :global(.tiptap) em {
+  font-style: italic;
+}
+
+.editor :global(.tiptap) u {
+  text-decoration: underline;
+}
+
+.editor :global(.tiptap) s {
+  text-decoration: line-through;
+}
+
+.editor :global(.tiptap) p.is-editor-empty:first-child::before {
+  color: var(--colorGrey400);
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}

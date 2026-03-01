@@ -17,6 +17,16 @@ const ESCAPE_TEXT_REPLACEMENTS = {
   '>': '\uff1e',
 };
 
+const ALLOWED_HTML_TAGS = new Set([
+  'p', 'strong', 'em', 'u', 's', 'ul', 'ol', 'li', 'blockquote', 'br', 'hr',
+]);
+const ALLOWED_HTML_TAG_REGEX = /<\/?(p|strong|em|u|s|ul|ol|li|blockquote|br|hr)\b[^>]*>/i;
+const DANGEROUS_ELEMENTS_REGEX =
+  /<(script|style|iframe|object|embed|form|input|textarea|button|link|meta|base|applet|svg|math)\b[^>]*>[\s\S]*?<\/\1>/gi;
+const DANGEROUS_SELF_CLOSING_REGEX =
+  /<(script|style|iframe|object|embed|form|input|textarea|button|link|meta|base|img|applet|svg|math)\b[^>]*\/?>/gi;
+const ALL_TAGS_REGEX = /<\/?([a-zA-Z][a-zA-Z0-9]*)\b[^>]*\/?>/gi;
+
 // An example how you could sanitize text content.
 // This swaps some coding related characters to less dangerous ones
 const sanitizeText = str =>
@@ -25,6 +35,35 @@ const sanitizeText = str =>
     : typeof str === 'string'
     ? str.replace(ESCAPE_TEXT_REGEXP, ch => ESCAPE_TEXT_REPLACEMENTS[ch])
     : '';
+
+/**
+ * Sanitize HTML using an allowlist of safe tags produced by the rich text editor.
+ * Strips all attributes, removes dangerous elements (script, iframe, etc.) entirely,
+ * and only preserves formatting tags like p, strong, em, ul, ol, li, etc.
+ * Falls back to sanitizeText for non-HTML strings.
+ *
+ * @param {string} html
+ * @returns {string} sanitized HTML string
+ */
+export const sanitizeHtml = html => {
+  if (html == null) return html;
+  if (typeof html !== 'string') return '';
+  const hasAllowedHtmlTag = ALLOWED_HTML_TAG_REGEX.test(html);
+
+  if (!hasAllowedHtmlTag) return sanitizeText(html);
+
+  let clean = html;
+  clean = clean.replace(DANGEROUS_ELEMENTS_REGEX, '');
+  clean = clean.replace(DANGEROUS_SELF_CLOSING_REGEX, '');
+  clean = clean.replace(ALL_TAGS_REGEX, (match, tagName) => {
+    const tag = tagName.toLowerCase();
+    if (!ALLOWED_HTML_TAGS.has(tag)) return '';
+    const isClosing = match.startsWith('</');
+    return isClosing ? `</${tag}>` : `<${tag}>`;
+  });
+
+  return clean;
+};
 
 // Enum and multi-enum work with predefined option configuration
 const sanitizeEnum = (str, options) => (options.map(o => `${o.option}`).includes(str) ? str : null);
@@ -232,7 +271,7 @@ export const sanitizeListing = (entity, config = {}) => {
     ? {
         attributes: {
           title: sanitizeText(title),
-          description: sanitizeText(description),
+          description: sanitizeHtml(description),
           ...sanitizePublicData(publicData),
           ...restAttributes,
         },
