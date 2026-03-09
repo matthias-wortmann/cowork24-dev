@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import classNames from 'classnames';
 
 import SectionContainer from '../SectionContainer';
@@ -27,7 +27,7 @@ const LOGOS = [
   {
     id: 'workspace4you',
     name: 'workspace4you',
-    logo: 'https://www.workspace4you.ch/assets/logo.logo.jpg',
+    logo: 'https://onecdn.io/media/eaab6675-ab4d-4af6-a003-fc6367ae8434/md2x',
   },
   {
     id: 'headsquarter',
@@ -56,10 +56,18 @@ const LOGOS = [
  * Shows an <img> when a `logo` URL is provided, otherwise a styled placeholder.
  */
 const LogoItem = ({ name, logo, color }) => {
-  if (logo) {
+  const [imageLoadFailed, setImageLoadFailed] = useState(false);
+
+  if (logo && !imageLoadFailed) {
     return (
       <div className={css.logoItem}>
-        <img src={logo} alt={name} className={css.logoImage} loading="lazy" />
+        <img
+          src={logo}
+          alt={name}
+          className={css.logoImage}
+          loading="lazy"
+          onError={() => setImageLoadFailed(true)}
+        />
       </div>
     );
   }

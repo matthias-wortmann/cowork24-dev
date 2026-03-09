@@ -34,6 +34,7 @@ import {
   userDisplayNameAsString,
 } from '../../util/data';
 import { richText } from '../../util/richText';
+import { stripHtmlTags } from '../../util/sanitize';
 import {
   OFFER,
   REQUEST,
@@ -193,6 +194,7 @@ export const ListingPageComponent = props => {
     publicData = {},
     metadata = {},
   } = currentListing.attributes;
+  const plainDescription = stripHtmlTags(description);
 
   const richTitle = (
     <span>
@@ -369,14 +371,14 @@ export const ListingPageComponent = props => {
       title={schemaTitle}
       scrollingDisabled={scrollingDisabled}
       author={authorDisplayName}
-      description={description}
+      description={plainDescription}
       facebookImages={facebookImages}
       twitterImages={twitterImages}
       {...noIndexMaybe}
       schema={{
         '@context': 'http://schema.org',
         '@type': 'Product',
-        description: description,
+        description: plainDescription,
         name: schemaTitle,
         image: schemaImages,
         offers: {

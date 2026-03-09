@@ -429,8 +429,7 @@ const EditListingDetailsPanel = props => {
               privateData: privateListingFields,
               ...setNoAvailabilityForUnbookableListings(transactionProcessAlias),
             };
-
-            onSubmit(updateValues);
+            return onSubmit(updateValues);
           }}
           selectableListingTypes={listingTypes.map(conf =>
             getTransactionInfo({

@@ -2,28 +2,53 @@ import React, { useCallback, useEffect } from 'react';
 import { Field } from 'react-final-form';
 import classNames from 'classnames';
 
+import { stripHtmlTags } from '../../util/sanitize';
 import { ValidationError } from '../../components';
 
 import css from './FieldRichTextEditor.module.css';
 
 let tiptapModules = null;
+let tiptapModulesPromise = null;
+
+const pickExtension = (moduleValue, namedExport) => {
+  const candidates = [moduleValue?.default, moduleValue?.[namedExport], moduleValue];
+  return candidates.find(candidate => candidate && typeof candidate.configure === 'function') || null;
+};
 
 const loadTiptapModules = () => {
-  if (tiptapModules) return tiptapModules;
+  if (tiptapModules) return Promise.resolve(tiptapModules);
+  if (tiptapModulesPromise) return tiptapModulesPromise;
 
-  // Lazy-load only in browser runtime to keep Jest/SSR from parsing ESM-only tiptap internals.
-  const { useEditor, EditorContent } = require('@tiptap/react');
-  const starterKitModule = require('@tiptap/starter-kit');
-  const underlineModule = require('@tiptap/extension-underline');
+  tiptapModulesPromise = Promise.all([
+    import('@tiptap/react'),
+    import('@tiptap/starter-kit'),
+    import('@tiptap/extension-underline'),
+  ])
+    .then(([tiptapReactModule, starterKitModule, underlineModule]) => {
+      const useEditor = tiptapReactModule?.useEditor || tiptapReactModule?.default?.useEditor;
+      const EditorContent =
+        tiptapReactModule?.EditorContent || tiptapReactModule?.default?.EditorContent;
+      const StarterKit = pickExtension(starterKitModule, 'StarterKit');
+      const Underline = pickExtension(underlineModule, 'Underline');
 
-  tiptapModules = {
-    useEditor,
-    EditorContent,
-    StarterKit: starterKitModule.default || starterKitModule,
-    Underline: underlineModule.default || underlineModule,
-  };
+      if (typeof useEditor !== 'function' || !EditorContent || !StarterKit || !Underline) {
+        throw new Error('Failed to resolve tiptap modules or extension exports');
+      }
 
-  return tiptapModules;
+      tiptapModules = {
+        useEditor,
+        EditorContent,
+        StarterKit,
+        Underline,
+      };
+      return tiptapModules;
+    })
+    .catch(error => {
+      tiptapModulesPromise = null;
+      throw error;
+    });
+
+  return tiptapModulesPromise;
 };
 
 const BoldIcon = () => (
@@ -142,12 +167,94 @@ const EditorToolbar = ({ editor }) => {
   );
 };
 
-/**
- * Strip HTML tags to get plain text content for validation.
- */
-const stripHtml = html => {
-  if (!html) return '';
-  return html.replace(/<[^>]*>/g, '').trim();
+const RichTextEditorLoaded = props => {
+  const {
+    rootClassName,
+    className,
+    id,
+    label,
+    labelClassName,
+    placeholder,
+    hideErrorMessage,
+    input,
+    fieldMeta,
+    loadedModules,
+  } = props;
+
+  const { value, onChange, onBlur, onFocus } = input;
+  const { useEditor, EditorContent, StarterKit, Underline } = loadedModules;
+
+  const editor = useEditor({
+    extensions: [
+      StarterKit.configure({
+        heading: false,
+      }),
+      Underline,
+    ],
+    content: value || '',
+    onFocus: () => onFocus?.(),
+    onBlur: () => onBlur?.(),
+    editorProps: {
+      attributes: {
+        'data-placeholder': placeholder || '',
+      },
+    },
+  });
+
+  const syncRef = React.useRef(value);
+  useEffect(() => {
+    if (editor && value !== syncRef.current) {
+      syncRef.current = value;
+      const { from, to } = editor.state.selection;
+      editor.commands.setContent(value || '', false);
+      try {
+        editor.commands.setTextSelection({ from, to });
+      } catch {}
+    }
+  }, [value, editor]);
+
+  const handleUpdate = useCallback(
+    ({ editor: e }) => {
+      const html = e.getHTML();
+      const isEmpty = !stripHtmlTags(html);
+      const newValue = isEmpty ? '' : html;
+      syncRef.current = newValue;
+      onChange(newValue);
+    },
+    [onChange]
+  );
+
+  useEffect(() => {
+    if (editor) {
+      editor.on('update', handleUpdate);
+      return () => editor.off('update', handleUpdate);
+    }
+  }, [editor, handleUpdate]);
+
+  if (label && !id) {
+    throw new Error('id required when a label is given');
+  }
+
+  const wrapperClasses = classNames(css.editorWrapper);
+  const labelClassMaybe = labelClassName ? { className: labelClassName } : {};
+  const classes = classNames(rootClassName || css.root, className);
+
+  return (
+    <div className={classes}>
+      {label ? (
+        <label htmlFor={id} {...labelClassMaybe}>
+          {label}
+        </label>
+      ) : null}
+      <div className={wrapperClasses}>
+        <EditorToolbar editor={editor} />
+        <div className={css.editor}>
+          <EditorContent editor={editor} />
+        </div>
+      </div>
+      {hideErrorMessage ? null : <ValidationError fieldMeta={fieldMeta} />}
+    </div>
+  );
 };
 
 const RichTextEditorComponent = props => {
@@ -208,88 +315,76 @@ const RichTextEditorComponent = props => {
     );
   }
 
-  const { useEditor, EditorContent, StarterKit, Underline } = loadTiptapModules();
-
   const { value, onChange, onBlur, onFocus } = input;
   const { invalid, touched, error } = meta;
   const errorText = customErrorText || error;
   const hasError = !!customErrorText || !!(touched && invalid && error);
   const fieldMeta = { touched: hasError, error: errorText };
-
-  const editor = useEditor({
-    extensions: [
-      StarterKit.configure({
-        heading: false,
-      }),
-      Underline,
-    ],
-    content: value || '',
-    onFocus: () => onFocus?.(),
-    onBlur: () => onBlur?.(),
-    editorProps: {
-      attributes: {
-        'data-placeholder': placeholder || '',
-      },
-    },
-  });
-
-  const syncRef = React.useRef(value);
-  useEffect(() => {
-    if (editor && value !== syncRef.current) {
-      syncRef.current = value;
-      const { from, to } = editor.state.selection;
-      editor.commands.setContent(value || '', false);
-      try {
-        editor.commands.setTextSelection({ from, to });
-      } catch {
-        // Selection might be out of range after content change
-      }
-    }
-  }, [value, editor]);
-
-  const handleUpdate = useCallback(
-    ({ editor: e }) => {
-      const html = e.getHTML();
-      const isEmpty = !stripHtml(html);
-      const newValue = isEmpty ? '' : html;
-      syncRef.current = newValue;
-      onChange(newValue);
-    },
-    [onChange]
-  );
+  const [loadedModules, setLoadedModules] = React.useState(tiptapModules);
+  const [loadError, setLoadError] = React.useState(null);
 
   useEffect(() => {
-    if (editor) {
-      editor.on('update', handleUpdate);
-      return () => editor.off('update', handleUpdate);
+    if (!loadedModules) {
+      loadTiptapModules()
+        .then(mods => {
+          setLoadedModules(mods);
+        })
+        .catch(error => {
+          setLoadError(error);
+        });
     }
-  }, [editor, handleUpdate]);
+  }, [loadedModules]);
 
-  if (label && !id) {
-    throw new Error('id required when a label is given');
+  if (!loadedModules || loadError) {
+    if (label && !id) {
+      throw new Error('id required when a label is given');
+    }
+
+    const wrapperClasses = classNames(css.editorWrapper, {
+      [css.editorWrapperError]: hasError,
+    });
+    const labelClassMaybe = labelClassName ? { className: labelClassName } : {};
+    const classes = classNames(rootClassName || css.root, className);
+
+    return (
+      <div className={classes}>
+        {label ? (
+          <label htmlFor={id} {...labelClassMaybe}>
+            {label}
+          </label>
+        ) : null}
+        <div className={wrapperClasses}>
+          <div className={css.editor}>
+            <textarea
+              id={id}
+              name={input?.name}
+              className={css.fallbackTextarea}
+              value={value || ''}
+              onFocus={() => onFocus?.()}
+              onBlur={() => onBlur?.()}
+              onChange={event => onChange(event.target.value)}
+              placeholder={placeholder || ''}
+            />
+          </div>
+        </div>
+        {hideErrorMessage ? null : <ValidationError fieldMeta={fieldMeta} />}
+      </div>
+    );
   }
 
-  const wrapperClasses = classNames(css.editorWrapper, {
-    [css.editorWrapperError]: hasError,
-  });
-  const labelClassMaybe = labelClassName ? { className: labelClassName } : {};
-  const classes = classNames(rootClassName || css.root, className);
-
   return (
-    <div className={classes}>
-      {label ? (
-        <label htmlFor={id} {...labelClassMaybe}>
-          {label}
-        </label>
-      ) : null}
-      <div className={wrapperClasses}>
-        <EditorToolbar editor={editor} />
-        <div className={css.editor}>
-          <EditorContent editor={editor} />
-        </div>
-      </div>
-      {hideErrorMessage ? null : <ValidationError fieldMeta={fieldMeta} />}
-    </div>
+    <RichTextEditorLoaded
+      rootClassName={rootClassName}
+      className={className}
+      id={id}
+      label={label}
+      labelClassName={labelClassName}
+      placeholder={placeholder}
+      hideErrorMessage={hideErrorMessage}
+      input={input}
+      fieldMeta={fieldMeta}
+      loadedModules={loadedModules}
+    />
   );
 };
 

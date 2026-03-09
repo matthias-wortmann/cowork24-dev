@@ -11,6 +11,7 @@ import {
   isFieldForListingType,
   isValidCurrencyForTransactionProcess,
 } from '../../../../util/fieldHelpers';
+import { stripHtmlTags } from '../../../../util/sanitize';
 import { maxLength, required, composeValidators } from '../../../../util/validators';
 
 // Import shared components
@@ -27,6 +28,7 @@ import {
 import css from './EditListingDetailsForm.module.css';
 
 const TITLE_MAX_LENGTH = 60;
+const DESCRIPTION_MAX_LENGTH = 5000;
 
 // Show various error messages
 const ErrorMessage = props => {
@@ -341,10 +343,19 @@ const EditListingDetailsForm = props => (
       const titleRequiredMessage = intl.formatMessage({
         id: 'EditListingDetailsForm.titleRequired',
       });
+      const descriptionRequiredMessage = intl.formatMessage({
+        id: 'EditListingDetailsForm.descriptionRequired',
+      });
       const maxLengthMessage = intl.formatMessage(
         { id: 'EditListingDetailsForm.maxLength' },
         {
           maxLength: TITLE_MAX_LENGTH,
+        }
+      );
+      const descriptionMaxLengthMessage = intl.formatMessage(
+        { id: 'EditListingDetailsForm.maxLength' },
+        {
+          maxLength: DESCRIPTION_MAX_LENGTH,
         }
       );
 
@@ -362,6 +373,8 @@ const EditListingDetailsForm = props => (
       );
 
       const maxLength60Message = maxLength(maxLengthMessage, TITLE_MAX_LENGTH);
+      const maxLengthDescriptionMessage = value =>
+        maxLength(descriptionMaxLengthMessage, DESCRIPTION_MAX_LENGTH)(stripHtmlTags(value));
 
       const hasCategories = selectableCategories && selectableCategories.length > 0;
       const showCategories = listingType && hasCategories;
@@ -432,10 +445,9 @@ const EditListingDetailsForm = props => (
               placeholder={intl.formatMessage({
                 id: 'EditListingDetailsForm.descriptionPlaceholder',
               })}
-              validate={required(
-                intl.formatMessage({
-                  id: 'EditListingDetailsForm.descriptionRequired',
-                })
+              validate={composeValidators(
+                required(descriptionRequiredMessage),
+                maxLengthDescriptionMessage
               )}
             />
           )}

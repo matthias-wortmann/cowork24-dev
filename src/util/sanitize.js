@@ -37,6 +37,18 @@ const sanitizeText = str =>
     : '';
 
 /**
+ * Convert HTML-like content to plain text for validation/storage use cases.
+ *
+ * @param {string} html
+ * @returns {string}
+ */
+export const stripHtmlTags = html => {
+  if (html == null) return '';
+  if (typeof html !== 'string') return '';
+  return html.replace(/<[^>]*>/g, '').trim();
+};
+
+/**
  * Sanitize HTML using an allowlist of safe tags produced by the rich text editor.
  * Strips all attributes, removes dangerous elements (script, iframe, etc.) entirely,
  * and only preserves formatting tags like p, strong, em, ul, ol, li, etc.
@@ -46,7 +58,7 @@ const sanitizeText = str =>
  * @returns {string} sanitized HTML string
  */
 export const sanitizeHtml = html => {
-  if (html == null) return html;
+  if (html == null) return '';
   if (typeof html !== 'string') return '';
   const hasAllowedHtmlTag = ALLOWED_HTML_TAG_REGEX.test(html);
 
