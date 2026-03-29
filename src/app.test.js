@@ -29,7 +29,13 @@ describe('Application - JSDOM environment', () => {
       },
     };
     const resolvePageAssetCall = () => Promise.resolve(pageData);
-    const fakeSdk = { assetByVersion: resolvePageAssetCall, assetByAlias: resolvePageAssetCall };
+    const fakeSdk = {
+      assetByVersion: resolvePageAssetCall,
+      assetByAlias: resolvePageAssetCall,
+      listings: {
+        query: () => Promise.resolve({ data: { meta: { totalItems: 0 } } }),
+      },
+    };
     const store = configureStore({ initialState: {}, sdk: fakeSdk });
     const div = document.createElement('div');
     const root = ReactDOMClient.createRoot(div);

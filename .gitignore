@@ -9,6 +9,9 @@ coverage
 # production
 build
 
+# Cursor IDE – debug / instrumentation logs (local only, do not commit)
+.cursor/debug*.log
+
 # misc
 .DS_Store
 .env

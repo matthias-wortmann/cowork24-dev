@@ -315,7 +315,9 @@ export const ServerApp = props => {
   }
 
   const allMessages = buildAllMessages(hostedTranslations);
-  const serverLocale = appConfig.localization.locale;
+  // In tests, keep locale at `en` so MomentLocaleLoader does not use async loadable.lib
+  // (otherwise StaticRouter SSR never reaches <Redirect> and context.url stays unset).
+  const serverLocale = isTestEnv ? 'en' : appConfig.localization.locale;
   const serverMessages = allMessages[serverLocale] || allMessages['en'];
 
   return (
