@@ -17,6 +17,5 @@ Disallow: /reset-password
 Disallow: /verify-email
 Disallow: /preview
 Disallow: /styleguide
-Crawl-Delay: 5
 
 Sitemap: https://my.marketplace.com/sitemap-index.xml

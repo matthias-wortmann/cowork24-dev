@@ -1,4 +1,5 @@
 import React from 'react';
+import classNames from 'classnames';
 import { useHistory } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 
@@ -6,7 +7,10 @@ import { useIntl } from '../../../../util/reactIntl';
 import { useRouteConfiguration } from '../../../../context/routeConfigurationContext';
 import { pathByRouteName } from '../../../../util/routes';
 import { stringify } from '../../../../util/urlHelpers';
+import { CITY_LANDING_SLUGS } from '../../../../util/cityLandingPageConfig';
+import { landingSectionSurfaceClassName } from '../../../LandingPage/landingSectionSurface';
 
+import SectionContainer from '../SectionContainer';
 import LocationCard from './LocationCard';
 import css from './SectionLocations.module.css';
 
@@ -36,6 +40,8 @@ const CITIES_DATA = [
   },
   {
     id: 'genf',
+    /** Maps to `/coworking/geneva` (CityLandingPage slug differs from SectionLocations id). */
+    cityLandingSlug: 'geneva',
     name: 'Genf',
     fallbackCount: 28,
     // Ryan Klaus – Geneva Jet d'Eau fountain
@@ -86,6 +92,7 @@ const CITIES_DATA = [
   },
   {
     id: 'luzern',
+    cityLandingSlug: 'lucerne',
     name: 'Luzern',
     fallbackCount: 8,
     // Miltiadis Fragkidis – Luzern Chapel Bridge & water tower
@@ -96,6 +103,7 @@ const CITIES_DATA = [
   },
   {
     id: 'stgallen',
+    cityLandingSlug: 'st-gallen',
     name: 'St. Gallen',
     fallbackCount: 4,
     // Claudio Schwarz – St. Gallen old town
@@ -119,6 +127,22 @@ const buildSearchUrl = (city, searchPagePath) => {
 };
 
 /**
+ * Prefer `/coworking/:slug` when a city landing exists; otherwise map search URL.
+ *
+ * @param {Object} city - entry from CITIES_DATA
+ * @param {Array} routeConfiguration
+ * @param {string} searchPagePath
+ * @returns {string} path + optional query for History API
+ */
+const buildCityCardHref = (city, routeConfiguration, searchPagePath) => {
+  const landingSlug = city.cityLandingSlug ?? city.id;
+  if (CITY_LANDING_SLUGS.includes(landingSlug)) {
+    return pathByRouteName('CityLandingPage', routeConfiguration, { citySlug: landingSlug });
+  }
+  return buildSearchUrl(city, searchPagePath);
+};
+
+/**
  * Airbnb Destinations-style section that displays Swiss cities as clickable
  * location cards. Desktop: 4-column grid. Mobile: horizontal card slider.
  *
@@ -130,7 +154,16 @@ const buildSearchUrl = (city, searchPagePath) => {
  * @returns {JSX.Element}
  */
 const SectionLocations = props => {
-  const { sectionId, title, subtitle } = props;
+  const {
+    sectionId,
+    title,
+    subtitle,
+    className,
+    rootClassName,
+    appearance,
+    options,
+    landingSurface,
+  } = props;
 
   const intl = useIntl();
   const history = useHistory();
@@ -148,32 +181,44 @@ const SectionLocations = props => {
 
   const handleCityClick = (e, city) => {
     e.preventDefault();
-    history.push(buildSearchUrl(city, searchPagePath));
+    history.push(buildCityCardHref(city, routeConfiguration, searchPagePath));
   };
 
   return (
-    <section id={sectionId} className={css.root}>
-      <div className={css.sectionHeader}>
-        <h2 className={css.title}>{sectionTitle}</h2>
-        <p className={css.subtitle}>{sectionSubtitle}</p>
+    <SectionContainer
+      id={sectionId}
+      className={className}
+      rootClassName={classNames(
+        rootClassName,
+        css.root,
+        landingSectionSurfaceClassName(landingSurface)
+      )}
+      appearance={appearance}
+      options={options}
+    >
+      <div className={css.wrapper}>
+        <div className={css.sectionHeader}>
+          <h2 className={css.title}>{sectionTitle}</h2>
+          <p className={css.subtitle}>{sectionSubtitle}</p>
+        </div>
+        <div className={css.grid}>
+          {CITIES_DATA.map(city => {
+            const count = locationCounts[city.id] ?? city.fallbackCount;
+            return (
+              <LocationCard
+                key={city.id}
+                name={city.name}
+                listingCount={count}
+                listingLabel={listingLabel}
+                image={city.image}
+                href={buildCityCardHref(city, routeConfiguration, searchPagePath)}
+                onClick={e => handleCityClick(e, city)}
+              />
+            );
+          })}
+        </div>
       </div>
-      <div className={css.grid}>
-        {CITIES_DATA.map(city => {
-          const count = locationCounts[city.id] ?? city.fallbackCount;
-          return (
-            <LocationCard
-              key={city.id}
-              name={city.name}
-              listingCount={count}
-              listingLabel={listingLabel}
-              image={city.image}
-              href={buildSearchUrl(city, searchPagePath)}
-              onClick={e => handleCityClick(e, city)}
-            />
-          );
-        })}
-      </div>
-    </section>
+    </SectionContainer>
   );
 };
 

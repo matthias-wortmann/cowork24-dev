@@ -27,14 +27,14 @@ const getMetadata = (meta, schemaType, fieldOptions) => {
   const schemaHeadlineMaybe = isArticle ? { headline: title } : {};
 
   // Schema for search engines (helps them to understand what this page is about)
-  // http://schema.org (This template uses JSON-LD format)
+  // https://schema.org (This template uses JSON-LD format)
   //
   // In addition to this schema data for search engines, src/components/Page/Page.js adds some extra schemas
   // Read more about schema:
   // - https://schema.org/
   // - https://developers.google.com/search/docs/advanced/structured-data/intro-structured-data
   const pageSchemaForSEO = {
-    '@context': 'http://schema.org',
+    '@context': 'https://schema.org',
     '@type': schemaType || 'WebPage',
     description: description,
     name: title,

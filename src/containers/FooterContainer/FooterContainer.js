@@ -1,6 +1,9 @@
-import React from 'react';
-import { useConfiguration } from '../../context/configurationContext';
+import React, { Fragment } from 'react';
 import loadable from '@loadable/component';
+
+import { useConfiguration } from '../../context/configurationContext';
+
+import FooterCityDestinations from './FooterCityDestinations/FooterCityDestinations';
 
 const SectionBuilder = loadable(
   () => import(/* webpackChunkName: "SectionBuilder" */ '../PageBuilder/PageBuilder'),
@@ -12,22 +15,23 @@ const SectionBuilder = loadable(
 const FooterComponent = () => {
   const { footer = {}, topbar } = useConfiguration();
 
-  // If footer asset is not set, let's not render Footer at all.
-  if (Object.keys(footer).length === 0) {
-    return null;
-  }
+  const hasHostedFooter = Object.keys(footer).length > 0;
 
-  // The footer asset does not specify sectionId or sectionType. However, the SectionBuilder
-  // expects sectionId and sectionType in order to identify the section. We add those
-  // attributes here before passing the asset to SectionBuilder.
-  const footerSection = {
-    ...footer,
-    sectionId: 'footer',
-    sectionType: 'footer',
-    linkLogoToExternalSite: topbar?.logoLink,
-  };
+  const footerSection = hasHostedFooter
+    ? {
+        ...footer,
+        sectionId: 'footer',
+        sectionType: 'footer',
+        linkLogoToExternalSite: topbar?.logoLink,
+      }
+    : null;
 
-  return <SectionBuilder sections={[footerSection]} />;
+  return (
+    <Fragment>
+      <FooterCityDestinations />
+      {footerSection ? <SectionBuilder sections={[footerSection]} /> : null}
+    </Fragment>
+  );
 };
 
 // NOTE: if you want to add dynamic data to FooterComponent,

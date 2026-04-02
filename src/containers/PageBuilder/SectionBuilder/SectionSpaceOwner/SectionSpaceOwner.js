@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import { FormattedMessage } from '../../../../util/reactIntl';
 import { NamedLink } from '../../../../components';
 
+import { landingSectionSurfaceClassName } from '../../../LandingPage/landingSectionSurface';
 import SectionContainer from '../SectionContainer';
 import css from './SectionSpaceOwner.module.css';
 import spaceOwnerImg from './space-owner-cta.jpg';
@@ -24,13 +25,17 @@ import spaceOwnerImg from './space-owner-cta.jpg';
  * @returns {JSX.Element}
  */
 const SectionSpaceOwner = props => {
-  const { sectionId, className, rootClassName, defaultClasses, appearance, options } = props;
+  const { sectionId, className, rootClassName, defaultClasses, appearance, options, landingSurface } =
+    props;
 
   return (
     <SectionContainer
       id={sectionId}
       className={className}
-      rootClassName={classNames(rootClassName, css.root)}
+      rootClassName={classNames(
+        rootClassName,
+        landingSectionSurfaceClassName(landingSurface)
+      )}
       appearance={appearance}
       options={options}
     >

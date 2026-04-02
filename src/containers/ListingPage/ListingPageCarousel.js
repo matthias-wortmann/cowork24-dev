@@ -337,7 +337,7 @@ export const ListingPageComponent = props => {
       twitterImages={twitterImages}
       {...noIndexMaybe}
       schema={{
-        '@context': 'http://schema.org',
+        '@context': 'https://schema.org',
         '@type': 'Product',
         description: plainDescription,
         name: schemaTitle,

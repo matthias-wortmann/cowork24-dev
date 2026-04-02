@@ -1,4 +1,5 @@
 import React from 'react';
+import classNames from 'classnames';
 import loadable from '@loadable/component';
 import { FormattedMessage } from '../../util/reactIntl';
 import { NamedLink } from '../../components';
@@ -8,6 +9,7 @@ import SectionCategoryShortcuts from '../PageBuilder/SectionBuilder/SectionCateg
 import SectionLogoSlider from '../PageBuilder/SectionBuilder/SectionLogoSlider';
 import SectionSpaceOwner from '../PageBuilder/SectionBuilder/SectionSpaceOwner';
 import SectionFaq from '../PageBuilder/SectionBuilder/SectionFaq';
+import SectionLandingListingRows from '../PageBuilder/SectionBuilder/SectionLandingListingRows/SectionLandingListingRows';
 import SectionLocations from '../PageBuilder/SectionBuilder/SectionLocations';
 
 import HeroSearchForm from './HeroSearchForm';
@@ -19,15 +21,31 @@ const PageBuilder = loadable(() =>
 
 const is404 = error => error?.status === 404;
 
-// Default landing sections (Airbnb-style: hero, category bar, categories, for owners, FAQ)
+// Default landing sections: clear white / light-grey alternation (sticky bar stays white)
 const defaultLandingSections = () => [
   { sectionType: 'defaultLandingHero', sectionId: 'hero' },
   { sectionType: 'categoryBar', sectionId: 'category-bar' },
-  { sectionType: 'logoSlider', sectionId: 'logo-slider' },
-  { sectionType: 'categoryShortcuts', sectionId: 'category-shortcuts' },
-  { sectionType: 'sectionLocations', sectionId: 'locations' },
-  { sectionType: 'sectionSpaceOwner', sectionId: 'space-owner' },
-  { sectionType: 'faq', sectionId: 'faq' },
+  { sectionType: 'logoSlider', sectionId: 'logo-slider', landingSurface: 'muted' },
+  {
+    sectionType: 'landingListingRows',
+    sectionId: 'landing-listings-newest-coliving',
+    rowIds: ['newest', 'coliving'],
+    landingSurface: 'white',
+  },
+  {
+    sectionType: 'categoryShortcuts',
+    sectionId: 'category-shortcuts',
+    landingSurface: 'muted',
+  },
+  {
+    sectionType: 'landingListingRows',
+    sectionId: 'landing-listings-workation',
+    rowIds: ['workation'],
+    landingSurface: 'white',
+  },
+  { sectionType: 'sectionLocations', sectionId: 'locations', landingSurface: 'muted' },
+  { sectionType: 'sectionSpaceOwner', sectionId: 'space-owner', landingSurface: 'white' },
+  { sectionType: 'faq', sectionId: 'faq', landingSurface: 'muted' },
 ];
 
 /** Page data for the custom start page (hero + categories). Exported for use in LandingPage. */
@@ -80,6 +98,11 @@ export const SectionDefaultLandingHero = props => {
   const { sectionId } = props;
   return (
     <section id={sectionId} className={css.heroSection}>
+      <div className={css.heroOrbs} aria-hidden="true">
+        <div className={classNames(css.heroOrb, css.heroOrbCoral)} />
+        <div className={classNames(css.heroOrb, css.heroOrbBrand)} />
+        <div className={classNames(css.heroOrb, css.heroOrbSlate)} />
+      </div>
       <div className={css.heroContent}>
         <h1 className={css.heroTitle}>
           <FormattedMessage id="LandingPage.defaultHeroTitle" />
@@ -122,6 +145,7 @@ const FallbackPage = props => {
           customMaintenance: { component: SectionMaintenanceMode },
           defaultLandingHero: { component: SectionDefaultLandingHero },
           categoryBar: { component: SectionCategoryBar },
+          landingListingRows: { component: SectionLandingListingRows },
           logoSlider: { component: SectionLogoSlider },
           categoryShortcuts: { component: SectionCategoryShortcuts },
           sectionLocations: { component: SectionLocations },

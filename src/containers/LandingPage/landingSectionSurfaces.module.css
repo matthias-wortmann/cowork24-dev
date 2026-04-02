@@ -1,0 +1,16 @@
+@import '../../styles/customMediaQueries.css';
+
+/**
+ * Alternating full-bleed bands on the custom landing page (Airbnb-style).
+ * Exposes --landingSectionSurface for edge fades (e.g. logo marquee).
+ */
+
+.surfaceWhite {
+  --landingSectionSurface: var(--colorWhite);
+  background-color: var(--landingSectionSurface);
+}
+
+.surfaceMuted {
+  --landingSectionSurface: var(--colorGrey50);
+  background-color: var(--landingSectionSurface);
+}

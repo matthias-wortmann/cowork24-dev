@@ -1,5 +1,7 @@
 # AGENTS.md – AI Agent guide for Sharetribe Web Template
 
+For a concise AI-oriented index (cowork24, Cursor rules/skills), see **`CLAUDE.md`** in the repository root.
+
 Sharetribe Web Template is a React-based marketplace web application with server-side rendering.
 
 # Technology Stack

@@ -10,21 +10,142 @@
   margin: 0 auto;
 }
 
-/* Airbnb-style hero (when landing-page asset returns 404) */
+/* Hero: neutral base + soft animated color orbs (blur fixed on element; motion via transform) */
 .heroSection {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  background:
-    radial-gradient(ellipse 80% 60% at 10% 20%, rgba(255, 56, 92, 0.10) 0%, transparent 70%),
-    radial-gradient(ellipse 60% 80% at 90% 80%, rgba(34, 34, 34, 0.04) 0%, transparent 60%),
-    radial-gradient(ellipse 50% 50% at 50% 0%, rgba(255, 56, 92, 0.05) 0%, transparent 50%),
-    linear-gradient(180deg, #fff5f7 0%, #ffffff 100%);
+  background: linear-gradient(
+    180deg,
+    var(--colorGrey50) 0%,
+    var(--colorWhite) 52%,
+    var(--colorWhite) 100%
+  );
   padding: 20px 16px 24px;
   width: 100%;
   max-width: 100%;
   overflow: hidden;
   box-sizing: border-box;
+  scroll-margin-top: var(--topbarHeight);
+}
+
+/* Decorative blobs behind content */
+.heroOrbs {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.heroOrb {
+  position: absolute;
+  border-radius: 50%;
+  /* Blur stays constant while moving — avoids janky filter animation */
+  filter: blur(56px);
+  transform: translate3d(0, 0, 0);
+  will-change: transform, opacity;
+}
+
+/* Stronger coral / “Airbnb” accent — top-left */
+.heroOrbCoral {
+  width: min(88vw, 460px);
+  height: min(88vw, 460px);
+  top: -18%;
+  left: -12%;
+  background: radial-gradient(
+    circle at 40% 40%,
+    rgba(255, 66, 105, 0.55) 0%,
+    rgba(255, 90, 120, 0.22) 42%,
+    transparent 68%
+  );
+  opacity: 0.92;
+  animation: heroOrbDriftA 16s ease-in-out infinite;
+}
+
+/* Brand tint — upper right */
+.heroOrbBrand {
+  width: min(72vw, 380px);
+  height: min(72vw, 380px);
+  top: -8%;
+  right: -14%;
+  background: radial-gradient(
+    circle at 50% 50%,
+    color-mix(in srgb, var(--marketplaceColor) 42%, transparent) 0%,
+    color-mix(in srgb, var(--marketplaceColor) 12%, transparent) 45%,
+    transparent 70%
+  );
+  opacity: 0.75;
+  animation: heroOrbDriftB 19s ease-in-out infinite;
+  animation-delay: -4s;
+}
+
+/* Cool counterweight — lower area */
+.heroOrbSlate {
+  width: min(90vw, 520px);
+  height: min(55vw, 320px);
+  bottom: -28%;
+  left: 18%;
+  background: radial-gradient(
+    ellipse 80% 70% at 50% 50%,
+    rgba(15, 23, 42, 0.09) 0%,
+    rgba(15, 23, 42, 0.03) 50%,
+    transparent 72%
+  );
+  opacity: 0.9;
+  animation: heroOrbDriftC 22s ease-in-out infinite;
+  animation-delay: -9s;
+}
+
+@keyframes heroOrbDriftA {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 0.88;
+  }
+  50% {
+    transform: translate3d(18px, 14px, 0) scale(1.09);
+    opacity: 1;
+  }
+}
+
+@keyframes heroOrbDriftB {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 0.65;
+  }
+  50% {
+    transform: translate3d(-22px, 20px, 0) scale(1.12);
+    opacity: 0.88;
+  }
+}
+
+@keyframes heroOrbDriftC {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 0.75;
+  }
+  50% {
+    transform: translate3d(12px, -18px, 0) scale(1.06);
+    opacity: 0.95;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .heroOrbCoral,
+  .heroOrbBrand,
+  .heroOrbSlate {
+    animation: none;
+  }
+}
+
+@media (--viewportMedium) {
+  .heroSection {
+    scroll-margin-top: var(--topbarHeightDesktop);
+  }
 }
 
 @media (--viewportSmall) {
@@ -40,6 +161,8 @@
 }
 
 .heroContent {
+  position: relative;
+  z-index: 1;
   text-align: center;
   max-width: min(680px, 100%);
   width: 100%;

@@ -1,0 +1,561 @@
+@import '../../styles/customMediaQueries.css';
+
+/* Full-width main column (no account-settings side layout). */
+.layoutMain {
+  width: 100%;
+  max-width: none;
+}
+
+.root {
+  background-color: var(--colorWhite);
+}
+
+.shell {
+  width: 100%;
+  min-height: 100%;
+  background-color: var(--colorWhite);
+}
+
+/* ——— Horizontal rhythm (Airbnb-style wide canvas + generous gutters) ——— */
+.inner {
+  width: 100%;
+  max-width: 1320px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 24px;
+  padding-right: 24px;
+
+  @media (--viewportMedium) {
+    padding-left: 40px;
+    padding-right: 40px;
+  }
+
+  @media (--viewportLarge) {
+    padding-left: 56px;
+    padding-right: 56px;
+  }
+}
+
+/* ——— Full-viewport hero ——— */
+.hero {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100svh - var(--topbarHeight));
+  overflow: hidden;
+  color: var(--colorWhite);
+
+  @media (--viewportMedium) {
+    min-height: calc(100svh - var(--topbarHeightDesktop));
+  }
+}
+
+.heroImageLayer {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-color: var(--colorGrey800);
+  background-image: var(--cityHeroBg, none);
+  background-size: cover;
+  background-position: center;
+}
+
+.heroScrim {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(
+    180deg,
+    rgba(8, 10, 16, 0.42) 0%,
+    rgba(8, 10, 16, 0.5) 38%,
+    rgba(8, 10, 16, 0.78) 100%
+  );
+}
+
+.heroBreadcrumbs {
+  position: relative;
+  z-index: 2;
+  flex-shrink: 0;
+  padding-top: 18px;
+  padding-bottom: 0;
+
+  @media (--viewportMedium) {
+    padding-top: 24px;
+  }
+}
+
+.breadcrumbList {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 13px;
+  line-height: 1.4;
+  color: rgba(255, 255, 255, 0.82);
+
+  @media (--viewportMedium) {
+    font-size: 14px;
+  }
+}
+
+.breadcrumbItem {
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+}
+
+.breadcrumbItem:not(:last-child)::after {
+  content: '/';
+  margin-left: 6px;
+  color: rgba(255, 255, 255, 0.35);
+  pointer-events: none;
+}
+
+.heroBreadcrumbs .breadcrumbLink {
+  color: rgba(255, 255, 255, 0.95);
+  text-decoration: none;
+  transition: opacity 0.15s ease;
+}
+
+.heroBreadcrumbs .breadcrumbLink:hover {
+  opacity: 0.85;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.heroBreadcrumbs .breadcrumbCurrent {
+  color: rgba(255, 255, 255, 0.88);
+  font-weight: var(--fontWeightMedium);
+}
+
+.heroTextBlock {
+  position: relative;
+  z-index: 2;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding-top: 48px;
+  padding-bottom: 56px;
+  max-width: 720px;
+
+  @media (--viewportMedium) {
+    padding-top: 56px;
+    padding-bottom: 72px;
+  }
+
+  @media (--viewportLarge) {
+    padding-bottom: 88px;
+  }
+}
+
+.heroTitle {
+  margin: 0 0 18px;
+  font-size: clamp(32px, 7vw, 52px);
+  font-weight: var(--fontWeightBold);
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+  text-shadow: 0 2px 24px rgba(0, 0, 0, 0.25);
+
+  @media (--viewportMedium) {
+    margin-bottom: 20px;
+  }
+}
+
+.heroIntro {
+  margin: 0 0 28px;
+  font-size: 17px;
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.92);
+  text-shadow: 0 1px 16px rgba(0, 0, 0, 0.2);
+
+  @media (--viewportMedium) {
+    font-size: 19px;
+    line-height: 1.5;
+    margin-bottom: 32px;
+  }
+}
+
+.heroCta {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 12px 28px;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: var(--fontWeightSemiBold);
+  color: var(--colorGrey900);
+  text-decoration: none;
+  background-color: var(--colorWhite);
+  border: none;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.18);
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.heroCta:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.22);
+}
+
+.heroCta:active {
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .heroCta {
+    transition: none;
+  }
+
+  .heroCta:hover,
+  .heroCta:active {
+    transform: none;
+  }
+}
+
+/* ——— Content sections ——— */
+.section {
+  padding-top: 56px;
+  padding-bottom: 56px;
+
+  @media (--viewportMedium) {
+    padding-top: 72px;
+    padding-bottom: 72px;
+  }
+
+  @media (--viewportLarge) {
+    padding-top: 88px;
+    padding-bottom: 88px;
+  }
+}
+
+.sectionListings {
+  padding-top: 48px;
+
+  @media (--viewportMedium) {
+    padding-top: 64px;
+  }
+
+  @media (--viewportLarge) {
+    padding-top: 72px;
+  }
+}
+
+.sectionBand {
+  background-color: var(--colorGrey50);
+}
+
+.sectionCities {
+  padding-bottom: 72px;
+
+  @media (--viewportLarge) {
+    padding-bottom: 96px;
+  }
+}
+
+.sectionHeadingRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px 32px;
+  margin-bottom: 36px;
+
+  @media (--viewportMedium) {
+    margin-bottom: 40px;
+  }
+}
+
+.sectionTitle {
+  margin: 0;
+  font-size: clamp(22px, 2.4vw, 30px);
+  font-weight: var(--fontWeightSemiBold);
+  letter-spacing: -0.025em;
+  color: var(--colorGrey900);
+  line-height: 1.2;
+}
+
+/* Überschriften mit Fliesstext darunter (nicht die Listing-Zeile mit „Alle anzeigen“) */
+.inner > .sectionTitle {
+  margin-bottom: 16px;
+
+  @media (--viewportMedium) {
+    margin-bottom: 20px;
+  }
+}
+
+.sectionLink {
+  flex-shrink: 0;
+  font-size: 15px;
+  font-weight: var(--fontWeightSemiBold);
+  color: var(--colorMarketplace);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.15s ease;
+}
+
+.sectionLink:hover {
+  border-bottom-color: var(--colorMarketplace);
+}
+
+.sectionLead {
+  margin: 0;
+  font-size: 17px;
+  line-height: 1.65;
+  color: var(--colorGrey700);
+  max-width: 720px;
+}
+
+.sectionBody {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.65;
+  color: var(--colorGrey700);
+  max-width: 720px;
+}
+
+.sectionLead + .sectionBody {
+  margin-top: 20px;
+}
+
+/* Map lives in its own section below listings (never beside hero) — avoids sidebar/sticky issues
+   with the reusable Google Maps singleton and reads clearly as content, not header chrome. */
+.sectionMap {
+  padding-top: 40px;
+  padding-bottom: 48px;
+  background-color: var(--colorGrey50);
+  border-top: 1px solid var(--colorGrey100);
+  scroll-margin-top: var(--topbarHeight);
+
+  @media (--viewportMedium) {
+    padding-top: 48px;
+    padding-bottom: 64px;
+    scroll-margin-top: var(--topbarHeightDesktop);
+  }
+
+  @media (--viewportLarge) {
+    padding-top: 56px;
+    padding-bottom: 72px;
+  }
+}
+
+.mapSectionTitle {
+  margin: 0 0 24px;
+  font-size: clamp(22px, 2.4vw, 30px);
+  font-weight: var(--fontWeightSemiBold);
+  letter-spacing: -0.025em;
+  color: var(--colorGrey900);
+  line-height: 1.2;
+
+  @media (--viewportMedium) {
+    margin-bottom: 28px;
+  }
+}
+
+/* Containing block for Maps API layers (can use fixed-like panes); keeps paint inside this card. */
+.mapEmbed {
+  position: relative;
+  isolation: isolate;
+  z-index: 0;
+  overflow: hidden;
+  border-radius: 16px;
+  border: 1px solid var(--colorGrey100);
+  background-color: var(--colorGrey100);
+  transform: translateZ(0);
+  max-width: 100%;
+}
+
+.mapViewport {
+  height: 300px;
+
+  @media (--viewportMedium) {
+    height: 380px;
+  }
+
+  @media (--viewportLarge) {
+    height: min(440px, 50vh);
+  }
+}
+
+.mapFallback {
+  width: 100%;
+  height: 100%;
+  min-height: 280px;
+  background: linear-gradient(
+    135deg,
+    var(--colorGrey100) 0%,
+    var(--colorGrey50) 50%,
+    var(--colorGrey100) 100%
+  );
+  animation: cityMapShimmer 1.2s ease-in-out infinite;
+}
+
+@keyframes cityMapShimmer {
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.72;
+  }
+}
+
+.cityMapShell {
+  width: 100%;
+  height: 100%;
+  min-height: 260px;
+}
+
+.cityMapRoot {
+  width: 100%;
+  height: 100%;
+  min-height: 260px;
+  border-radius: 0;
+}
+
+.listingsGrid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 28px;
+
+  @media (--viewportMedium) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 32px;
+  }
+}
+
+.listingItem {
+  margin: 0;
+}
+
+.error {
+  color: var(--colorFail);
+  margin: 0 0 24px;
+  font-size: 15px;
+}
+
+/* ——— FAQ (details / summary) ——— */
+.faqStack {
+  margin-top: 24px;
+  max-width: 800px;
+  border-top: 1px solid var(--colorGrey100);
+}
+
+.faqDetails {
+  border-bottom: 1px solid var(--colorGrey100);
+}
+
+.faqSummary {
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 22px 0;
+  font-size: 16px;
+  font-weight: var(--fontWeightSemiBold);
+  color: var(--colorGrey900);
+  transition: color 0.15s ease;
+}
+
+.faqSummary::-webkit-details-marker {
+  display: none;
+}
+
+.faqSummary::after {
+  content: '';
+  width: 9px;
+  height: 9px;
+  flex-shrink: 0;
+  border-right: 2px solid var(--colorGrey500);
+  border-bottom: 2px solid var(--colorGrey500);
+  transform: rotate(45deg);
+  transition: transform 0.2s ease;
+  margin-top: -4px;
+}
+
+.faqDetails[open] .faqSummary::after {
+  transform: rotate(-135deg);
+  margin-top: 4px;
+}
+
+.faqSummary:hover {
+  color: var(--colorGrey800);
+}
+
+.faqSummary:focus {
+  outline: none;
+}
+
+.faqSummary:focus-visible {
+  border-radius: 4px;
+  box-shadow: 0 0 0 2px var(--colorWhite), 0 0 0 4px var(--colorMarketplace);
+}
+
+.faqSummaryText {
+  flex: 1;
+  min-width: 0;
+  line-height: 1.45;
+}
+
+.faqAnswer {
+  padding: 0 0 24px;
+  font-size: 15px;
+  line-height: 1.65;
+  color: var(--colorGrey700);
+}
+
+/* ——— Other cities ——— */
+.cityLinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 14px;
+  margin: 32px 0 0;
+  padding: 0;
+  list-style: none;
+
+  @media (--viewportMedium) {
+    margin-top: 36px;
+    gap: 14px 16px;
+  }
+}
+
+.cityLinkItem {
+  margin: 0;
+}
+
+.cityPill {
+  display: inline-flex;
+  align-items: center;
+  padding: 12px 20px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: var(--fontWeightMedium);
+  color: var(--colorGrey900);
+  text-decoration: none;
+  background-color: var(--colorWhite);
+  border: 1px solid var(--colorGrey200);
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.sectionBand .cityPill {
+  background-color: var(--colorWhite);
+}
+
+.cityPill:hover {
+  border-color: var(--colorGrey300);
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+}

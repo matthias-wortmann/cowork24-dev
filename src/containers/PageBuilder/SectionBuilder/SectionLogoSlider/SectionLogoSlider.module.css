@@ -11,30 +11,31 @@
   }
 }
 
-/* ================ Root ================ */
-
-.root {
-  background-color: var(--colorWhite, #fff);
-}
-
 /* ================ Wrapper ================ */
 
 .wrapper {
   max-width: var(--contentMaxWidthPages, 1120px);
   margin: 0 auto;
-  padding: 30px 0 24px;
+  padding: 28px 16px 24px;
   text-align: center;
+  box-sizing: border-box;
+}
+
+@media (--viewportSmall) {
+  .wrapper {
+    padding: 32px 24px 28px;
+  }
 }
 
 @media (--viewportMedium) {
   .wrapper {
-    padding: 40px 0 32px;
+    padding: 40px 48px 32px;
   }
 }
 
 @media (--viewportLarge) {
   .wrapper {
-    padding: 48px 0 40px;
+    padding: 48px 48px 40px;
   }
 }
 
@@ -66,12 +67,20 @@
 
 .fadeLeft {
   left: 0;
-  background: linear-gradient(to right, var(--colorWhite, #fff) 0%, transparent 100%);
+  background: linear-gradient(
+    to right,
+    var(--landingSectionSurface, var(--colorWhite)) 0%,
+    transparent 100%
+  );
 }
 
 .fadeRight {
   right: 0;
-  background: linear-gradient(to left, var(--colorWhite, #fff) 0%, transparent 100%);
+  background: linear-gradient(
+    to left,
+    var(--landingSectionSurface, var(--colorWhite)) 0%,
+    transparent 100%
+  );
 }
 
 /* ================ Marquee track ================ */

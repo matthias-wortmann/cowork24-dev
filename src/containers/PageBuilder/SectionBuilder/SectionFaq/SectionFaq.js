@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import classNames from 'classnames';
-import { FormattedMessage } from '../../../../util/reactIntl';
+import { useIntl, FormattedMessage } from '../../../../util/reactIntl';
+import { landingSectionSurfaceClassName } from '../../../LandingPage/landingSectionSurface';
 import SectionContainer from '../SectionContainer';
 import css from './SectionFaq.module.css';
 
@@ -12,24 +13,46 @@ const FAQ_ITEMS = [
 ];
 
 /**
- * FAQ-Section mit aufklappbaren Einträgen (alles auf Deutsch).
+ * FAQ-Section mit aufklappbaren Einträgen und FAQPage JSON-LD für Rich Results / KI-Suche.
  */
 const SectionFaq = props => {
-  const { sectionId, className, rootClassName, defaultClasses, appearance, options } = props;
+  const { sectionId, className, rootClassName, defaultClasses, appearance, options, landingSurface } =
+    props;
   const [openId, setOpenId] = useState(null);
+  const intl = useIntl();
 
   const toggle = id => {
     setOpenId(prev => (prev === id ? null : id));
+  };
+
+  const faqJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: FAQ_ITEMS.map(({ questionId, answerId }) => ({
+      '@type': 'Question',
+      name: intl.formatMessage({ id: questionId }),
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: intl.formatMessage({ id: answerId }),
+      },
+    })),
   };
 
   return (
     <SectionContainer
       id={sectionId}
       className={className}
-      rootClassName={classNames(rootClassName, css.root)}
+      rootClassName={classNames(
+        rootClassName,
+        landingSectionSurfaceClassName(landingSurface)
+      )}
       appearance={appearance}
       options={options}
     >
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+      />
       <div className={css.wrapper}>
         <h2 className={classNames(defaultClasses?.title, css.title)}>
           <FormattedMessage id="LandingPage.faqTitle" />

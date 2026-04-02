@@ -6,15 +6,18 @@
   position: sticky;
   top: var(--topbarHeight, 56px);
   z-index: var(--zIndexNav, 9);
-  background: #fff;
-  border-bottom: 1px solid var(--colorGrey100, #e5e5e5);
+  background: var(--colorWhite);
+  border-bottom: 1px solid var(--colorGrey100);
   min-height: 48px;
+  scroll-margin-top: var(--topbarHeight);
+  box-sizing: border-box;
 }
 
 @media (--viewportMedium) {
   .root {
     top: var(--topbarHeightDesktop, 64px);
     min-height: 54px;
+    scroll-margin-top: var(--topbarHeightDesktop);
   }
 }
 
@@ -101,8 +104,8 @@
   text-align: center;
 
   /* Inactive state */
-  color: #717171;
-  opacity: 0.7;
+  color: var(--colorGrey600);
+  opacity: 0.75;
 
   transition: opacity 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
@@ -125,7 +128,7 @@
 @media (hover: hover) and (pointer: fine) {
   .categoryItem:hover {
     opacity: 1;
-    color: #222222;
+    color: var(--colorGrey900);
   }
 }
 
@@ -138,9 +141,9 @@
 /* Active state – border-bottom is centered under icon/label via flex column + align-items center */
 
 .categoryItemActive {
-  color: #222222;
+  color: var(--colorGrey900);
   opacity: 1;
-  border-bottom-color: #222222;
+  border-bottom-color: var(--colorGrey900);
 }
 
 /* ================ Icon ================ */

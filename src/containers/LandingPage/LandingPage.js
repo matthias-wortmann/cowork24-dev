@@ -16,6 +16,7 @@ import SectionCategoryShortcuts from '../PageBuilder/SectionBuilder/SectionCateg
 import SectionLogoSlider from '../PageBuilder/SectionBuilder/SectionLogoSlider';
 import SectionSpaceOwner from '../PageBuilder/SectionBuilder/SectionSpaceOwner';
 import SectionFaq from '../PageBuilder/SectionBuilder/SectionFaq';
+import SectionLandingListingRows from '../PageBuilder/SectionBuilder/SectionLandingListingRows/SectionLandingListingRows';
 import SectionLocations from '../PageBuilder/SectionBuilder/SectionLocations';
 
 const PageBuilder = loadable(() =>
@@ -39,6 +40,7 @@ export const LandingPageComponent = props => {
         sectionComponents: {
           defaultLandingHero: { component: SectionDefaultLandingHero },
           categoryBar: { component: SectionCategoryBar },
+          landingListingRows: { component: SectionLandingListingRows },
           logoSlider: { component: SectionLogoSlider },
           categoryShortcuts: { component: SectionCategoryShortcuts },
           sectionLocations: { component: SectionLocations },

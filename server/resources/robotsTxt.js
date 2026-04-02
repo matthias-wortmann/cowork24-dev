@@ -54,7 +54,6 @@ Disallow: /reset-password
 Disallow: /verify-email
 Disallow: /preview
 Disallow: /styleguide
-Crawl-Delay: 5
 `;
 
 /**

@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import classNames from 'classnames';
 
+import { landingSectionSurfaceClassName } from '../../../LandingPage/landingSectionSurface';
+
 import SectionContainer from '../SectionContainer';
 import css from './SectionLogoSlider.module.css';
 
@@ -104,13 +106,17 @@ const LogoItem = ({ name, logo, color }) => {
  * @returns {JSX.Element}
  */
 const SectionLogoSlider = props => {
-  const { sectionId, className, rootClassName, defaultClasses, appearance, options } = props;
+  const { sectionId, className, rootClassName, defaultClasses, appearance, options, landingSurface } =
+    props;
 
   return (
     <SectionContainer
       id={sectionId}
       className={className}
-      rootClassName={classNames(rootClassName, css.root)}
+      rootClassName={classNames(
+        rootClassName,
+        landingSectionSurfaceClassName(landingSurface)
+      )}
       appearance={appearance}
       options={options}
     >

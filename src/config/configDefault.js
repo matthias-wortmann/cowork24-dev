@@ -6,6 +6,7 @@ import * as branding from './configBranding';
 import * as layout from './configLayout';
 import * as analytics from './configAnalytics';
 import * as user from './configUser';
+import landingPage from './configLandingPage';
 
 // NOTE: only expose configuration that should be visible in the
 // client side, don't add any server secrets to this file.
@@ -60,6 +61,9 @@ const defaultConfig = {
   // By default, it doesn't add anything.
   analytics,
 
+  // Landing page listing highlight rows (see configLandingPage.js)
+  landingPage,
+
   // Note: Facebook app id is used for Facebook login, but it is also used for tracking:
   // Facebook counts shares with app or page associated by this id
   // Currently it is unset, but you can read more about fb:app_id from
@@ -109,9 +113,9 @@ const defaultConfig = {
 
   // Optional
   // Online presence of the same organization:
-  // Facebook page is used in SEO schema (http://schema.org/Organization)
+  // Facebook page is used in SEO schema (https://schema.org/Organization)
   siteFacebookPage: null, // e.g. 'https://www.facebook.com/Sharetribe/',
-  // Instagram page is used in SEO schema (http://schema.org/Organization)
+  // Instagram page is used in SEO schema (https://schema.org/Organization)
   siteInstagramPage: null, // e.g. 'https://www.instagram.com/sharetribe/',
   // Twitter handle is needed in meta tags (twitter:site). Start it with '@' character
   siteTwitterHandle: null, // e.g. '@sharetribe',
@@ -126,7 +130,7 @@ const defaultConfig = {
   },
 
   // Optional
-  // Address information is used in SEO schema for Organization (http://schema.org/PostalAddress)
+  // Address information is used in SEO schema for Organization (https://schema.org/PostalAddress)
   // Note: Google doesn't recognize this:
   // https://developers.google.com/search/docs/advanced/structured-data/logo#structured-data-type-definitions
   address: {

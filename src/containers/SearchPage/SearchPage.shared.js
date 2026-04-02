@@ -484,7 +484,7 @@ export const createSearchResultSchema = (
   pageHeading
 ) => {
   // Schema for search engines (helps them to understand what this page is about)
-  // http://schema.org
+  // https://schema.org
   // We are using JSON-LD format
   const marketplaceName = config.marketplaceName;
   const { address, keywords } = mainSearchData;
@@ -514,14 +514,14 @@ export const createSearchResultSchema = (
   const schemaMainEntity = JSON.stringify({
     '@type': 'ItemList',
     name: searchTitle,
-    itemListOrder: 'http://schema.org/ItemListOrderAscending',
+    itemListOrder: 'https://schema.org/ItemListOrderAscending',
     itemListElement: schemaListings,
   });
   return {
     title: schemaTitle,
     description: schemaDescription,
     schema: {
-      '@context': 'http://schema.org',
+      '@context': 'https://schema.org',
       '@type': 'SearchResultsPage',
       description: schemaDescription,
       name: schemaTitle,

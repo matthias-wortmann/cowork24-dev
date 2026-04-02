@@ -3,6 +3,7 @@ import {
   createResourceLocatorString,
   findRouteByRouteName,
   canonicalRoutePath,
+  canonicalSearchQueryString,
   replaceParamsInHref,
 } from './routes';
 
@@ -135,6 +136,20 @@ describe('util/routes.js', () => {
       expect(canonicalRoutePath(routes, location)).toEqual(
         '/l/00000000-0000-0000-0000-000000000000'
       );
+    });
+    it('strips non-canonical SearchPage query params', () => {
+      const location = {
+        pathname: '/s',
+        search: '?keywords=zürich&page=2&mapSearch=true',
+        hash: '',
+      };
+      expect(canonicalRoutePath(routes, location)).toEqual('/s?keywords=z%C3%BCrich');
+    });
+  });
+
+  describe('canonicalSearchQueryString', () => {
+    it('keeps keywords and drops pagination', () => {
+      expect(canonicalSearchQueryString('?keywords=test&page=3')).toEqual('keywords=test');
     });
   });
   describe('replaceUserParamsInHref', () => {

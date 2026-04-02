@@ -114,6 +114,7 @@ const ListingCardImage = props => {
     variantPrefix,
     showListingImage,
     style,
+    highImagePriority,
   } = props;
 
   const firstImage =
@@ -121,6 +122,28 @@ const ListingCardImage = props => {
   const variants = firstImage
     ? Object.keys(firstImage?.attributes?.variants).filter(k => k.startsWith(variantPrefix))
     : [];
+
+  const imageEl = highImagePriority ? (
+    <ResponsiveImage
+      rootClassName={css.rootForImage}
+      alt={title}
+      image={firstImage}
+      variants={variants}
+      sizes={renderSizes}
+      fetchPriority="high"
+      loading="eager"
+    />
+  ) : (
+    <LazyImage
+      rootClassName={css.rootForImage}
+      alt={title}
+      image={firstImage}
+      variants={variants}
+      sizes={renderSizes}
+      fetchPriority="low"
+      loading="lazy"
+    />
+  );
 
   // Render the listing image only if listing images are enabled in the listing type
   return showListingImage ? (
@@ -130,13 +153,7 @@ const ListingCardImage = props => {
       height={aspectHeight}
       {...setActivePropsMaybe}
     >
-      <LazyImage
-        rootClassName={css.rootForImage}
-        alt={title}
-        image={firstImage}
-        variants={variants}
-        sizes={renderSizes}
-      />
+      {imageEl}
     </AspectRatioWrapper>
   ) : (
     <ListingCardThumbnail
@@ -174,6 +191,7 @@ export const ListingCard = props => {
     renderSizes,
     setActiveListing,
     showAuthorInfo = true,
+    highImagePriority = false,
   } = props;
 
   const classes = classNames(rootClassName || css.root, className);
@@ -218,6 +236,7 @@ export const ListingCard = props => {
         variantPrefix={variantPrefix}
         style={cardStyle}
         showListingImage={showListingImage}
+        highImagePriority={highImagePriority}
       />
       <div className={css.info}>
         <PriceMaybe

@@ -1,0 +1,24 @@
+# cowork24
+
+> Marktplatz für Coworking Spaces, Büros und Meetingräume in der Schweiz.
+
+cowork24 verbindet Nutzer:innen mit flexibel buchbaren Arbeitsplätzen – von Hot Desks über Tagespässe bis zu Büros und Workation-Angeboten. Anbieter können Listings kostenlos einstellen; Buchungen laufen über die Sharetribe-basierte Plattform.
+
+## Wichtige öffentliche URLs
+
+Alle Pfade relativ zur Marketplace-Root-URL (Produktionsdomain).
+
+- `/` — Startseite mit Suche, Kategorien und FAQ
+- `/s` — Suchergebnisse (Filter und Karte); Keyword-Suche z. B. `?keywords=Zürich`
+- `/terms-of-service` — Allgemeine Geschäftsbedingungen
+- `/privacy-policy` — Datenschutzerklärung
+- `/signup`, `/login` — Registrierung und Anmeldung
+
+## Maschinenlesbare Hinweise
+
+- `robots.txt` und `sitemap-index.xml` liegen an der Root; Listings und CMS-Seiten sind in Unter-Sitemaps verlinkt.
+- Seiten liefern JSON-LD (u. a. Organization, WebSite mit SearchAction, WebPage, Product auf Listing-Seiten, FAQPage wo FAQ-Sektionen eingebunden sind).
+
+## Sprachen
+
+Die Oberfläche unterstützt Deutsch, Englisch, Spanisch und Französisch (Locale u. a. über Nutzereinstellung). Serverseitiges Rendering nutzt die konfigurierte Standard-Locale.

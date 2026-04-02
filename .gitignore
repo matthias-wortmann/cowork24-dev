@@ -12,6 +12,9 @@ build
 # Cursor IDE – debug / instrumentation logs (local only, do not commit)
 .cursor/debug*.log
 
+# Local-only asset archives (not application source)
+shortcut-bar-icons.zip
+
 # misc
 .DS_Store
 .env

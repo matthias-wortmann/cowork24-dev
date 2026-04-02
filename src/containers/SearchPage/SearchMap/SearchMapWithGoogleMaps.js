@@ -417,11 +417,40 @@ class SearchMapWithGoogleMaps extends Component {
     this.map = null;
     this.viewportBounds = null;
     this.idleListener = null;
+    /** @type {ResizeObserver|null} */
+    this.mapResizeObserver = null;
     this.state = { mapContainer: null, isMapReady: false };
 
     this.initializeMap = this.initializeMap.bind(this);
     this.onMount = this.onMount.bind(this);
     this.onIdle = this.onIdle.bind(this);
+  }
+
+  /**
+   * Google Maps keeps an internal layout tied to the container size at init. When the div resizes
+   * (e.g. CityLandingPage crossing the 1024px grid breakpoint), tiles can paint in the wrong place
+   * until `resize` is fired.
+   */
+  attachMapResizeObserver() {
+    if (typeof ResizeObserver === 'undefined' || !this.map || !this.state.mapContainer) {
+      return;
+    }
+    if (this.mapResizeObserver) {
+      return;
+    }
+    this.mapResizeObserver = new ResizeObserver(() => {
+      if (this.map && window.google?.maps?.event) {
+        window.google.maps.event.trigger(this.map, 'resize');
+      }
+    });
+    this.mapResizeObserver.observe(this.state.mapContainer);
+  }
+
+  detachMapResizeObserver() {
+    if (this.mapResizeObserver) {
+      this.mapResizeObserver.disconnect();
+      this.mapResizeObserver = null;
+    }
   }
 
   componentDidUpdate(prevProps) {
@@ -463,7 +492,10 @@ class SearchMapWithGoogleMaps extends Component {
   }
 
   componentWillUnmount() {
-    this.idleListener.remove();
+    this.detachMapResizeObserver();
+    if (this.idleListener) {
+      this.idleListener.remove();
+    }
   }
 
   initializeMap() {
@@ -496,6 +528,7 @@ class SearchMapWithGoogleMaps extends Component {
 
       this.map = new maps.Map(this.state.mapContainer, mapConfig);
       this.idleListener = maps.event.addListener(this.map, 'idle', this.onIdle);
+      this.attachMapResizeObserver();
       this.setState({
         isMapReady: true,
       });

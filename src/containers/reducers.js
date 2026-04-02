@@ -5,6 +5,7 @@
  */
 import CheckoutPage from './CheckoutPage/CheckoutPage.duck';
 import ContactDetailsPage from './ContactDetailsPage/ContactDetailsPage.duck';
+import CityLandingPage from './CityLandingPage/CityLandingPage.duck';
 import LandingPage from './LandingPage/LandingPage.duck';
 import EditListingPage from './EditListingPage/EditListingPage.duck';
 import InboxPage from './InboxPage/InboxPage.duck';
@@ -26,6 +27,7 @@ import TransactionPage from './TransactionPage/TransactionPage.duck';
 
 export {
   CheckoutPage,
+  CityLandingPage,
   ContactDetailsPage,
   EditListingPage,
   InboxPage,

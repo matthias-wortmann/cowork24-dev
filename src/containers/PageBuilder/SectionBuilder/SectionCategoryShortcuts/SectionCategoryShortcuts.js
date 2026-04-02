@@ -5,6 +5,7 @@ import { useConfiguration } from '../../../../context/configurationContext';
 import { stringify } from '../../../../util/urlHelpers';
 import { constructQueryParamName } from '../../../../util/search';
 import { NamedLink } from '../../../../components';
+import { landingSectionSurfaceClassName } from '../../../LandingPage/landingSectionSurface';
 import SectionContainer from '../SectionContainer';
 import { getCategoryImage } from './categoryImages';
 import css from './SectionCategoryShortcuts.module.css';
@@ -31,6 +32,7 @@ const SectionCategoryShortcuts = props => {
     defaultClasses,
     appearance,
     options,
+    landingSurface,
   } = props;
 
   const intl = useIntl();
@@ -50,7 +52,10 @@ const SectionCategoryShortcuts = props => {
     <SectionContainer
       id={sectionId}
       className={className}
-      rootClassName={classNames(rootClassName, css.root)}
+      rootClassName={classNames(
+        rootClassName,
+        landingSectionSurfaceClassName(landingSurface)
+      )}
       appearance={appearance}
       options={options}
     >

@@ -429,7 +429,7 @@ export const ProfilePageComponent = props => {
       scrollingDisabled={scrollingDisabled}
       title={schemaTitle}
       schema={{
-        '@context': 'http://schema.org',
+        '@context': 'https://schema.org',
         '@type': 'ProfilePage',
         mainEntity: {
           '@type': 'Person',

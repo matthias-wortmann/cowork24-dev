@@ -51,6 +51,15 @@ const defaultPublicPaths = {
   signup: { url: '/signup' },
   login: { url: '/login' },
   search: { url: '/s' },
+  coworkingZurich: { url: '/coworking/zurich' },
+  coworkingBern: { url: '/coworking/bern' },
+  coworkingBasel: { url: '/coworking/basel' },
+  coworkingGeneva: { url: '/coworking/geneva' },
+  coworkingLausanne: { url: '/coworking/lausanne' },
+  coworkingLucerne: { url: '/coworking/lucerne' },
+  coworkingStGallen: { url: '/coworking/st-gallen' },
+  coworkingWinterthur: { url: '/coworking/winterthur' },
+  coworkingZug: { url: '/coworking/zug' },
 };
 
 // Time-to-live (ttl) is set to one day aka 86400 seconds

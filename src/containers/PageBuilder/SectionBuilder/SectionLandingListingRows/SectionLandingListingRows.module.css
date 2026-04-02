@@ -1,0 +1,271 @@
+@import '../../../../styles/customMediaQueries.css';
+
+/* Same section shell as SectionCategoryShortcuts (full width + content width); colour via landingSurface */
+.root {
+  width: 100%;
+  max-width: 100%;
+  scroll-margin-top: var(--topbarHeight);
+  box-sizing: border-box;
+}
+
+@media (--viewportMedium) {
+  .root {
+    scroll-margin-top: var(--topbarHeightDesktop);
+  }
+}
+
+/* Horizontal + bottom padding match SectionCategoryShortcuts; top is smaller so the gap
+   after „Kategorien“ does not stack two full section paddings. */
+.wrapper {
+  max-width: var(--contentMaxWidthPages);
+  margin: 0 auto;
+  padding: 16px 16px 36px;
+}
+
+@media (--viewportSmall) {
+  .wrapper {
+    padding: 20px 24px 40px;
+  }
+}
+
+@media (--viewportMedium) {
+  .wrapper {
+    padding: 28px 48px 56px;
+  }
+}
+
+@media (--viewportLarge) {
+  .wrapper {
+    padding: 32px 48px 80px;
+  }
+}
+
+/* Vertical rhythm between carousels (6px mobile baseline → 8px from md) */
+.row {
+  margin-bottom: 24px;
+}
+
+@media (--viewportSmall) {
+  .row {
+    margin-bottom: 28px;
+  }
+}
+
+@media (--viewportMedium) {
+  .row {
+    margin-bottom: 32px;
+  }
+}
+
+@media (--viewportLarge) {
+  .row {
+    margin-bottom: 40px;
+  }
+}
+
+.row:last-child {
+  margin-bottom: 0;
+}
+
+/* Align with SectionLocations.sectionHeader spacing */
+.rowHeader {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+@media (--viewportSmall) {
+  .rowHeader {
+    margin-bottom: 16px;
+  }
+}
+
+@media (--viewportMedium) {
+  .rowHeader {
+    margin-bottom: 24px;
+  }
+}
+
+/* Match SectionCategoryShortcuts.title (incl. „Neueste Spaces“) */
+.rowTitle {
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  margin: 0;
+  text-align: left;
+  color: var(--colorGrey900);
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+@media (--viewportSmall) {
+  .rowTitle {
+    font-size: 22px;
+  }
+}
+
+@media (--viewportMedium) {
+  .rowTitle {
+    font-size: 32px;
+  }
+}
+
+/* Secondary CTA: same scale as category description / links */
+.viewAll {
+  flex-shrink: 0;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--marketplaceColor);
+  text-decoration: none;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background-color: color-mix(in srgb, var(--marketplaceColor) 8%, transparent);
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+@media (--viewportSmall) {
+  .viewAll {
+    font-size: 15px;
+  }
+}
+
+@media (--viewportMedium) {
+  .viewAll {
+    font-size: 17px;
+    padding: 8px 16px;
+  }
+}
+
+.viewAll:hover {
+  background-color: color-mix(in srgb, var(--marketplaceColor) 16%, transparent);
+  text-decoration: none;
+}
+
+@supports not (background-color: color-mix(in srgb, black 50%, white)) {
+  .viewAll {
+    background-color: var(--colorGrey100);
+  }
+
+  .viewAll:hover {
+    background-color: var(--colorGrey200);
+  }
+}
+
+/* Same scroll behaviour as SectionCategoryShortcuts.grid */
+.scroller {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 4px;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.scroller::-webkit-scrollbar {
+  display: none;
+}
+
+.list {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (--viewportMedium) {
+  .list {
+    gap: 20px;
+  }
+}
+
+@media (--viewportLarge) {
+  .list {
+    gap: 24px;
+  }
+}
+
+.cardWrap {
+  flex: 0 0 auto;
+  width: min(58vw, 188px);
+  scroll-snap-align: start;
+}
+
+@media (--viewportMedium) {
+  .cardWrap {
+    width: min(30vw, 196px);
+  }
+}
+
+@media (--viewportLarge) {
+  .cardWrap {
+    width: min(20vw, 210px);
+  }
+}
+
+/* Card chrome: radii / hover like SectionCategoryShortcuts cards */
+.cardShell {
+  height: 100%;
+  border-radius: 12px;
+  background-color: var(--colorWhite);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06), 0 4px 16px rgba(15, 23, 42, 0.06);
+  overflow: hidden;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+@media (--viewportSmall) {
+  .cardShell {
+    border-radius: 16px;
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .cardShell:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+  }
+}
+
+.listingCard {
+  width: 100%;
+}
+
+.listingCard [class*='aspectRatioWrapper'] {
+  border-radius: 0;
+  box-shadow: none;
+}
+
+@media (--viewportMedium) {
+  .listingCard [class*='aspectRatioWrapper']:hover {
+    transform: none;
+    box-shadow: none;
+  }
+}
+
+.listingCard [class*='info'] {
+  padding: 8px 10px 10px;
+}
+
+.listingCard [class*='price'] {
+  margin-bottom: 2px;
+  font-size: 12px;
+}
+
+.listingCard [class*='title'] {
+  font-size: 13px;
+  line-height: 1.35;
+  font-weight: var(--fontWeightSemiBold);
+}
+
+.listingCard [class*='authorInfo'] {
+  padding-top: 2px;
+  padding-bottom: 0;
+  font-size: 11px;
+}

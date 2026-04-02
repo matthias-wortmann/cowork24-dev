@@ -1,7 +1,36 @@
 import { matchPath } from 'react-router-dom';
 import { compile } from 'path-to-regexp';
 // NOTE: This file imports urlHelpers.js, which may lead to circular dependency
-import { stringify } from './urlHelpers';
+import { stringify, parse } from './urlHelpers';
+
+/** Query params kept in canonical /s URLs (reduces duplicate indexed URLs). */
+const isCanonicalSearchParam = key => {
+  if (key === 'bounds' || key === 'keywords') {
+    return true;
+  }
+  if (key === 'pub_listingType' || key === 'pub_category') {
+    return true;
+  }
+  return /^pub_categoryLevel[123]$/.test(key);
+};
+
+/**
+ * Drop facet filters, pagination, map-only params, etc. from search query for rel=canonical.
+ *
+ * @param {string} search - location.search (with or without leading `?`)
+ * @returns {string} query string without leading `?`, or empty string
+ */
+export const canonicalSearchQueryString = search => {
+  const parsed = parse(search, { latlngBounds: ['bounds'], latlng: ['origin'] });
+  const picked = {};
+  Object.keys(parsed).forEach(key => {
+    if (!isCanonicalSearchParam(key)) {
+      return;
+    }
+    picked[key] = parsed[key];
+  });
+  return stringify(picked);
+};
 
 const findRouteByName = (nameToFind, routes) => routes.find(route => route.name === nameToFind);
 
@@ -120,6 +149,17 @@ export const canonicalRoutePath = (routes, location, pathOnly = false) => {
     }
     const canonicalListingPathname = `/${parts[1]}/${parts[3]}`;
     return pathOnly ? canonicalListingPathname : `${canonicalListingPathname}${search}${hash}`;
+  }
+
+  const isSearchRoute =
+    matches.length === 1 &&
+    (matches[0].route.name === 'SearchPage' ||
+      matches[0].route.name === 'SearchPageWithListingType');
+
+  if (isSearchRoute) {
+    const canonicalSearch = canonicalSearchQueryString(search);
+    const searchPart = canonicalSearch ? `?${canonicalSearch}` : '';
+    return pathOnly ? pathname : `${pathname}${searchPart}${hash}`;
   }
 
   return pathOnly ? pathname : `${pathname}${search}${hash}`;

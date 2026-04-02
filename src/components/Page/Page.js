@@ -190,8 +190,7 @@ class PageComponent extends Component {
     const sameOrganizationAs = [facebookPage, twitterPage, instagramPage].filter(v => v != null);
 
     // Schema for search engines (helps them to understand what this page is about)
-    // http://schema.org
-    // We are using JSON-LD format
+    // https://schema.org — JSON-LD format
 
     // Schema attribute can be either single schema object or an array of objects
     // This makes it possible to include several different items from the same page.
@@ -199,12 +198,14 @@ class PageComponent extends Component {
     const hasSchema = schema != null;
     const schemaFromProps = hasSchema && Array.isArray(schema) ? schema : hasSchema ? [schema] : [];
     const addressMaybe = config.address?.streetAddress ? { address: config.address } : {};
+    const rootNoSlash = marketplaceRootURL.replace(/\/$/, '');
+    const searchUrlTemplate = `${rootNoSlash}/s?keywords={search_term_string}`;
     const schemaArrayJSONString = JSON.stringify({
-      '@context': 'http://schema.org',
+      '@context': 'https://schema.org',
       '@graph': [
         ...schemaFromProps,
         {
-          '@context': 'http://schema.org',
+          '@context': 'https://schema.org',
           '@type': 'Organization',
           '@id': `${marketplaceRootURL}#organization`,
           url: marketplaceRootURL,
@@ -214,11 +215,19 @@ class PageComponent extends Component {
           ...addressMaybe,
         },
         {
-          '@context': 'http://schema.org',
+          '@context': 'https://schema.org',
           '@type': 'WebSite',
           url: marketplaceRootURL,
           description: schemaDescription,
           name: schemaTitle,
+          potentialAction: {
+            '@type': 'SearchAction',
+            target: {
+              '@type': 'EntryPoint',
+              urlTemplate: searchUrlTemplate,
+            },
+            'query-input': 'required name=search_term_string',
+          },
         },
       ],
     });

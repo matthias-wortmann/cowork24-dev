@@ -32,16 +32,39 @@ class ReusableMapContainer extends React.Component {
       if (!props.className) {
         console.warn('ReusableMapContainer should get className prop which defines its layout');
       }
-      // If no className is given, we use some defaults, which makes it easier to debug loading.
-      const mapLayoutClassName = props.className || css.defaultMapLayout;
 
       this.el = window.reusableSearchMapElement;
       this.el.id = 'search-map';
-      this.el.classList.add(mapLayoutClassName);
+      // Layout classes are applied in renderSearchMap via sync (avoids stacking Search vs City CSS).
     }
 
     this.mountNode = null;
+    this._mountRetryCount = 0;
     this.renderSearchMap = this.renderSearchMap.bind(this);
+  }
+
+  /**
+   * #search-map is a singleton across SPA routes. Never stack layout classes from different
+   * CSS modules (e.g. SearchPage map 100vh + CityLanding shell) — that fills the viewport.
+   * Keeps off-screen utility classes when the map is parked hidden.
+   */
+  syncReusableMapElementLayoutClasses() {
+    if (!this.el) {
+      return;
+    }
+    const layoutClass = this.props.className || css.defaultMapLayout;
+    const hadHidden = this.el.classList.contains(css.reusableMapHidden);
+    const hadHandle = this.el.classList.contains(this.props.reusableMapHiddenHandle);
+
+    this.el.className = '';
+    this.el.id = 'search-map';
+    if (hadHidden) {
+      this.el.classList.add(css.reusableMapHidden);
+    }
+    if (hadHandle) {
+      this.el.classList.add(this.props.reusableMapHiddenHandle);
+    }
+    this.el.classList.add(layoutClass);
   }
 
   componentDidMount() {
@@ -60,6 +83,25 @@ class ReusableMapContainer extends React.Component {
   }
 
   renderSearchMap() {
+    if (typeof window === 'undefined' || !this.el) {
+      return;
+    }
+
+    this.syncReusableMapElementLayoutClasses();
+
+    if (!this.mountNode) {
+      if (this._mountRetryCount < 8) {
+        this._mountRetryCount += 1;
+        queueMicrotask(() => this.renderSearchMap());
+        return;
+      }
+      /* After retries, fall through — same as legacy body-append path (avoids stuck map).
+       * Reset so a later componentDidUpdate can run the microtask retries again if ref appears. */
+      this._mountRetryCount = 0;
+    } else {
+      this._mountRetryCount = 0;
+    }
+
     // Prepare rendering child (MapWithGoogleMap component) to new location
     // We need to add translations (IntlProvider) for map overlay components
     //

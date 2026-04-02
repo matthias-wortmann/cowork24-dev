@@ -1,0 +1,85 @@
+@import '../../../styles/customMediaQueries.css';
+
+/* Airbnb-inspired destination strip: calm typography, scannable grid, mobile-friendly scroll */
+
+.root {
+  border-top: 1px solid var(--colorGrey100);
+  background-color: var(--colorGrey50);
+}
+
+.inner {
+  box-sizing: border-box;
+  max-width: var(--contentMaxWidthPages);
+  margin: 0 auto;
+  padding: 28px 24px 32px;
+
+  @media (--viewportMedium) {
+    padding: 36px 32px 40px;
+  }
+}
+
+.headingBlock {
+  margin-bottom: 20px;
+
+  @media (--viewportMedium) {
+    margin-bottom: 24px;
+  }
+}
+
+.title {
+  margin: 0 0 6px;
+  font-size: 13px;
+  font-weight: var(--fontWeightSemiBold);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--colorGrey900);
+}
+
+.subtitle {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.45;
+  color: var(--colorGrey600);
+  max-width: 36em;
+}
+
+.linkList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 20px;
+
+  @media (--viewportMedium) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px 28px;
+  }
+
+  @media (--viewportLarge) {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.linkItem {
+  margin: 0;
+  min-width: 0;
+}
+
+.cityLink {
+  display: inline-block;
+  max-width: 100%;
+  font-size: 15px;
+  line-height: 1.4;
+  font-weight: var(--fontWeightMedium);
+  color: var(--colorGrey800);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.cityLink:hover,
+.cityLink:focus-visible {
+  color: var(--colorMarketplace);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
