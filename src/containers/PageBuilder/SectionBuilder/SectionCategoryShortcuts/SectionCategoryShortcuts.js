@@ -52,10 +52,7 @@ const SectionCategoryShortcuts = props => {
     <SectionContainer
       id={sectionId}
       className={className}
-      rootClassName={classNames(
-        rootClassName,
-        landingSectionSurfaceClassName(landingSurface)
-      )}
+      rootClassName={classNames(rootClassName, landingSectionSurfaceClassName(landingSurface))}
       appearance={appearance}
       options={options}
     >

@@ -29,7 +29,10 @@ const HOUR_OPTIONS = Array.from({ length: 25 }, (_, i) => ({
   labelId: `PricingRulesConfig.hour${i}`,
 }));
 
-const generateRuleId = () => `rule-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+const generateRuleId = () =>
+  `rule-${Date.now()}-${Math.random()
+    .toString(36)
+    .slice(2, 8)}`;
 
 /**
  * Read initial form values for pricing rules from listing publicData.
@@ -230,16 +233,12 @@ const PricingRule = props => {
 
 const initRuleKeys = initialLength => {
   const counter = initialLength || 0;
-  const keys =
-    counter > 0 ? [...Array(initialLength)].map((_, i) => `ruleKey_${i}`) : [];
+  const keys = counter > 0 ? [...Array(initialLength)].map((_, i) => `ruleKey_${i}`) : [];
   return [counter, keys];
 };
 
 const addNewRuleKey = setRuleKeys => {
-  setRuleKeys(([counter, ruleKeys]) => [
-    counter + 1,
-    [...ruleKeys, `ruleKey_${counter}`],
-  ]);
+  setRuleKeys(([counter, ruleKeys]) => [counter + 1, [...ruleKeys, `ruleKey_${counter}`]]);
 };
 
 const removeRuleKey = (setRuleKeys, index) => {

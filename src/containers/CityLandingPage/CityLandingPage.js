@@ -244,9 +244,7 @@ export const CityLandingPageComponent = props => {
   const showFetchError = !!fetchError;
 
   const heroBgStyle =
-    city?.ogImageUrl != null
-      ? { '--cityHeroBg': `url(${city.ogImageUrl})` }
-      : undefined;
+    city?.ogImageUrl != null ? { '--cityHeroBg': `url(${city.ogImageUrl})` } : undefined;
 
   return (
     <Page
@@ -401,7 +399,10 @@ export const CityLandingPageComponent = props => {
             </div>
           </section>
 
-          <section className={classNames(css.section, css.sectionFaq)} aria-labelledby="faq-heading">
+          <section
+            className={classNames(css.section, css.sectionFaq)}
+            aria-labelledby="faq-heading"
+          >
             <div className={css.inner}>
               <H2 as="h2" className={css.sectionTitle} id="faq-heading">
                 <FormattedMessage id="CityLandingPage.faqSectionTitle" />

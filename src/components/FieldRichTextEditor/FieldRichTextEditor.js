@@ -12,7 +12,9 @@ let tiptapModulesPromise = null;
 
 const pickExtension = (moduleValue, namedExport) => {
   const candidates = [moduleValue?.default, moduleValue?.[namedExport], moduleValue];
-  return candidates.find(candidate => candidate && typeof candidate.configure === 'function') || null;
+  return (
+    candidates.find(candidate => candidate && typeof candidate.configure === 'function') || null
+  );
 };
 
 const loadTiptapModules = () => {
@@ -103,7 +105,13 @@ const EditorToolbar = ({ editor }) => {
       <div className={css.toolbarGroup}>
         <button
           type="button"
-          onClick={() => editor.chain().focus().toggleBold().run()}
+          onClick={() =>
+            editor
+              .chain()
+              .focus()
+              .toggleBold()
+              .run()
+          }
           className={btnClass(editor.isActive('bold'))}
           title="Fett"
         >
@@ -111,7 +119,13 @@ const EditorToolbar = ({ editor }) => {
         </button>
         <button
           type="button"
-          onClick={() => editor.chain().focus().toggleItalic().run()}
+          onClick={() =>
+            editor
+              .chain()
+              .focus()
+              .toggleItalic()
+              .run()
+          }
           className={btnClass(editor.isActive('italic'))}
           title="Kursiv"
         >
@@ -119,7 +133,13 @@ const EditorToolbar = ({ editor }) => {
         </button>
         <button
           type="button"
-          onClick={() => editor.chain().focus().toggleUnderline().run()}
+          onClick={() =>
+            editor
+              .chain()
+              .focus()
+              .toggleUnderline()
+              .run()
+          }
           className={btnClass(editor.isActive('underline'))}
           title="Unterstrichen"
         >
@@ -127,7 +147,13 @@ const EditorToolbar = ({ editor }) => {
         </button>
         <button
           type="button"
-          onClick={() => editor.chain().focus().toggleStrike().run()}
+          onClick={() =>
+            editor
+              .chain()
+              .focus()
+              .toggleStrike()
+              .run()
+          }
           className={btnClass(editor.isActive('strike'))}
           title="Durchgestrichen"
         >
@@ -140,7 +166,13 @@ const EditorToolbar = ({ editor }) => {
       <div className={css.toolbarGroup}>
         <button
           type="button"
-          onClick={() => editor.chain().focus().toggleBulletList().run()}
+          onClick={() =>
+            editor
+              .chain()
+              .focus()
+              .toggleBulletList()
+              .run()
+          }
           className={btnClass(editor.isActive('bulletList'))}
           title="Aufzählung"
         >
@@ -148,7 +180,13 @@ const EditorToolbar = ({ editor }) => {
         </button>
         <button
           type="button"
-          onClick={() => editor.chain().focus().toggleOrderedList().run()}
+          onClick={() =>
+            editor
+              .chain()
+              .focus()
+              .toggleOrderedList()
+              .run()
+          }
           className={btnClass(editor.isActive('orderedList'))}
           title="Nummerierung"
         >
@@ -156,7 +194,13 @@ const EditorToolbar = ({ editor }) => {
         </button>
         <button
           type="button"
-          onClick={() => editor.chain().focus().toggleBlockquote().run()}
+          onClick={() =>
+            editor
+              .chain()
+              .focus()
+              .toggleBlockquote()
+              .run()
+          }
           className={btnClass(editor.isActive('blockquote'))}
           title="Zitat"
         >

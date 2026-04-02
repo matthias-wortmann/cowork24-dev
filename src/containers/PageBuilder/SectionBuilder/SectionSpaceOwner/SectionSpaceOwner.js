@@ -25,17 +25,21 @@ import spaceOwnerImg from './space-owner-cta.jpg';
  * @returns {JSX.Element}
  */
 const SectionSpaceOwner = props => {
-  const { sectionId, className, rootClassName, defaultClasses, appearance, options, landingSurface } =
-    props;
+  const {
+    sectionId,
+    className,
+    rootClassName,
+    defaultClasses,
+    appearance,
+    options,
+    landingSurface,
+  } = props;
 
   return (
     <SectionContainer
       id={sectionId}
       className={className}
-      rootClassName={classNames(
-        rootClassName,
-        landingSectionSurfaceClassName(landingSurface)
-      )}
+      rootClassName={classNames(rootClassName, landingSectionSurfaceClassName(landingSurface))}
       appearance={appearance}
       options={options}
     >

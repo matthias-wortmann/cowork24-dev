@@ -197,7 +197,7 @@ export const EditListingPricingForm = props => (
             />
           ) : null}
 
-      {/* When the start time interval is hidden we don't mutate the form
+          {/* When the start time interval is hidden we don't mutate the form
         during render. Downstream code will treat a missing
         `startTimeInterval` as start-of-day. */}
 

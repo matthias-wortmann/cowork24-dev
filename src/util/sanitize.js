@@ -18,13 +18,21 @@ const ESCAPE_TEXT_REPLACEMENTS = {
 };
 
 const ALLOWED_HTML_TAGS = new Set([
-  'p', 'strong', 'em', 'u', 's', 'ul', 'ol', 'li', 'blockquote', 'br', 'hr',
+  'p',
+  'strong',
+  'em',
+  'u',
+  's',
+  'ul',
+  'ol',
+  'li',
+  'blockquote',
+  'br',
+  'hr',
 ]);
 const ALLOWED_HTML_TAG_REGEX = /<\/?(p|strong|em|u|s|ul|ol|li|blockquote|br|hr)\b[^>]*>/i;
-const DANGEROUS_ELEMENTS_REGEX =
-  /<(script|style|iframe|object|embed|form|input|textarea|button|link|meta|base|applet|svg|math)\b[^>]*>[\s\S]*?<\/\1>/gi;
-const DANGEROUS_SELF_CLOSING_REGEX =
-  /<(script|style|iframe|object|embed|form|input|textarea|button|link|meta|base|img|applet|svg|math)\b[^>]*\/?>/gi;
+const DANGEROUS_ELEMENTS_REGEX = /<(script|style|iframe|object|embed|form|input|textarea|button|link|meta|base|applet|svg|math)\b[^>]*>[\s\S]*?<\/\1>/gi;
+const DANGEROUS_SELF_CLOSING_REGEX = /<(script|style|iframe|object|embed|form|input|textarea|button|link|meta|base|img|applet|svg|math)\b[^>]*\/?>/gi;
 const ALL_TAGS_REGEX = /<\/?([a-zA-Z][a-zA-Z0-9]*)\b[^>]*\/?>/gi;
 
 // An example how you could sanitize text content.

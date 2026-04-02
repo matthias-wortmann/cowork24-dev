@@ -39,7 +39,10 @@ const HeroSearchForm = () => {
     const queryParams = {};
 
     if (values.location?.selectedPlace) {
-      const { search, selectedPlace: { origin, bounds } } = values.location;
+      const {
+        search,
+        selectedPlace: { origin, bounds },
+      } = values.location;
       queryParams.bounds = bounds;
       queryParams.address = search;
       if (isOriginInUse(config) && origin) {
@@ -70,11 +73,7 @@ const HeroSearchForm = () => {
       <FinalForm
         onSubmit={onSubmit}
         render={({ handleSubmit }) => (
-          <Form
-            onSubmit={handleSubmit}
-            className={css.form}
-            enforcePagePreloadFor="SearchPage"
-          >
+          <Form onSubmit={handleSubmit} className={css.form} enforcePagePreloadFor="SearchPage">
             <div className={css.fields}>
               <Field
                 name="location"
@@ -97,7 +96,9 @@ const HeroSearchForm = () => {
                         iconClassName={css.locationIcon}
                         inputClassName={css.locationInput}
                         predictionsClassName={css.predictions}
-                        placeholder={intl.formatMessage({ id: 'LandingPage.heroSearchLocationPlaceholder' })}
+                        placeholder={intl.formatMessage({
+                          id: 'LandingPage.heroSearchLocationPlaceholder',
+                        })}
                         useDarkText
                         closeOnBlur
                         input={{ ...restInput, onChange: searchOnChange }}
@@ -132,7 +133,9 @@ const HeroSearchForm = () => {
                       <div className={css.dateDropdown}>
                         <FieldDateRangeController
                           name="dateRange"
-                          onChange={val => val?.startDate && val?.endDate && setDatePickerOpen(false)}
+                          onChange={val =>
+                            val?.startDate && val?.endDate && setDatePickerOpen(false)
+                          }
                           showClearButton
                           minimumNights={0}
                           className={css.datePicker}
@@ -142,11 +145,7 @@ const HeroSearchForm = () => {
                   </OutsideClickHandler>
                 )}
               />
-              <PrimaryButton
-                type="submit"
-                className={css.submitBtn}
-                disabled={submitDisabled}
-              >
+              <PrimaryButton type="submit" className={css.submitBtn} disabled={submitDisabled}>
                 <FormattedMessage id="LandingPage.defaultHeroCta" />
               </PrimaryButton>
             </div>

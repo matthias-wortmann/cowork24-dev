@@ -42,8 +42,7 @@ const CATEGORY_DEFINITIONS = [
     label: 'Fix',
   },
   {
-    match: (id, name) =>
-      (/privat/i.test(id) || /privat/i.test(name)) && !/team/i.test(name),
+    match: (id, name) => (/privat/i.test(id) || /privat/i.test(name)) && !/team/i.test(name),
     icon: <DoorClosed {...ICON_PROPS} />,
     label: 'Privat',
   },
@@ -58,8 +57,7 @@ const CATEGORY_DEFINITIONS = [
     label: 'Flex',
   },
   {
-    match: (id, name) =>
-      /meeting/i.test(id) || /meeting/i.test(name) || /konferenz/i.test(name),
+    match: (id, name) => /meeting/i.test(id) || /meeting/i.test(name) || /konferenz/i.test(name),
     icon: <Presentation {...ICON_PROPS} />,
     label: 'Meeting',
   },
@@ -102,7 +100,7 @@ const FALLBACK_CATEGORIES = CATEGORY_DEFINITIONS.map((def, i) => ({
  */
 const resolveCategoryDisplay = category => {
   const id = (category.id || '').toLowerCase();
-  const name = (category.name || '');
+  const name = category.name || '';
   const matched = CATEGORY_DEFINITIONS.find(def => def.match(id, name));
 
   return {

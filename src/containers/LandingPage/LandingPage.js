@@ -7,10 +7,7 @@ import { connect } from 'react-redux';
 import { propTypes } from '../../util/types';
 
 import FallbackPage from './FallbackPage';
-import {
-  getDefaultLandingPageData,
-  SectionDefaultLandingHero,
-} from './FallbackPage';
+import { getDefaultLandingPageData, SectionDefaultLandingHero } from './FallbackPage';
 import SectionCategoryBar from '../PageBuilder/SectionBuilder/SectionCategoryBar';
 import SectionCategoryShortcuts from '../PageBuilder/SectionBuilder/SectionCategoryShortcuts';
 import SectionLogoSlider from '../PageBuilder/SectionBuilder/SectionLogoSlider';

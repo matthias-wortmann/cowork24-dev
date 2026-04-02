@@ -7,10 +7,26 @@ import SectionContainer from '../SectionContainer';
 import css from './SectionStats.module.css';
 
 const STATS = [
-  { id: 'spaces', valueId: 'SpaceOwnerLandingPage.stat1Value', labelId: 'SpaceOwnerLandingPage.stat1Label' },
-  { id: 'users', valueId: 'SpaceOwnerLandingPage.stat2Value', labelId: 'SpaceOwnerLandingPage.stat2Label' },
-  { id: 'satisfaction', valueId: 'SpaceOwnerLandingPage.stat3Value', labelId: 'SpaceOwnerLandingPage.stat3Label' },
-  { id: 'cities', valueId: 'SpaceOwnerLandingPage.stat4Value', labelId: 'SpaceOwnerLandingPage.stat4Label' },
+  {
+    id: 'spaces',
+    valueId: 'SpaceOwnerLandingPage.stat1Value',
+    labelId: 'SpaceOwnerLandingPage.stat1Label',
+  },
+  {
+    id: 'users',
+    valueId: 'SpaceOwnerLandingPage.stat2Value',
+    labelId: 'SpaceOwnerLandingPage.stat2Label',
+  },
+  {
+    id: 'satisfaction',
+    valueId: 'SpaceOwnerLandingPage.stat3Value',
+    labelId: 'SpaceOwnerLandingPage.stat3Label',
+  },
+  {
+    id: 'cities',
+    valueId: 'SpaceOwnerLandingPage.stat4Value',
+    labelId: 'SpaceOwnerLandingPage.stat4Label',
+  },
 ];
 
 /**

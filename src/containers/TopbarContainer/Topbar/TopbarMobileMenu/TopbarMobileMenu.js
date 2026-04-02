@@ -46,9 +46,7 @@ const MobileLanguageSwitcher = () => {
             onClick={() => setLocale(lang.code)}
           >
             <span className={css.languageFlag}>{lang.flag}</span>
-            <span className={css.languageName}>
-              {intl.formatMessage({ id: lang.labelKey })}
-            </span>
+            <span className={css.languageName}>{intl.formatMessage({ id: lang.labelKey })}</span>
           </InlineTextButton>
         ))}
       </div>

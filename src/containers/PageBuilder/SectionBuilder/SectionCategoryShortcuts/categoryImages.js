@@ -37,7 +37,8 @@ const imageMap = [
     image: flexDeskImg,
   },
   {
-    match: combined => /meeting/i.test(combined) || /konferenz/i.test(combined) || /besprechung/i.test(combined),
+    match: combined =>
+      /meeting/i.test(combined) || /konferenz/i.test(combined) || /besprechung/i.test(combined),
     image: meetingRoomImg,
   },
   {
@@ -49,7 +50,8 @@ const imageMap = [
     image: colivingImg,
   },
   {
-    match: combined => /lounge/i.test(combined) || /airport/i.test(combined) || /flughafen/i.test(combined),
+    match: combined =>
+      /lounge/i.test(combined) || /airport/i.test(combined) || /flughafen/i.test(combined),
     image: loungeImg,
   },
 ];

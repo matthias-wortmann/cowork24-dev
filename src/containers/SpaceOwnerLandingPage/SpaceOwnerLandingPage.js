@@ -6,10 +6,7 @@ import { connect } from 'react-redux';
 
 import { propTypes } from '../../util/types';
 
-import FallbackPage, {
-  getSpaceOwnerPageData,
-  spaceOwnerSectionComponents,
-} from './FallbackPage';
+import FallbackPage, { getSpaceOwnerPageData, spaceOwnerSectionComponents } from './FallbackPage';
 
 const PageBuilder = loadable(() =>
   import(/* webpackChunkName: "PageBuilder" */ '../PageBuilder/PageBuilder')
@@ -44,8 +41,6 @@ const mapStateToProps = state => {
   return { error };
 };
 
-const SpaceOwnerLandingPage = compose(connect(mapStateToProps))(
-  SpaceOwnerLandingPageComponent
-);
+const SpaceOwnerLandingPage = compose(connect(mapStateToProps))(SpaceOwnerLandingPageComponent);
 
 export default SpaceOwnerLandingPage;

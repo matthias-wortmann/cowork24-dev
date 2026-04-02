@@ -270,21 +270,23 @@ exports.calculateNonBusinessHours = (
  * @returns {string} slugified label suitable for line-item codes
  */
 exports.slugifyLabel = label => {
-  return (label || 'surcharge')
-    .toLowerCase()
-    .replace(/[äàáâã]/g, 'a')
-    .replace(/[öòóôõ]/g, 'o')
-    .replace(/[üùúû]/g, 'u')
-    .replace(/[ëèéê]/g, 'e')
-    .replace(/[ïìíî]/g, 'i')
-    .replace(/ß/g, 'ss')
-    .replace(/ñ/g, 'n')
-    .replace(/ç/g, 'c')
-    .replace(/[^a-z0-9\s-]/g, '')
-    .trim()
-    .replace(/\s+/g, '-')
-    .replace(/-+/g, '-')
-    .slice(0, 50) || 'surcharge';
+  return (
+    (label || 'surcharge')
+      .toLowerCase()
+      .replace(/[äàáâã]/g, 'a')
+      .replace(/[öòóôõ]/g, 'o')
+      .replace(/[üùúû]/g, 'u')
+      .replace(/[ëèéê]/g, 'e')
+      .replace(/[ïìíî]/g, 'i')
+      .replace(/ß/g, 'ss')
+      .replace(/ñ/g, 'n')
+      .replace(/ç/g, 'c')
+      .replace(/[^a-z0-9\s-]/g, '')
+      .trim()
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .slice(0, 50) || 'surcharge'
+  );
 };
 
 /**

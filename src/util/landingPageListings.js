@@ -169,12 +169,8 @@ export const buildLandingRowQueryParams = (config, row) => {
     }
   }
 
-  const rawCategory = categoryPath.length
-    ? categoryPathToLevelParams(config, categoryPath)
-    : {};
-  const categoryApiParams = rawCategory
-    ? validatedCategoryParams(config, rawCategory)
-    : {};
+  const rawCategory = categoryPath.length ? categoryPathToLevelParams(config, categoryPath) : {};
+  const categoryApiParams = rawCategory ? validatedCategoryParams(config, rawCategory) : {};
 
   const {
     aspectWidth = 1,

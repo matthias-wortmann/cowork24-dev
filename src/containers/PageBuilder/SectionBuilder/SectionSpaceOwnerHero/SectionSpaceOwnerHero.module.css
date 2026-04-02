@@ -1,8 +1,11 @@
 @import '../../../../styles/customMediaQueries.css';
 
 .root {
-  background:
-    radial-gradient(ellipse 80% 60% at 10% 20%, rgba(124, 58, 237, 0.08) 0%, transparent 70%),
+  background: radial-gradient(
+      ellipse 80% 60% at 10% 20%,
+      rgba(124, 58, 237, 0.08) 0%,
+      transparent 70%
+    ),
     radial-gradient(ellipse 60% 80% at 90% 80%, rgba(124, 58, 237, 0.04) 0%, transparent 60%),
     radial-gradient(ellipse 50% 50% at 50% 0%, rgba(124, 58, 237, 0.06) 0%, transparent 50%),
     linear-gradient(180deg, #faf8ff 0%, #ffffff 100%);

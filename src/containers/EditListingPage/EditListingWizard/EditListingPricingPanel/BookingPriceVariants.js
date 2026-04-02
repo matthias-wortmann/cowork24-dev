@@ -54,10 +54,17 @@ const getDurationInMinutesFromComponents = ({ unit, value }) => {
     case 'hours':
       return new Decimal(numeric).times(60).toNumber();
     case 'days':
-      return new Decimal(numeric).times(24).times(60).toNumber();
+      return new Decimal(numeric)
+        .times(24)
+        .times(60)
+        .toNumber();
     case 'months':
       // Approximate a month as 30 days
-      return new Decimal(numeric).times(30).times(24).times(60).toNumber();
+      return new Decimal(numeric)
+        .times(30)
+        .times(24)
+        .times(60)
+        .toNumber();
     default:
       return 0;
   }
@@ -118,7 +125,9 @@ export const getInitialValuesForPriceVariants = (props, isUsingBookingPriceVaria
             ? { date: rawStartDate }
             : rawStartDate; // already { date: Date } or null
         const bookingStartDateMaybe =
-          isFixedUnitType && bookingStartDateValue ? { bookingStartDate: bookingStartDateValue } : {};
+          isFixedUnitType && bookingStartDateValue
+            ? { bookingStartDate: bookingStartDateValue }
+            : {};
         const bookingLengthInMinutesMaybe = isFixedUnitType ? { bookingLengthInMinutes } : {};
         const priceInSubunits = setDefault(variant.priceInSubunits, null);
         return {
@@ -222,7 +231,11 @@ export const handleSubmitValuesForPriceVariants = (
             // Normalize bookingStartDate: if it's an object with a date field, extract and stringify to ISO 8601
             let normalizedBookingStartDate = null;
             if (isFixedUnitType && bookingStartDate) {
-              if (bookingStartDate && typeof bookingStartDate === 'object' && bookingStartDate.date) {
+              if (
+                bookingStartDate &&
+                typeof bookingStartDate === 'object' &&
+                bookingStartDate.date
+              ) {
                 normalizedBookingStartDate = stringifyDateToISO8601(bookingStartDate.date);
               } else if (bookingStartDate instanceof Date) {
                 normalizedBookingStartDate = stringifyDateToISO8601(bookingStartDate);
@@ -230,7 +243,9 @@ export const handleSubmitValuesForPriceVariants = (
                 normalizedBookingStartDate = bookingStartDate;
               }
             }
-            const bookingStartDateMaybe = normalizedBookingStartDate ? { bookingStartDate: normalizedBookingStartDate } : {};
+            const bookingStartDateMaybe = normalizedBookingStartDate
+              ? { bookingStartDate: normalizedBookingStartDate }
+              : {};
 
             return {
               ...nameMaybe,
@@ -287,9 +302,8 @@ const FieldBookingLength = props => {
     <Field name={name} {...rest}>
       {({ input, meta }) => {
         const stored = input.value && typeof input.value === 'object' ? input.value : null;
-        const numericInit = !stored && typeof input.value === 'number'
-          ? minutesToUnitAndValue(input.value)
-          : null;
+        const numericInit =
+          !stored && typeof input.value === 'number' ? minutesToUnitAndValue(input.value) : null;
         const [unit, setUnit] = useState(stored?.unit || numericInit?.unit || 'hours');
         const [value, setValue] = useState(stored?.value || numericInit?.value || 1);
         const { valid, invalid, touched, error } = meta;
@@ -449,10 +463,14 @@ const PriceVariant = props => {
             label={intl.formatMessage({ id: 'EditListingPricingForm.priceVariant.startDateLabel' })}
             showErrorMessage
             validate={value => {
-              const bookingLength = formApi.getState().values?.priceVariants?.[currentIndex]?.bookingLengthInMinutes;
-              const unit = bookingLength && typeof bookingLength === 'object' ? bookingLength.unit : null;
+              const bookingLength = formApi.getState().values?.priceVariants?.[currentIndex]
+                ?.bookingLengthInMinutes;
+              const unit =
+                bookingLength && typeof bookingLength === 'object' ? bookingLength.unit : null;
               if (unit === 'months' && (value == null || value.date == null)) {
-                return intl.formatMessage({ id: 'EditListingPricingForm.priceVariant.startDateRequired' });
+                return intl.formatMessage({
+                  id: 'EditListingPricingForm.priceVariant.startDateRequired',
+                });
               }
               return undefined;
             }}
@@ -537,10 +555,10 @@ export const BookingPriceVariants = props => {
     <FieldArray
       name="priceVariants"
       validate={validators.composeValidators(
-          validators.nonEmptyArray(
-            intl.formatMessage({ id: 'EditListingPricingForm.priceVariant.required' })
-          )
-        )}
+        validators.nonEmptyArray(
+          intl.formatMessage({ id: 'EditListingPricingForm.priceVariant.required' })
+        )
+      )}
     >
       {({ fields }) => {
         const priceVariantNames = fields?.value?.map(field => field.name);

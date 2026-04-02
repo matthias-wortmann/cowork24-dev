@@ -194,9 +194,7 @@ export const fetchLandingListingRows = config => async (dispatch, getState, sdk)
         const response = await sdk.listings.query(built.sdkParams);
         dispatch(addMarketplaceEntities(response, sanitizeConfig));
         const ids = publishedListingResultIds(response.data);
-        dispatch(
-          fetchLandingListingRowSuccess(row.id, ids, built.viewAllSearchParams)
-        );
+        dispatch(fetchLandingListingRowSuccess(row.id, ids, built.viewAllSearchParams));
       } catch (e) {
         dispatch(fetchLandingListingRowError(row.id, storableError(e)));
       }

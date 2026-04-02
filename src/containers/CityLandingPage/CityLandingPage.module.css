@@ -194,9 +194,7 @@
   background-color: var(--colorWhite);
   border: none;
   box-shadow: 0 8px 28px rgba(0, 0, 0, 0.18);
-  transition:
-    transform 0.15s ease,
-    box-shadow 0.15s ease;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
 .heroCta:hover {
@@ -546,9 +544,7 @@
   text-decoration: none;
   background-color: var(--colorWhite);
   border: 1px solid var(--colorGrey200);
-  transition:
-    border-color 0.15s ease,
-    box-shadow 0.15s ease;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .sectionBand .cityPill {

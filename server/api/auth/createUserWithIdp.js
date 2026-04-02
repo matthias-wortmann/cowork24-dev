@@ -52,10 +52,10 @@ module.exports = (req, res) => {
     idpId === FACEBOOK_IDP_ID
       ? FACBOOK_APP_ID
       : idpId === GOOGLE_IDP_ID
-        ? GOOGLE_CLIENT_ID
-        : idpId === APPLE_IDP_ID
-          ? APPLE_CLIENT_ID
-          : null;
+      ? GOOGLE_CLIENT_ID
+      : idpId === APPLE_IDP_ID
+      ? APPLE_CLIENT_ID
+      : null;
 
   sdk.currentUser
     .createWithIdp({ idpId, idpClientId, idpToken, ...rest })

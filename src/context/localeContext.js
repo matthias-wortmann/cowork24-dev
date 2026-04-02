@@ -39,20 +39,17 @@ const getInitialLocale = defaultLocale => {
 export const LocaleProvider = ({ defaultLocale, allMessages, children }) => {
   const [locale, setLocaleState] = useState(() => getInitialLocale(defaultLocale));
 
-  const setLocale = useCallback(
-    newLocale => {
-      if (!SUPPORTED_LOCALES.includes(newLocale)) {
-        return;
-      }
-      setLocaleState(newLocale);
-      try {
-        window.localStorage.setItem(LOCALE_STORAGE_KEY, newLocale);
-      } catch (e) {
-        // Silently ignore storage errors
-      }
-    },
-    []
-  );
+  const setLocale = useCallback(newLocale => {
+    if (!SUPPORTED_LOCALES.includes(newLocale)) {
+      return;
+    }
+    setLocaleState(newLocale);
+    try {
+      window.localStorage.setItem(LOCALE_STORAGE_KEY, newLocale);
+    } catch (e) {
+      // Silently ignore storage errors
+    }
+  }, []);
 
   const messages = allMessages[locale] || allMessages[defaultLocale];
 

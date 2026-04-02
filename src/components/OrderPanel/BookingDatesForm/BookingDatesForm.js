@@ -19,12 +19,7 @@ import {
   weeksBetween,
   monthsBetween,
 } from '../../../util/dates';
-import {
-  LINE_ITEM_DAY,
-  LINE_ITEM_WEEK,
-  LINE_ITEM_MONTH,
-  propTypes,
-} from '../../../util/types';
+import { LINE_ITEM_DAY, LINE_ITEM_WEEK, LINE_ITEM_MONTH, propTypes } from '../../../util/types';
 import { timeSlotsPerDate } from '../../../util/generators';
 import { BOOKING_PROCESS_NAME } from '../../../transactions/transaction';
 

@@ -114,10 +114,16 @@ describe('getInitialValuesForPriceVariants()', () => {
 
   it('preserves large values (1440 = 1 day, 43200 = 1 month)', () => {
     const dayListing = makeListingWithVariant(1440);
-    expect(getInitialValuesForPriceVariants({ listing: dayListing }, false).priceVariants[0].bookingLengthInMinutes).toBe(1440);
+    expect(
+      getInitialValuesForPriceVariants({ listing: dayListing }, false).priceVariants[0]
+        .bookingLengthInMinutes
+    ).toBe(1440);
 
     const monthListing = makeListingWithVariant(43200);
-    expect(getInitialValuesForPriceVariants({ listing: monthListing }, false).priceVariants[0].bookingLengthInMinutes).toBe(43200);
+    expect(
+      getInitialValuesForPriceVariants({ listing: monthListing }, false).priceVariants[0]
+        .bookingLengthInMinutes
+    ).toBe(43200);
   });
 
   it('creates default variant with bookingLengthInMinutes=60 when no priceVariants exist for fixed type', () => {
@@ -164,9 +170,7 @@ describe('handleSubmitValuesForPriceVariants()', () => {
 
   it('normalizes numeric bookingLengthInMinutes on submit', () => {
     const values = {
-      priceVariants: [
-        { price: { amount: 1000, currency: 'USD' }, bookingLengthInMinutes: 120 },
-      ],
+      priceVariants: [{ price: { amount: 1000, currency: 'USD' }, bookingLengthInMinutes: 120 }],
     };
     const result = handleSubmitValuesForPriceVariants(values, {}, unitType, listingTypeConfig);
     expect(result.publicData.priceVariants[0].bookingLengthInMinutes).toBe(120);
@@ -226,9 +230,7 @@ describe('handleSubmitValuesForPriceVariants()', () => {
 
   it('does not include bookingLengthInMinutes for non-fixed unitType', () => {
     const values = {
-      priceVariants: [
-        { name: 'Standard', price: { amount: 1000, currency: 'USD' } },
-      ],
+      priceVariants: [{ name: 'Standard', price: { amount: 1000, currency: 'USD' } }],
     };
     const result = handleSubmitValuesForPriceVariants(values, {}, 'hour', listingTypeConfig);
     const pv = result?.publicData?.priceVariants?.[0];
@@ -255,7 +257,7 @@ describe('Round-trip: save → load preserves bookingLengthInMinutes', () => {
   const unitType = 'fixed';
   const listingTypeConfig = {};
 
-  const roundTrip = (bookingLengthInput) => {
+  const roundTrip = bookingLengthInput => {
     const values = {
       priceVariants: [
         {
@@ -265,7 +267,12 @@ describe('Round-trip: save → load preserves bookingLengthInMinutes', () => {
       ],
     };
 
-    const submitResult = handleSubmitValuesForPriceVariants(values, {}, unitType, listingTypeConfig);
+    const submitResult = handleSubmitValuesForPriceVariants(
+      values,
+      {},
+      unitType,
+      listingTypeConfig
+    );
     const savedVariant = submitResult.publicData.priceVariants[0];
 
     const listing = {

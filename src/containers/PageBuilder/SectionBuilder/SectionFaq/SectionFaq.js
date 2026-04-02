@@ -16,8 +16,15 @@ const FAQ_ITEMS = [
  * FAQ-Section mit aufklappbaren Einträgen und FAQPage JSON-LD für Rich Results / KI-Suche.
  */
 const SectionFaq = props => {
-  const { sectionId, className, rootClassName, defaultClasses, appearance, options, landingSurface } =
-    props;
+  const {
+    sectionId,
+    className,
+    rootClassName,
+    defaultClasses,
+    appearance,
+    options,
+    landingSurface,
+  } = props;
   const [openId, setOpenId] = useState(null);
   const intl = useIntl();
 
@@ -42,10 +49,7 @@ const SectionFaq = props => {
     <SectionContainer
       id={sectionId}
       className={className}
-      rootClassName={classNames(
-        rootClassName,
-        landingSectionSurfaceClassName(landingSurface)
-      )}
+      rootClassName={classNames(rootClassName, landingSectionSurfaceClassName(landingSurface))}
       appearance={appearance}
       options={options}
     >

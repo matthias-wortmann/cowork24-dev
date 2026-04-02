@@ -1,0 +1,12 @@
+---
+description: Kernregeln cowork24 Sharetribe Template – immer beachten
+alwaysApply: true
+---
+
+# cowork24 / Sharetribe Web Template
+
+- Lies **`AGENTS.md`** im Repo-Root für Architektur, Import-Reihenfolge, Styling, Redux, Forms, API.
+- **SSR:** Daten für Seiten in `loadData` (Page-`*.duck.js`), registriert in `pageDataLoadingAPI.js` und `routeConfiguration.js` – nicht nur clientseitig in `useEffect`, außer bewusst nur-Client-UI.
+- **i18n:** Alle vier Dateien pflegen: `src/translations/en.json`, `de.json`, `es.json`, `fr.json`.
+- **Neue Libraries:** nur nach expliziter Nutzerfreigabe; Utilities bevorzugt unter `src/util/`.
+- **Transaktionsprozesse** (`src/transactions/`): nur nach Freigabe, inkl. Backend-Hinweis.

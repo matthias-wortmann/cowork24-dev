@@ -33,10 +33,7 @@ const BUSINESS_HOURS_OPTIONS = [
 export const getInitialValuesForEveningSurcharge = params => {
   const { listing, marketplaceCurrency } = params;
   const { publicData } = listing?.attributes || {};
-  const {
-    eveningSurchargePerHourSubunits,
-    businessHoursEnd,
-  } = publicData || {};
+  const { eveningSurchargePerHourSubunits, businessHoursEnd } = publicData || {};
 
   const hasSurcharge =
     typeof eveningSurchargePerHourSubunits === 'number' && eveningSurchargePerHourSubunits > 0;

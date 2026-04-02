@@ -173,10 +173,8 @@ const SectionLocations = props => {
   // Live listing counts from the Marketplace API (loaded in LandingPage.duck.js)
   const locationCounts = useSelector(state => state.LandingPage?.locationCounts ?? {});
 
-  const sectionTitle =
-    title || intl.formatMessage({ id: 'SectionLocations.title' });
-  const sectionSubtitle =
-    subtitle || intl.formatMessage({ id: 'SectionLocations.subtitle' });
+  const sectionTitle = title || intl.formatMessage({ id: 'SectionLocations.title' });
+  const sectionSubtitle = subtitle || intl.formatMessage({ id: 'SectionLocations.subtitle' });
   const listingLabel = intl.formatMessage({ id: 'SectionLocations.listingLabel' });
 
   const handleCityClick = (e, city) => {

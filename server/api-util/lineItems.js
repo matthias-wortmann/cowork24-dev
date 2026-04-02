@@ -78,7 +78,12 @@ const RULE_TYPE_HANDLERS = {
     const { bookingStart, bookingEnd } = orderData || {};
     const { surchargePerHourSubunits, fromHour = 17, toHour = 24 } = rule;
 
-    if (!surchargePerHourSubunits || surchargePerHourSubunits <= 0 || !bookingStart || !bookingEnd) {
+    if (
+      !surchargePerHourSubunits ||
+      surchargePerHourSubunits <= 0 ||
+      !bookingStart ||
+      !bookingEnd
+    ) {
       return null;
     }
 

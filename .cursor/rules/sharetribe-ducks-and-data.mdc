@@ -1,0 +1,13 @@
+---
+description: Redux-Ducks und Seitendatenladen im Sharetribe Template
+globs: src/**/*.duck.js
+alwaysApply: false
+---
+
+# Ducks & loadData
+
+- Page-Ducks leben neben der Page: `src/containers/<Page>/<Page>.duck.js`.
+- Globale Ducks: `src/ducks/`.
+- **`loadData(params, search, config)`** wird vom Server/Client aufgerufen – Signatur mit bestehenden Pages abgleichen (z. B. `ListingPage.duck.js`).
+- SDK-Aufrufe über `sdk` aus Thunk-Argumenten; Entities mit `addMarketplaceEntities` o. Ä. wie im Template.
+- Neuen Page-Loader in **`pageDataLoadingAPI.js`** unter dem Route-Namen registrieren und Route in **`routeConfiguration.js`** mit `loadData` verknüpfen.

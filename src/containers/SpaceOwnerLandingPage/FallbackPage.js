@@ -73,9 +73,7 @@ const FallbackPage = props => {
   const fallbackData = is404
     ? getSpaceOwnerPageData()
     : {
-        sections: [
-          { sectionType: 'customMaintenance', sectionId: 'maintenance-mode', error },
-        ],
+        sections: [{ sectionType: 'customMaintenance', sectionId: 'maintenance-mode', error }],
         meta: {
           pageTitle: { fieldType: 'metaTitle', content: 'Wartung – cowork24' },
           pageDescription: {

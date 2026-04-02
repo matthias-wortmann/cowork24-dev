@@ -14,17 +14,20 @@ const LOGOS = [
   {
     id: 'coworking-seefeld',
     name: 'Coworking Seefeld',
-    logo: 'https://sharetribe.imgix.net/68a32a0c-65b6-47ae-97b1-43643e03bc76/698f3d90-c887-4a6b-9d73-bb38f62dc864?auto=format&crop=edges&fit=crop&h=240&w=240&s=fb40ba1dedabeb3959c77d9d83879692',
+    logo:
+      'https://sharetribe.imgix.net/68a32a0c-65b6-47ae-97b1-43643e03bc76/698f3d90-c887-4a6b-9d73-bb38f62dc864?auto=format&crop=edges&fit=crop&h=240&w=240&s=fb40ba1dedabeb3959c77d9d83879692',
   },
   {
     id: 'impact-hub-zurich',
     name: 'Impact Hub Zürich',
-    logo: 'https://sharetribe.imgix.net/68a32a0c-65b6-47ae-97b1-43643e03bc76/691d9c3c-0e4b-451b-a9e5-e1dd4081b66f?auto=format&crop=edges&fit=crop&h=240&w=240&s=a376d06ec72318c4d0031415c100bced',
+    logo:
+      'https://sharetribe.imgix.net/68a32a0c-65b6-47ae-97b1-43643e03bc76/691d9c3c-0e4b-451b-a9e5-e1dd4081b66f?auto=format&crop=edges&fit=crop&h=240&w=240&s=a376d06ec72318c4d0031415c100bced',
   },
   {
     id: 'flexoffice-schweiz',
     name: 'FlexOffice Schweiz',
-    logo: 'https://sharetribe.imgix.net/68a32a0c-65b6-47ae-97b1-43643e03bc76/690367ae-f58e-43b0-b823-bea8bad6559e?auto=format&crop=edges&fit=crop&h=240&w=240&s=883b065ebaf0a561a94298474db36461',
+    logo:
+      'https://sharetribe.imgix.net/68a32a0c-65b6-47ae-97b1-43643e03bc76/690367ae-f58e-43b0-b823-bea8bad6559e?auto=format&crop=edges&fit=crop&h=240&w=240&s=883b065ebaf0a561a94298474db36461',
   },
   {
     id: 'workspace4you',
@@ -34,22 +37,26 @@ const LOGOS = [
   {
     id: 'headsquarter',
     name: 'Headsquarter',
-    logo: 'https://media.licdn.com/dms/image/v2/D4E0BAQE6T6aL37Q_xg/company-logo_200_200/company-logo_200_200/0/1666610164128/headsquarter_logo?e=2147483647&v=beta&t=hsy-NxKvSt6xF3Lq6H1k3gwwu7zMJ4VBJ_cdFuVbD2c',
+    logo:
+      'https://media.licdn.com/dms/image/v2/D4E0BAQE6T6aL37Q_xg/company-logo_200_200/company-logo_200_200/0/1666610164128/headsquarter_logo?e=2147483647&v=beta&t=hsy-NxKvSt6xF3Lq6H1k3gwwu7zMJ4VBJ_cdFuVbD2c',
   },
   {
     id: 'zeitplatz',
     name: 'ZEITPLATZ',
-    logo: 'https://sharetribe.imgix.net/68a32a0c-65b6-47ae-97b1-43643e03bc76/68e54ae5-153b-43bd-a8eb-e61d6814d6e5?auto=format&crop=edges&fit=crop&h=240&w=240&s=5bd9fef8c2716c8a19cb03d020049040',
+    logo:
+      'https://sharetribe.imgix.net/68a32a0c-65b6-47ae-97b1-43643e03bc76/68e54ae5-153b-43bd-a8eb-e61d6814d6e5?auto=format&crop=edges&fit=crop&h=240&w=240&s=5bd9fef8c2716c8a19cb03d020049040',
   },
   {
     id: '1905-business-center',
     name: '1905 Business Center Baden',
-    logo: 'https://cdn.prod.website-files.com/6348198d13b4affbea4ab9aa/6348198d13b4afa5714aba03_1905%20Logo%20Web.png',
+    logo:
+      'https://cdn.prod.website-files.com/6348198d13b4affbea4ab9aa/6348198d13b4afa5714aba03_1905%20Logo%20Web.png',
   },
   {
     id: 'coworking-bodensee',
     name: 'Coworking Bodensee',
-    logo: 'https://sharetribe.imgix.net/68a32a0c-65b6-47ae-97b1-43643e03bc76/68ff4fb2-1062-4637-b383-1499b28a4f79?auto=format&crop=edges&fit=crop&h=240&w=240&s=f9f2b10936124552b1ad8b3965eea761',
+    logo:
+      'https://sharetribe.imgix.net/68a32a0c-65b6-47ae-97b1-43643e03bc76/68ff4fb2-1062-4637-b383-1499b28a4f79?auto=format&crop=edges&fit=crop&h=240&w=240&s=f9f2b10936124552b1ad8b3965eea761',
   },
 ];
 
@@ -106,17 +113,21 @@ const LogoItem = ({ name, logo, color }) => {
  * @returns {JSX.Element}
  */
 const SectionLogoSlider = props => {
-  const { sectionId, className, rootClassName, defaultClasses, appearance, options, landingSurface } =
-    props;
+  const {
+    sectionId,
+    className,
+    rootClassName,
+    defaultClasses,
+    appearance,
+    options,
+    landingSurface,
+  } = props;
 
   return (
     <SectionContainer
       id={sectionId}
       className={className}
-      rootClassName={classNames(
-        rootClassName,
-        landingSectionSurfaceClassName(landingSurface)
-      )}
+      rootClassName={classNames(rootClassName, landingSectionSurfaceClassName(landingSurface))}
       appearance={appearance}
       options={options}
     >

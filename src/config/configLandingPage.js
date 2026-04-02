@@ -25,9 +25,7 @@ const landingPage = {
       sort: 'createdAt',
       perPage: 10,
       categoryMatch: (id, name) =>
-        /workation/i.test(id) ||
-        /workation/i.test(name) ||
-        /work.?ation/i.test(name),
+        /workation/i.test(id) || /workation/i.test(name) || /work.?ation/i.test(name),
     },
   ],
 };

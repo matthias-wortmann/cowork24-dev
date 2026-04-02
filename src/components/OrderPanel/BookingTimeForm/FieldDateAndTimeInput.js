@@ -70,7 +70,14 @@ const getAvailableStartTimes = params => {
     // Otherwise use the end of the timeslot.
     const endLimit = isDateSameOrAfter(endDate, nextDate) ? nextDate : endDate;
 
-    const boundaries = getBoundaries(startLimit, endLimit, 1, timeUnitConfig.timeUnit, timeZone, intl);
+    const boundaries = getBoundaries(
+      startLimit,
+      endLimit,
+      1,
+      timeUnitConfig.timeUnit,
+      timeZone,
+      intl
+    );
     const startOptions = boundaries.length < 2 ? boundaries : boundaries.slice(0, -1);
     return availableHours.concat(startOptions);
   }, []);
@@ -78,8 +85,14 @@ const getAvailableStartTimes = params => {
 };
 
 const getAvailableEndTimes = params => {
-  const { intl, timeZone, bookingStartTime, bookingEndDate, selectedTimeSlot, startTimeInterval } =
-    params;
+  const {
+    intl,
+    timeZone,
+    bookingStartTime,
+    bookingEndDate,
+    selectedTimeSlot,
+    startTimeInterval,
+  } = params;
   if (!selectedTimeSlot || !selectedTimeSlot.attributes || !bookingEndDate || !bookingStartTime) {
     return [];
   }
@@ -108,7 +121,14 @@ const getAvailableEndTimes = params => {
   }
 
   const timeUnitConfig = bookingTimeUnits[startTimeInterval] || bookingTimeUnits['hour'];
-  const boundaries = getBoundaries(startLimit, endLimit, 1, timeUnitConfig.timeUnit, timeZone, intl);
+  const boundaries = getBoundaries(
+    startLimit,
+    endLimit,
+    1,
+    timeUnitConfig.timeUnit,
+    timeZone,
+    intl
+  );
   return boundaries.length < 2 ? [] : boundaries.slice(1);
 };
 
@@ -155,7 +175,9 @@ const getAllTimeValues = (
   const endDate = selectedEndDate
     ? selectedEndDate
     : startTimeAsDate
-    ? new Date(findNextBoundary(startTimeAsDate, 1, timeUnitConfig.timeUnit, timeZone).getTime() - 1)
+    ? new Date(
+        findNextBoundary(startTimeAsDate, 1, timeUnitConfig.timeUnit, timeZone).getTime() - 1
+      )
     : null;
 
   const selectedEndTimeAsDateObject = selectedEndTime ? timestampToDate(selectedEndTime) : null;

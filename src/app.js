@@ -81,9 +81,7 @@ const addMissingTranslations = (sourceLangTranslations, targetLangTranslations) 
 //       messages with the key as the value of each message and discard the value.
 //       { 'My.translationKey1': 'My.translationKey1', 'My.translationKey2': 'My.translationKey2' }
 const isTestEnv = process.env.NODE_ENV === 'test';
-const testMessages = Object.fromEntries(
-  Object.entries(defaultMessages).map(([key]) => [key, key])
-);
+const testMessages = Object.fromEntries(Object.entries(defaultMessages).map(([key]) => [key, key]));
 
 // Build a map of all supported locales to their merged translations.
 // Each locale's messages are merged with English defaults so no keys are missing.
@@ -267,10 +265,7 @@ export const ClientApp = props => {
   const allMessages = buildAllMessages(hostedTranslations);
 
   return (
-    <LocaleProvider
-      defaultLocale={appConfig.localization.locale}
-      allMessages={allMessages}
-    >
+    <LocaleProvider defaultLocale={appConfig.localization.locale} allMessages={allMessages}>
       <LocaleAwareApp appConfig={appConfig} hostedTranslations={hostedTranslations}>
         <Provider store={store}>
           <HelmetProvider>

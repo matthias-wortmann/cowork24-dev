@@ -125,8 +125,7 @@ export const BookingFixedDurationForm = props => {
   // For multi-day bookings (>= 1 day), the per-day minimum duration check is not
   // meaningful (a single day's time slot can't cover 30 days). Use a small default
   // so the date picker shows any day with availability.
-  const minDurationStartingInInterval =
-    rawMinDuration >= MINUTES_IN_A_DAY ? 5 : rawMinDuration;
+  const minDurationStartingInInterval = rawMinDuration >= MINUTES_IN_A_DAY ? 5 : rawMinDuration;
   const classes = classNames(rootClassName || css.root, className);
 
   return (
