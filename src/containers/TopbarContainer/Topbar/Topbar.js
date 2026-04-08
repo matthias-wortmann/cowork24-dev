@@ -1,4 +1,5 @@
 import React from 'react';
+import loadable from '@loadable/component';
 import classNames from 'classnames';
 
 import appSettings from '../../../config/settings';
@@ -24,10 +25,11 @@ import MenuIcon from './MenuIcon';
 import SearchIcon from './SearchIcon';
 import TopbarSearchForm from './TopbarSearchForm/TopbarSearchForm';
 import TopbarMobileMenu from './TopbarMobileMenu/TopbarMobileMenu';
-import TopbarDesktop from './TopbarDesktop/TopbarDesktop';
 
 import css from './Topbar.module.css';
 import { getCurrentUserTypeRoles, showCreateListingLinkForUser } from '../../../util/userHelpers';
+
+const TopbarDesktop = loadable(() => import('./TopbarDesktop/TopbarDesktop'));
 
 const MAX_MOBILE_SCREEN_WIDTH = 1024;
 
@@ -244,6 +246,9 @@ const TopbarComponent = props => {
   const isMobileLayout = hasMatchMedia
     ? window.matchMedia(`(max-width: ${MAX_MOBILE_SCREEN_WIDTH}px)`)?.matches
     : true;
+  const isDesktopLayout = hasMatchMedia
+    ? window.matchMedia(`(min-width: ${MAX_MOBILE_SCREEN_WIDTH + 1}px)`)?.matches
+    : false;
   const isMobileMenuOpen = isMobileLayout && mobilemenu === 'open';
   const isMobileSearchOpen = isMobileLayout && mobilesearch === 'open';
 
@@ -366,25 +371,27 @@ const TopbarComponent = props => {
         />
         {mobileSearchButtonMaybe}
       </nav>
-      <div className={css.desktop}>
-        <TopbarDesktop
-          className={desktopClassName}
-          currentUserHasListings={currentUserHasListings}
-          currentUser={currentUser}
-          currentPage={resolvedCurrentPage}
-          initialSearchFormValues={initialSearchFormValues}
-          intl={intl}
-          isAuthenticated={isAuthenticated}
-          notificationCount={notificationCount}
-          onLogout={handleLogout}
-          onSearchSubmit={handleSubmit}
-          config={config}
-          customLinks={customLinks}
-          showSearchForm={showSearchForm}
-          showCreateListingsLink={showCreateListingsLink}
-          inboxTab={topbarInboxTab}
-        />
-      </div>
+      {isDesktopLayout ? (
+        <div className={css.desktop}>
+          <TopbarDesktop
+            className={desktopClassName}
+            currentUserHasListings={currentUserHasListings}
+            currentUser={currentUser}
+            currentPage={resolvedCurrentPage}
+            initialSearchFormValues={initialSearchFormValues}
+            intl={intl}
+            isAuthenticated={isAuthenticated}
+            notificationCount={notificationCount}
+            onLogout={handleLogout}
+            onSearchSubmit={handleSubmit}
+            config={config}
+            customLinks={customLinks}
+            showSearchForm={showSearchForm}
+            showCreateListingsLink={showCreateListingsLink}
+            inboxTab={topbarInboxTab}
+          />
+        </div>
+      ) : null}
       <Modal
         id="TopbarMobileMenu"
         containerClassName={css.modalContainer}
