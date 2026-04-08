@@ -9,6 +9,7 @@ import classNames from 'classnames';
 
 import { useConfiguration } from '../../../context/configurationContext';
 import { FormattedMessage, useIntl } from '../../../util/reactIntl';
+import { loadStripeJs } from '../../../util/loadStripe';
 
 import { Form, PrimaryButton, FieldTextInput, StripePaymentAddress, H4 } from '../../../components';
 
@@ -103,13 +104,15 @@ class PaymentMethodsForm extends Component {
     this.stripe = null;
   }
 
-  componentDidMount() {
-    if (!window.Stripe) {
-      throw new Error('Stripe must be loaded for PaymentMethodsForm');
-    }
-
+  async componentDidMount() {
     const publishableKey = this.props.config?.stripe?.publishableKey;
     if (publishableKey) {
+      try {
+        await loadStripeJs();
+      } catch (e) {
+        console.error(e);
+        return;
+      }
       this.stripe = window.Stripe(publishableKey);
 
       const elements = this.stripe.elements(stripeElementsOptions);

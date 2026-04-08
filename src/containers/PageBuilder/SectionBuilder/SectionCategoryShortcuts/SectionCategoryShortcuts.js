@@ -79,6 +79,10 @@ const SectionCategoryShortcuts = props => {
                   alt=""
                   className={css.cardImage}
                   loading="lazy"
+                  decoding="async"
+                  fetchpriority="low"
+                  width="160"
+                  height="180"
                 />
                 <span className={css.cardOverlay} aria-hidden="true" />
                 <span className={css.cardLabel}>{category.name}</span>

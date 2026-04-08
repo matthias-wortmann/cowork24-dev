@@ -60,6 +60,29 @@ const LOGOS = [
   },
 ];
 
+const optimizeLogoUrl = url => {
+  if (!url) {
+    return url;
+  }
+
+  if (url.includes('sharetribe.imgix.net')) {
+    const separator = url.includes('?') ? '&' : '?';
+    return `${url}${separator}auto=format,compress&fit=crop&w=160&h=80`;
+  }
+
+  if (url.includes('onecdn.io/media/')) {
+    const separator = url.includes('?') ? '&' : '?';
+    return `${url}${separator}width=160&height=80`;
+  }
+
+  if (url.includes('media.licdn.com/dms/image/')) {
+    const separator = url.includes('?') ? '&' : '?';
+    return `${url}${separator}w=160&h=80`;
+  }
+
+  return url;
+};
+
 /**
  * Single logo item rendered inside the marquee track.
  * Shows an <img> when a `logo` URL is provided, otherwise a styled placeholder.
@@ -71,10 +94,14 @@ const LogoItem = ({ name, logo, color }) => {
     return (
       <div className={css.logoItem}>
         <img
-          src={logo}
+          src={optimizeLogoUrl(logo)}
           alt={name}
           className={css.logoImage}
           loading="lazy"
+          decoding="async"
+          fetchpriority="low"
+          width="80"
+          height="40"
           onError={() => setImageLoadFailed(true)}
         />
       </div>

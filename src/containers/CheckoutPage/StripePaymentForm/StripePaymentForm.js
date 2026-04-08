@@ -10,6 +10,7 @@ import classNames from 'classnames';
 import { FormattedMessage, injectIntl } from '../../../util/reactIntl';
 import { propTypes } from '../../../util/types';
 import { ensurePaymentMethodCard } from '../../../util/data';
+import { loadStripeJs } from '../../../util/loadStripe';
 
 import {
   Heading,
@@ -308,13 +309,15 @@ class StripePaymentForm extends Component {
     this.cardContainer = null;
   }
 
-  componentDidMount() {
-    if (!window.Stripe) {
-      throw new Error('Stripe must be loaded for StripePaymentForm');
-    }
-
+  async componentDidMount() {
     const publishableKey = this.props.stripePublishableKey;
     if (publishableKey) {
+      try {
+        await loadStripeJs();
+      } catch (e) {
+        console.error(e);
+        return;
+      }
       const {
         onStripeInitialized,
         hasHandledCardPayment,

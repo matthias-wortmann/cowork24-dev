@@ -170,10 +170,16 @@ app.use(
       const isMapboxSDK = path.match(
         /^\/.*static\/scripts\/mapbox\/mapbox-sdk@0.16.2\/mapbox-sdk\.min\.js$/g
       );
+      const isStaticMediaAsset = path.match(
+        /^\/.*static\/(media|fonts)\/.*\.(woff2|woff|svg|png|jpe?g|webp|avif)$/g
+      );
 
       if (isMain || isChunk || isMapboxSDK) {
         // cache for one year
-        res.setHeader('Cache-Control', 'public, max-age=31557600');
+        res.setHeader('Cache-Control', 'public, max-age=31557600, immutable');
+      } else if (isStaticMediaAsset) {
+        // cache static media assets aggressively as they are content hashed
+        res.setHeader('Cache-Control', 'public, max-age=31557600, immutable');
       }
     },
   })

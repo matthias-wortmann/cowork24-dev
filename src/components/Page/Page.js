@@ -260,6 +260,10 @@ class PageComponent extends Component {
           <title>{pageTitle}</title>
           {referrer ? <meta name="referrer" content={referrer} /> : null}
           <link rel="canonical" href={canonicalUrl} />
+          <link rel="dns-prefetch" href="//assets-sharetribecom.sharetribe.com" />
+          <link rel="dns-prefetch" href="//sharetribe.imgix.net" />
+          <link rel="preconnect" href="https://assets-sharetribecom.sharetribe.com" crossOrigin="" />
+          <link rel="preconnect" href="https://sharetribe.imgix.net" crossOrigin="" />
 
           {faviconVariants.map(variant => {
             return (

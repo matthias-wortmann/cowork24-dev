@@ -3,14 +3,15 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import * as log from '../util/log';
 import { storableError } from '../util/errors';
+import { loadStripeJs } from '../util/loadStripe';
 
 // ================ Async thunks ================ //
 
 ///////////////////////////
 // Create Stripe Account //
 ///////////////////////////
-const createStripeAccountPayloadCreator = (params, { extra: sdk, rejectWithValue }) => {
-  if (typeof window === 'undefined' || !window.Stripe) {
+const createStripeAccountPayloadCreator = async (params, { extra: sdk, rejectWithValue }) => {
+  if (typeof window === 'undefined') {
     throw new Error('Stripe must be loaded for submitting PayoutPreferences');
   }
   const {
@@ -20,6 +21,7 @@ const createStripeAccountPayloadCreator = (params, { extra: sdk, rejectWithValue
     businessProfileURL,
     stripePublishableKey,
   } = params;
+  await loadStripeJs();
   const stripe = window.Stripe(stripePublishableKey);
 
   // Capabilities are a collection of settings that can be requested for each provider.
