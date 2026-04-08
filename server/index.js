@@ -231,7 +231,7 @@ app.use(passport.initialize());
 app.use('/api', apiRouter);
 
 const noCacheHeaders = {
-  'Cache-control': 'no-cache, no-store, must-revalidate',
+  'Cache-control': 'no-cache, must-revalidate',
 };
 
 app.get('/{*splat}', async (req, res) => {

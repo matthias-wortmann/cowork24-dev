@@ -26,6 +26,17 @@ const canDeferMapLibrary = (initialPathname, routeConfiguration) => {
   return currentRouteConfig?.prioritizeMapLibraryLoading !== true;
 };
 
+const deferredStylesheetProps = isDeferred => {
+  return isDeferred
+    ? {
+        media: 'print',
+        onLoad: e => {
+          e.currentTarget.media = 'all';
+        },
+      }
+    : {};
+};
+
 /**
  * Include scripts (like Map Provider).
  * These scripts are relevant for whole application: location search in Topbar and maps on different pages.
@@ -38,7 +49,7 @@ const canDeferMapLibrary = (initialPathname, routeConfiguration) => {
  *         should be whitelisted in the policy. Check: server/csp.js
  */
 export const IncludeScripts = props => {
-  const { marketplaceRootURL: rootURL, maps, analytics } = props?.config || {};
+  const { maps, analytics } = props?.config || {};
   const { googleAnalyticsId, plausibleDomains } = analytics;
 
   const routeConfiguration = useRouteConfiguration();
@@ -46,6 +57,7 @@ export const IncludeScripts = props => {
   const deferMapLibrary = canDeferMapLibrary(props?.initialPathname, routeConfiguration)
     ? { defer: '' }
     : {};
+  const deferMapLibraryStyles = deferredStylesheetProps(!!deferMapLibrary.defer);
 
   const { mapProvider, googleMapsAPIKey, mapboxAccessToken } = maps || {};
   const isGoogleMapsInUse = mapProvider === 'googleMaps';
@@ -65,8 +77,8 @@ export const IncludeScripts = props => {
     mapLibraries.push(
       <script
         key="mapboxSDK"
-        src={`${rootURL}/static/scripts/mapbox/mapbox-sdk@0.16.2/mapbox-sdk.min.js`}
-        async
+        src="/static/scripts/mapbox/mapbox-sdk@0.16.2/mapbox-sdk.min.js"
+        {...deferMapLibrary}
       ></script>
     );
     // License information for v3.7.0 of the mapbox-gl-js library:
@@ -79,6 +91,7 @@ export const IncludeScripts = props => {
         href="https://api.mapbox.com/mapbox-gl-js/v3.7.0/mapbox-gl.css"
         rel="stylesheet"
         crossOrigin="anonymous"
+        {...deferMapLibraryStyles}
       />
     );
     // Add Mapbox library

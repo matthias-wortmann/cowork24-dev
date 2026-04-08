@@ -11,7 +11,6 @@ import { useIntl, intlShape } from '../../util/reactIntl';
 import { metaTagProps } from '../../util/seo';
 import { canonicalRoutePath } from '../../util/routes';
 import { propTypes } from '../../util/types';
-import { apiBaseUrl } from '../../util/api';
 
 import css from './Page.module.css';
 
@@ -28,10 +27,8 @@ const twitterPageURL = siteTwitterHandle => {
   return null;
 };
 
-const webmanifestURL = marketplaceRootURL => {
-  // Note: on localhost (when running "yarn run dev"), the webmanifest is running on apiServer port
-  const baseUrl = apiBaseUrl(marketplaceRootURL);
-  return `${baseUrl}/site.webmanifest`;
+const webmanifestURL = () => {
+  return '/site.webmanifest';
 };
 
 const getFaviconVariants = config => {
