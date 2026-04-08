@@ -77,6 +77,24 @@ size and position, etc.
   padding-bottom: 8px;
 }
 
+/* Portal → body (z. B. Landing Hero): über Sticky-Leisten, Position per JS */
+.predictionsPortalPosition {
+  z-index: var(--zIndexModal);
+  max-height: min(70vh, 560px);
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  box-sizing: border-box;
+}
+
+.predictionsRootPortal {
+  position: relative !important;
+  top: auto !important;
+  left: auto !important;
+  right: auto !important;
+  width: 100% !important;
+}
+
 /*
 The Google Maps API TOS requires us to show a Powered by Google logo
 next to the autocomplete service predictions. It is rendered to the

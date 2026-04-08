@@ -25,7 +25,8 @@
   padding: 20px 16px 24px;
   width: 100%;
   max-width: 100%;
-  overflow: hidden;
+  /* visible: HeroSearchForm date dropdown is position:absolute (≥550px) and extends past the hero — hidden clipped it */
+  overflow: visible;
   box-sizing: border-box;
   scroll-margin-top: var(--topbarHeight);
 }

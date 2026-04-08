@@ -204,43 +204,23 @@
   text-overflow: ellipsis;
 }
 
-/* ───── Date dropdown ───── */
+/* ───── Date dropdown (Portal → body; Position per inline style in HeroSearchForm.js) ───── */
 .dateDropdown {
-  position: fixed;
-  top: auto;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  transform: none;
   margin-top: 0;
   padding: 16px;
   padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
   background: var(--colorWhite);
   border-radius: 16px 16px 0 0;
   box-shadow: 0 -4px 32px rgba(0, 0, 0, 0.15);
-  z-index: var(--zIndexPopup);
+  z-index: var(--zIndexModal);
 }
 
 @media (--viewportSmall) {
   .dateDropdown {
-    position: absolute;
-    top: 100%;
-    bottom: auto;
-    left: 50%;
-    right: auto;
-    transform: translateX(-50%);
-    margin-top: 8px;
     padding: 16px;
+    padding-bottom: 16px;
     border-radius: 12px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
-  }
-}
-
-@media (--viewportMedium) {
-  .dateDropdown {
-    left: auto;
-    right: 0;
-    transform: none;
   }
 }
 

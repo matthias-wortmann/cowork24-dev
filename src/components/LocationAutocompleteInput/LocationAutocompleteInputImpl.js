@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { createPortal } from 'react-dom';
 import classNames from 'classnames';
 import debounce from 'lodash/debounce';
 
@@ -144,10 +145,13 @@ class LocationAutocompleteInputImplementation extends Component {
       highlightedIndex: -1, // -1 means no highlight
       fetchingPlaceDetails: false,
       fetchingPredictions: false,
+      predictionsPortalStyle: {},
     };
 
     // Ref to the input element.
     this.input = null;
+    this.rootContainer = null;
+    this._predictionsPortalListenersCleanup = null;
     this.shortQueryTimeout = null;
 
     this.getGeocoder = this.getGeocoder.bind(this);
@@ -172,9 +176,82 @@ class LocationAutocompleteInputImplementation extends Component {
     this._isMounted = true;
   }
 
+  componentDidUpdate() {
+    const { usePredictionsPortal } = this.props;
+    if (!usePredictionsPortal) {
+      this._detachPredictionsPortalListeners();
+      return;
+    }
+    const predictions = this.currentPredictions();
+    const showPortalList = this.state.inputHasFocus && predictions.length > 0;
+    if (showPortalList) {
+      this._attachPredictionsPortalListeners();
+      this.updatePredictionsPortalPosition();
+    } else {
+      this._detachPredictionsPortalListeners();
+    }
+  }
+
   componentWillUnmount() {
     window.clearTimeout(this.shortQueryTimeout);
+    this._detachPredictionsPortalListeners();
     this._isMounted = false;
+  }
+
+  _detachPredictionsPortalListeners() {
+    if (this._predictionsPortalListenersCleanup) {
+      this._predictionsPortalListenersCleanup();
+      this._predictionsPortalListenersCleanup = null;
+    }
+  }
+
+  _attachPredictionsPortalListeners() {
+    if (this._predictionsPortalListenersCleanup) {
+      return;
+    }
+    const handler = () => this.updatePredictionsPortalPosition();
+    window.addEventListener('resize', handler);
+    window.addEventListener('scroll', handler, true);
+    this._predictionsPortalListenersCleanup = () => {
+      window.removeEventListener('resize', handler);
+      window.removeEventListener('scroll', handler, true);
+    };
+  }
+
+  updatePredictionsPortalPosition() {
+    const { usePredictionsPortal } = this.props;
+    if (!usePredictionsPortal || !this.rootContainer || !this.state.inputHasFocus) {
+      return;
+    }
+    if (typeof window === 'undefined') {
+      return;
+    }
+    const rect = this.rootContainer.getBoundingClientRect();
+    const extend = 12;
+    const gap = 4;
+    const vw = window.innerWidth;
+    let left = rect.left - extend;
+    if (left < 8) {
+      left = 8;
+    }
+    const maxW = vw - left - 8;
+    const width = Math.min(rect.width + extend * 2, maxW);
+    const next = {
+      position: 'fixed',
+      top: rect.bottom + gap,
+      left,
+      width,
+    };
+    const prev = this.state.predictionsPortalStyle || {};
+    if (
+      prev.top === next.top &&
+      prev.left === next.left &&
+      typeof prev.width === typeof next.width &&
+      (prev.width === next.width || Math.abs(prev.width - next.width) < 0.5)
+    ) {
+      return;
+    }
+    this.setState({ predictionsPortalStyle: next });
   }
 
   getGeocoder() {
@@ -453,6 +530,7 @@ class LocationAutocompleteInputImplementation extends Component {
       rootClassName,
       className,
       useDarkText,
+      usePredictionsPortal = false,
       iconClassName,
       CustomIcon,
       inputClassName,
@@ -512,9 +590,41 @@ class LocationAutocompleteInputImplementation extends Component {
         : {};
 
     const predictionsId = `${id}.predictions`;
+    const hasPredictions = predictions.length > 0;
+    const predictionsRootClass = classNames(
+      predictionsClass,
+      usePredictionsPortal ? css.predictionsRootPortal : null
+    );
+
+    const predictionsList =
+      renderPredictions && hasPredictions ? (
+        <LocationPredictionsList
+          id={predictionsId}
+          rootClassName={predictionsRootClass}
+          useDarkText={useDarkText}
+          predictions={predictions}
+          currentLocationId={geocoderVariant.CURRENT_LOCATION_ID}
+          isGoogleMapsInUse={config.maps.mapProvider === 'googleMaps'}
+          geocoder={this.getGeocoder()}
+          highlightedIndex={this.state.highlightedIndex}
+          onSelectStart={this.handlePredictionsSelectStart}
+          onSelectMove={this.handlePredictionsSelectMove}
+          onSelectEnd={this.handlePredictionsSelectEnd}
+        >
+          <GeocoderAttribution
+            className={predictionsAttributionClassName}
+            useDarkText={useDarkText}
+          />
+        </LocationPredictionsList>
+      ) : null;
 
     return (
-      <div className={rootClass}>
+      <div
+        className={rootClass}
+        ref={node => {
+          this.rootContainer = node;
+        }}
+      >
         <div className={iconClass}>
           {this.state.fetchingPlaceDetails ? (
             <IconSpinner className={css.iconSpinner} />
@@ -554,26 +664,21 @@ class LocationAutocompleteInputImplementation extends Component {
           aria-controls={predictionsId}
           aria-activedescendant={predictions[this.state.highlightedIndex]?.id}
         />
-        {renderPredictions ? (
-          <LocationPredictionsList
-            id={predictionsId}
-            rootClassName={predictionsClass}
-            useDarkText={useDarkText}
-            predictions={predictions}
-            currentLocationId={geocoderVariant.CURRENT_LOCATION_ID}
-            isGoogleMapsInUse={config.maps.mapProvider === 'googleMaps'}
-            geocoder={this.getGeocoder()}
-            highlightedIndex={this.state.highlightedIndex}
-            onSelectStart={this.handlePredictionsSelectStart}
-            onSelectMove={this.handlePredictionsSelectMove}
-            onSelectEnd={this.handlePredictionsSelectEnd}
-          >
-            <GeocoderAttribution
-              className={predictionsAttributionClassName}
-              useDarkText={useDarkText}
-            />
-          </LocationPredictionsList>
-        ) : null}
+        {usePredictionsPortal && predictionsList
+          ? createPortal(
+              <div
+                className={css.predictionsPortalPosition}
+                style={this.state.predictionsPortalStyle}
+                onMouseDownCapture={e => {
+                  /* Verhindert Input-Blur vor Klick auf Vorschlag (Portal außerhalb des Roots) */
+                  e.preventDefault();
+                }}
+              >
+                {predictionsList}
+              </div>,
+              document.body
+            )
+          : predictionsList}
       </div>
     );
   }
@@ -619,6 +724,7 @@ class LocationAutocompleteInputImplementation extends Component {
  * @param {boolean} props.closeOnBlur
  * @param {string?} props.placeholder
  * @param {boolean} props.useDefaultPredictions
+ * @param {boolean} [props.usePredictionsPortal] Vorschläge per Portal an document.body (z-index Modal)
  * @param {Object} props.input
  * @param {string} props.input.name
  * @param {string|SearchData} props.input.value
