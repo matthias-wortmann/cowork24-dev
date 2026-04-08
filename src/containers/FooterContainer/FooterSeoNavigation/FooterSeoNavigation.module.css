@@ -34,11 +34,18 @@
 
 .logoLink {
   display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  min-width: 112px;
+  min-height: 24px;
 }
 
 .logoImage {
-  max-height: 36px;
-  width: auto;
+  width: 112px;
+  height: 24px;
+  max-width: 112px;
+  max-height: 24px;
+  object-fit: contain;
 }
 
 .brandClaim {

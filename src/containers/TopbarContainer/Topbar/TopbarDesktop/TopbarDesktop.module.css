@@ -26,6 +26,11 @@
 
 /* logo */
 .logoLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 112px;
+  min-height: 24px;
   border-bottom: 0px solid;
   transition: var(--transitionStyleButton);
 }

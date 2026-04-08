@@ -84,7 +84,7 @@ export const LogoComponent = props => {
     const sizes =
       width <= 188 ? `${width}px` : `(max-width: 500px) calc(100vw - 132px), ${width}px`;
     return (
-      <div className={logoClasses}>
+      <div className={logoClasses} style={{ width: `${width}px` }}>
         <ResponsiveImage
           rootClassName={logoImageClasses}
           alt={marketplaceName}

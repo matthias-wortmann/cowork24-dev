@@ -120,6 +120,14 @@
   }
 }
 
+:global(#logo-topbar-mobile) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 112px;
+  min-height: 24px;
+}
+
 .menuIcon,
 .searchMenuIcon {
   margin: 0;
