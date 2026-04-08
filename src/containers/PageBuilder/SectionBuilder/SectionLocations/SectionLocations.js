@@ -1,7 +1,6 @@
 import React from 'react';
 import classNames from 'classnames';
 import { useHistory } from 'react-router-dom';
-import { useSelector } from 'react-redux';
 
 import { useIntl } from '../../../../util/reactIntl';
 import { useRouteConfiguration } from '../../../../context/routeConfigurationContext';
@@ -18,11 +17,6 @@ import css from './SectionLocations.module.css';
  * City display data with images, bounds, and address strings for the
  * Sharetribe search page URL pattern.
  *
- * Listing counts are fetched live from the Marketplace API via
- * LandingPage.duck.js (see fetchLocationCounts). The static
- * fallbackCount values are only shown while the API response is pending
- * or if the fetch fails.
- *
  * Images: verified Unsplash photos of each city (unsplash.com license).
  * The domain images.unsplash.com must be allowed in your Content Security
  * Policy (server/csp.js → imgSrc).
@@ -31,7 +25,6 @@ const CITIES_DATA = [
   {
     id: 'zurich',
     name: 'Zürich',
-    fallbackCount: 56,
     // Claudio Schwarz – Zürich Limmat & Grossmünster
     image:
       'https://images.unsplash.com/photo-1554899199-f6d99e6be6f7?w=400&h=400&fit=crop&crop=center',
@@ -43,7 +36,6 @@ const CITIES_DATA = [
     /** Maps to `/coworking/geneva` (CityLandingPage slug differs from SectionLocations id). */
     cityLandingSlug: 'geneva',
     name: 'Genf',
-    fallbackCount: 28,
     // Ryan Klaus – Geneva Jet d'Eau fountain
     image:
       'https://images.unsplash.com/photo-1752346168893-99056677e672?w=400&h=400&fit=crop&crop=center',
@@ -53,7 +45,6 @@ const CITIES_DATA = [
   {
     id: 'basel',
     name: 'Basel',
-    fallbackCount: 23,
     // Jean-Nicolas Fahrenberg – Basel rooftop cityscape
     image:
       'https://images.unsplash.com/photo-1707321519218-f0a61ce4a249?w=400&h=400&fit=crop&crop=center',
@@ -63,7 +54,6 @@ const CITIES_DATA = [
   {
     id: 'bern',
     name: 'Bern',
-    fallbackCount: 8,
     // Vincenzo Inzone – Bern Zytglogge clock tower & tram
     image:
       'https://images.unsplash.com/photo-1749588292359-9236987cfab3?w=400&h=400&fit=crop&crop=center',
@@ -73,7 +63,6 @@ const CITIES_DATA = [
   {
     id: 'lausanne',
     name: 'Lausanne',
-    fallbackCount: 18,
     // Ilia Bronskiy – Lausanne city street with cathedral tower
     image:
       'https://images.unsplash.com/photo-1650057915898-6761696fddf8?w=400&h=400&fit=crop&crop=center',
@@ -83,7 +72,6 @@ const CITIES_DATA = [
   {
     id: 'winterthur',
     name: 'Winterthur',
-    fallbackCount: 6,
     // Claudio Schwarz – Winterthur building reflection
     image:
       'https://images.unsplash.com/photo-1683727610281-26da8c641e4e?w=400&h=400&fit=crop&crop=center',
@@ -94,7 +82,6 @@ const CITIES_DATA = [
     id: 'luzern',
     cityLandingSlug: 'lucerne',
     name: 'Luzern',
-    fallbackCount: 8,
     // Miltiadis Fragkidis – Luzern Chapel Bridge & water tower
     image:
       'https://images.unsplash.com/photo-1750845372022-f4c633f433d5?w=400&h=400&fit=crop&crop=center',
@@ -105,7 +92,6 @@ const CITIES_DATA = [
     id: 'stgallen',
     cityLandingSlug: 'st-gallen',
     name: 'St. Gallen',
-    fallbackCount: 4,
     // Claudio Schwarz – St. Gallen old town
     image:
       'https://images.unsplash.com/photo-1712839398660-2642f9e21547?w=400&h=400&fit=crop&crop=center',
@@ -170,12 +156,8 @@ const SectionLocations = props => {
   const routeConfiguration = useRouteConfiguration();
   const searchPagePath = pathByRouteName('SearchPage', routeConfiguration);
 
-  // Live listing counts from the Marketplace API (loaded in LandingPage.duck.js)
-  const locationCounts = useSelector(state => state.LandingPage?.locationCounts ?? {});
-
   const sectionTitle = title || intl.formatMessage({ id: 'SectionLocations.title' });
   const sectionSubtitle = subtitle || intl.formatMessage({ id: 'SectionLocations.subtitle' });
-  const listingLabel = intl.formatMessage({ id: 'SectionLocations.listingLabel' });
 
   const handleCityClick = (e, city) => {
     e.preventDefault();
@@ -200,20 +182,15 @@ const SectionLocations = props => {
           <p className={css.subtitle}>{sectionSubtitle}</p>
         </div>
         <div className={css.grid}>
-          {CITIES_DATA.map(city => {
-            const count = locationCounts[city.id] ?? city.fallbackCount;
-            return (
-              <LocationCard
-                key={city.id}
-                name={city.name}
-                listingCount={count}
-                listingLabel={listingLabel}
-                image={city.image}
-                href={buildCityCardHref(city, routeConfiguration, searchPagePath)}
-                onClick={e => handleCityClick(e, city)}
-              />
-            );
-          })}
+          {CITIES_DATA.map(city => (
+            <LocationCard
+              key={city.id}
+              name={city.name}
+              image={city.image}
+              href={buildCityCardHref(city, routeConfiguration, searchPagePath)}
+              onClick={e => handleCityClick(e, city)}
+            />
+          ))}
         </div>
       </div>
     </SectionContainer>

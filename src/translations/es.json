@@ -1094,7 +1094,6 @@
   "PricingRulesConfig.hour22": "22:00",
   "PricingRulesConfig.hour23": "23:00",
   "PricingRulesConfig.hour24": "24:00 (medianoche)",
-  "SectionLocations.listingLabel": "espacios de coworking",
   "SectionLocations.subtitle": "Encuentra tu espacio de trabajo ideal en las ciudades más grandes de Suiza",
   "SectionLocations.title": "Descubre espacios de coworking en Suiza",
   "SectionLandingListingRows.rowAriaLabel": "Anuncios: {title}",

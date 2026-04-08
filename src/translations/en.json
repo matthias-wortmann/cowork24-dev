@@ -1094,7 +1094,6 @@
   "PricingRulesConfig.hour22": "10:00 PM",
   "PricingRulesConfig.hour23": "11:00 PM",
   "PricingRulesConfig.hour24": "12:00 AM (midnight)",
-  "SectionLocations.listingLabel": "Coworking Spaces",
   "SectionLocations.subtitle": "Find your ideal workspace in the largest Swiss cities",
   "SectionLocations.title": "Discover Coworking Spaces in Switzerland",
   "SectionLandingListingRows.rowAriaLabel": "Listings: {title}",

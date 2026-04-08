@@ -214,17 +214,3 @@
     font-size: 16px;
   }
 }
-
-.listingCount {
-  font-size: 12px;
-  line-height: 1.35;
-  color: var(--colorGrey600);
-  margin: 4px 0 0;
-}
-
-@media (--viewportSmall) {
-  .listingCount {
-    font-size: 14px;
-    margin-top: 6px;
-  }
-}
