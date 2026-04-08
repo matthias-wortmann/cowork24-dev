@@ -75,6 +75,7 @@ export const LogoComponent = props => {
     const variants = logoImageMobile.attributes.variants;
     const variantNames = getVariantNames(variants);
     const { width } = getVariantData(variants);
+    const { height } = logoSettings;
 
     // Sizes on small screens are mainly limited by space: side buttons take 2x66 px, the rest is for logo.
     // If logo's (1x) width is less than 188, we can use logo's width as limit for sizes attribute
@@ -91,6 +92,7 @@ export const LogoComponent = props => {
           variants={variantNames}
           sizes={sizes}
           width={width}
+          height={height}
         />
       </div>
     );
