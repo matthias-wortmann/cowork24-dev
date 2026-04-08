@@ -51,6 +51,7 @@ const defaultPublicPaths = {
   signup: { url: '/signup' },
   login: { url: '/login' },
   search: { url: '/s' },
+  faqPage: { url: '/p/faq' },
   coworkingZurich: { url: '/coworking/zurich' },
   coworkingBern: { url: '/coworking/bern' },
   coworkingBasel: { url: '/coworking/basel' },
