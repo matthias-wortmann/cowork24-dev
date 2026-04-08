@@ -54,9 +54,10 @@ export const IncludeScripts = props => {
 
   const routeConfiguration = useRouteConfiguration();
   // Note: Affects Mapbox only. Google Maps initialization is not yet ready to support asynchronous loading.
-  const isMapLibraryDeferrable = canDeferMapLibrary(props?.initialPathname, routeConfiguration);
-  const deferMapLibraryStyles = deferredStylesheetProps(isMapLibraryDeferrable);
-  const mapScriptLoadingAttrs = { defer: '' };
+  const deferMapLibrary = canDeferMapLibrary(props?.initialPathname, routeConfiguration)
+    ? { defer: '' }
+    : {};
+  const deferMapLibraryStyles = deferredStylesheetProps(!!deferMapLibrary.defer);
 
   const { mapProvider, googleMapsAPIKey, mapboxAccessToken } = maps || {};
   const isGoogleMapsInUse = mapProvider === 'googleMaps';
@@ -77,7 +78,7 @@ export const IncludeScripts = props => {
       <script
         key="mapboxSDK"
         src="/static/scripts/mapbox/mapbox-sdk@0.16.2/mapbox-sdk.min.js"
-        {...mapScriptLoadingAttrs}
+        {...deferMapLibrary}
       ></script>
     );
     // License information for v3.7.0 of the mapbox-gl-js library:
@@ -100,7 +101,7 @@ export const IncludeScripts = props => {
         key="mapbox_GL_JS"
         src="https://api.mapbox.com/mapbox-gl-js/v3.7.0/mapbox-gl.js"
         crossOrigin="anonymous"
-        {...mapScriptLoadingAttrs}
+        {...deferMapLibrary}
       ></script>
     );
   } else if (isGoogleMapsInUse) {
