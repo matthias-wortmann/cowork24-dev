@@ -70,6 +70,13 @@ describe('util/routes.js', () => {
         'Component "BlaaBlaaPage" was not found.'
       );
     });
+
+    it('should include FAQLandingPage route with loadData wiring', () => {
+      const foundRoute = findRouteByRouteName('FAQLandingPage', routes);
+      expect(foundRoute.name).toEqual('FAQLandingPage');
+      expect(foundRoute.path).toEqual('/p/faq');
+      expect(typeof foundRoute.loadData).toEqual('function');
+    });
   });
 
   describe('canonicalRoutePath', () => {

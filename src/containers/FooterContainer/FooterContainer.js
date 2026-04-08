@@ -1,37 +1,9 @@
-import React, { Fragment } from 'react';
-import loadable from '@loadable/component';
+import React from 'react';
 
-import { useConfiguration } from '../../context/configurationContext';
-
-import FooterCityDestinations from './FooterCityDestinations/FooterCityDestinations';
-
-const SectionBuilder = loadable(
-  () => import(/* webpackChunkName: "SectionBuilder" */ '../PageBuilder/PageBuilder'),
-  {
-    resolveComponent: components => components.SectionBuilder,
-  }
-);
+import FooterSeoNavigation from './FooterSeoNavigation/FooterSeoNavigation';
 
 const FooterComponent = () => {
-  const { footer = {}, topbar } = useConfiguration();
-
-  const hasHostedFooter = Object.keys(footer).length > 0;
-
-  const footerSection = hasHostedFooter
-    ? {
-        ...footer,
-        sectionId: 'footer',
-        sectionType: 'footer',
-        linkLogoToExternalSite: topbar?.logoLink,
-      }
-    : null;
-
-  return (
-    <Fragment>
-      <FooterCityDestinations />
-      {footerSection ? <SectionBuilder sections={[footerSection]} /> : null}
-    </Fragment>
-  );
+  return <FooterSeoNavigation />;
 };
 
 // NOTE: if you want to add dynamic data to FooterComponent,

@@ -18,6 +18,7 @@ const CMSPage = loadable(() => import(/* webpackChunkName: "CMSPage" */ '../cont
 const ContactDetailsPage = loadable(() => import(/* webpackChunkName: "ContactDetailsPage" */ '../containers/ContactDetailsPage/ContactDetailsPage'));
 const EditListingPage = loadable(() => import(/* webpackChunkName: "EditListingPage" */ '../containers/EditListingPage/EditListingPage'));
 const EmailVerificationPage = loadable(() => import(/* webpackChunkName: "EmailVerificationPage" */ '../containers/EmailVerificationPage/EmailVerificationPage'));
+const FAQLandingPage = loadable(() => import(/* webpackChunkName: "FAQLandingPage" */ '../containers/FAQLandingPage/FAQLandingPage'));
 const InboxPage = loadable(() => import(/* webpackChunkName: "InboxPage" */ '../containers/InboxPage/InboxPage'));
 const MakeOfferPage = loadable(() => import(/* webpackChunkName: "MakeOfferPage" */ '../containers/MakeOfferPage/MakeOfferPage'));
 const LandingPage = loadable(() => import(/* webpackChunkName: "LandingPage" */ '../containers/LandingPage/LandingPage'));
@@ -96,6 +97,12 @@ const routeConfiguration = (layoutConfig, accessControlConfig) => {
       component: CityLandingPage,
       loadData: pageDataLoadingAPI.CityLandingPage.loadData,
       prioritizeMapLibraryLoading: true,
+    },
+    {
+      path: '/p/faq',
+      name: 'FAQLandingPage',
+      component: FAQLandingPage,
+      loadData: pageDataLoadingAPI.FAQLandingPage.loadData,
     },
     {
       path: '/p/:pageId',
