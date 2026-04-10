@@ -26,61 +26,60 @@ import css from './SectionCategoryBar.module.css';
 const ICON_PROPS = { size: 24, strokeWidth: 1.5 };
 
 /**
- * Category display definitions: icon + short label.
- * Each entry has a `match` function that checks category id AND name
- * so the mapping works regardless of the actual Sharetribe backend IDs.
+ * Category display definitions: Lucide icon component + short label.
+ * We store components (not pre-created <Icon /> elements) so each list item gets
+ * its own React element instance. Reusing the same element object for multiple
+ * children breaks rendering (notably the shared MapPin fallback).
  */
 const CATEGORY_DEFINITIONS = [
   {
     match: (id, name) => /open.?space/i.test(id) || /open.?space/i.test(name),
-    icon: <Armchair {...ICON_PROPS} />,
+    Icon: Armchair,
     label: 'Open',
   },
   {
     match: (id, name) => /fix.?desk/i.test(id) || /fix.?desk/i.test(name),
-    icon: <Monitor {...ICON_PROPS} />,
+    Icon: Monitor,
     label: 'Fix',
   },
   {
     match: (id, name) => (/privat/i.test(id) || /privat/i.test(name)) && !/team/i.test(name),
-    icon: <DoorClosed {...ICON_PROPS} />,
+    Icon: DoorClosed,
     label: 'Privat',
   },
   {
     match: (id, name) => /team/i.test(id) || /team/i.test(name),
-    icon: <Users {...ICON_PROPS} />,
+    Icon: Users,
     label: 'Team',
   },
   {
     match: (id, name) => /hot.?desk/i.test(id) || /hot.?desk/i.test(name) || /flex/i.test(name),
-    icon: <Zap {...ICON_PROPS} />,
+    Icon: Zap,
     label: 'Flex',
   },
   {
     match: (id, name) => /meeting/i.test(id) || /meeting/i.test(name) || /konferenz/i.test(name),
-    icon: <Presentation {...ICON_PROPS} />,
+    Icon: Presentation,
     label: 'Meeting',
   },
   {
     match: (id, name) =>
       /community/i.test(id) || /community/i.test(name) || /coworking/i.test(name),
-    icon: <Coffee {...ICON_PROPS} />,
+    Icon: Coffee,
     label: 'Cowork',
   },
   {
     match: (id, name) => /coliving/i.test(id) || /coliving/i.test(name) || /wohnen/i.test(name),
-    icon: <Bed {...ICON_PROPS} />,
+    Icon: Bed,
     label: 'Coliving',
   },
   {
     match: (id, name) =>
       /lounge|airport|flughafen/i.test(id) || /lounge|airport|flughafen/i.test(name),
-    icon: <PlaneTakeoff {...ICON_PROPS} />,
+    Icon: PlaneTakeoff,
     label: 'Lounge',
   },
 ];
-
-const FALLBACK_ICON = <MapPin {...ICON_PROPS} />;
 
 /**
  * Hardcoded fallback list used when hosted categories (listing-categories.json)
@@ -102,9 +101,10 @@ const resolveCategoryDisplay = category => {
   const id = (category.id || '').toLowerCase();
   const name = category.name || '';
   const matched = CATEGORY_DEFINITIONS.find(def => def.match(id, name));
+  const Icon = matched?.Icon ?? MapPin;
 
   return {
-    icon: matched?.icon ?? FALLBACK_ICON,
+    icon: <Icon {...ICON_PROPS} />,
     label: matched?.label ?? category.name,
   };
 };
