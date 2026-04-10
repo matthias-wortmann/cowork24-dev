@@ -28,7 +28,11 @@ const DeferredAnalyticsScripts = props => {
     let cancelled = false;
 
     const injectGoogleAnalytics = () => {
-      if (cancelled || document.getElementById(GTAG_SCRIPT_ID) || googleAnalyticsId?.indexOf('G-') !== 0) {
+      if (
+        cancelled ||
+        document.getElementById(GTAG_SCRIPT_ID) ||
+        googleAnalyticsId?.indexOf('G-') !== 0
+      ) {
         return;
       }
       window.dataLayer = window.dataLayer || [];

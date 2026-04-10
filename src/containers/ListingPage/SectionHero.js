@@ -31,8 +31,7 @@ const SectionHero = props => {
   const variants = firstImage
     ? Object.keys(firstImage?.attributes?.variants).filter(k => k.startsWith('scaled'))
     : [];
-  const firstVariant =
-    variants.length > 0 ? firstImage?.attributes?.variants?.[variants[0]] : null;
+  const firstVariant = variants.length > 0 ? firstImage?.attributes?.variants?.[variants[0]] : null;
 
   const viewPhotosButton = hasImages ? (
     <button id={VIEW_PHOTOS_BUTTON_ID} className={css.viewPhotos} onClick={handleViewPhotosClick}>
