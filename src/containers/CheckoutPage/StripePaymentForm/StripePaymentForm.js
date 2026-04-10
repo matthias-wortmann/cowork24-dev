@@ -307,15 +307,20 @@ class StripePaymentForm extends Component {
     this.changePaymentMethod = this.changePaymentMethod.bind(this);
     this.finalFormAPI = null;
     this.cardContainer = null;
+    this._stripeMountActive = false;
   }
 
   async componentDidMount() {
+    this._stripeMountActive = true;
     const publishableKey = this.props.stripePublishableKey;
     if (publishableKey) {
       try {
         await loadStripeJs();
       } catch (e) {
         console.error(e);
+        return;
+      }
+      if (!this._stripeMountActive) {
         return;
       }
       const {
@@ -334,6 +339,7 @@ class StripePaymentForm extends Component {
   }
 
   componentWillUnmount() {
+    this._stripeMountActive = false;
     if (this.card) {
       this.card.removeEventListener('change', this.handleCardValueChange);
       this.card.unmount();

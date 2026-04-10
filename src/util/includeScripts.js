@@ -26,17 +26,6 @@ const canDeferMapLibrary = (initialPathname, routeConfiguration) => {
   return currentRouteConfig?.prioritizeMapLibraryLoading !== true;
 };
 
-const shouldPrioritizeMapLibrary = (initialPathname, routeConfiguration) => {
-  if (!initialPathname) {
-    // In tests or client-only edge cases pathname might be missing.
-    // Fall back to eager map loading to preserve existing behavior.
-    return true;
-  }
-  const matchedRoutes = matchPathname(initialPathname, routeConfiguration);
-  const currentRouteConfig = matchedRoutes.length > 0 ? matchedRoutes[0]?.route : null;
-  return currentRouteConfig?.prioritizeMapLibraryLoading === true;
-};
-
 const deferredStylesheetProps = isDeferred => {
   return isDeferred
     ? {
@@ -66,10 +55,6 @@ export const IncludeScripts = props => {
   const routeConfiguration = useRouteConfiguration();
   // Note: Affects Mapbox only. Google Maps initialization is not yet ready to support asynchronous loading.
   const mapLibraryIsDeferred = canDeferMapLibrary(props?.initialPathname, routeConfiguration);
-  const prioritizeMapLibraryLoading = shouldPrioritizeMapLibrary(
-    props?.initialPathname,
-    routeConfiguration
-  );
   const deferMapLibrary = mapLibraryIsDeferred ? { defer: '' } : {};
   const deferMapLibraryStyles = deferredStylesheetProps(!!deferMapLibrary.defer);
 
@@ -97,28 +82,28 @@ export const IncludeScripts = props => {
     );
     // License information for v3.7.0 of the mapbox-gl-js library:
     // https://github.com/mapbox/mapbox-gl-js/blob/v3.7.0/LICENSE.txt
-
-    // Add Mapbox GL only when current route needs map rendering immediately.
-    if (prioritizeMapLibraryLoading) {
-      mapLibraries.push(
-        <link
-          key="mapbox_GL_CSS"
-          href="https://api.mapbox.com/mapbox-gl-js/v3.7.0/mapbox-gl.css"
-          rel="stylesheet"
-          crossOrigin="anonymous"
-          {...deferMapLibraryStyles}
-        />
-      );
-      mapLibraries.push(
-        <script
-          id={MAPBOX_SCRIPT_ID}
-          key="mapbox_GL_JS"
-          src="https://api.mapbox.com/mapbox-gl-js/v3.7.0/mapbox-gl.js"
-          crossOrigin="anonymous"
-          {...deferMapLibrary}
-        ></script>
-      );
-    }
+    //
+    // Always include Mapbox GL when Mapbox is the provider: LocationAutocompleteInput and
+    // maps can appear on routes without prioritizeMapLibraryLoading (e.g. EditListingPage).
+    // Route flag only controls deferral via canDeferMapLibrary, not whether GL is present.
+    mapLibraries.push(
+      <link
+        key="mapbox_GL_CSS"
+        href="https://api.mapbox.com/mapbox-gl-js/v3.7.0/mapbox-gl.css"
+        rel="stylesheet"
+        crossOrigin="anonymous"
+        {...deferMapLibraryStyles}
+      />
+    );
+    mapLibraries.push(
+      <script
+        id={MAPBOX_SCRIPT_ID}
+        key="mapbox_GL_JS"
+        src="https://api.mapbox.com/mapbox-gl-js/v3.7.0/mapbox-gl.js"
+        crossOrigin="anonymous"
+        {...deferMapLibrary}
+      ></script>
+    );
   } else if (isGoogleMapsInUse) {
     // Add Google Maps library
     mapLibraries.push(

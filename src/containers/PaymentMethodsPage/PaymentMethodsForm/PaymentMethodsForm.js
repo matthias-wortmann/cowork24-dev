@@ -102,9 +102,23 @@ class PaymentMethodsForm extends Component {
     this.paymentForm = this.paymentForm.bind(this);
     this.finalFormAPI = null;
     this.stripe = null;
+    this._stripeMountActive = false;
+    this.handleStripeResize = this.handleStripeResize.bind(this);
+  }
+
+  handleStripeResize() {
+    if (!this.card) {
+      return;
+    }
+    if (window.innerWidth < 768) {
+      this.card.update({ style: { base: { fontSize: '14px', lineHeight: '24px' } } });
+    } else {
+      this.card.update({ style: { base: { fontSize: '18px', lineHeight: '24px' } } });
+    }
   }
 
   async componentDidMount() {
+    this._stripeMountActive = true;
     const publishableKey = this.props.config?.stripe?.publishableKey;
     if (publishableKey) {
       try {
@@ -113,23 +127,21 @@ class PaymentMethodsForm extends Component {
         console.error(e);
         return;
       }
+      if (!this._stripeMountActive) {
+        return;
+      }
       this.stripe = window.Stripe(publishableKey);
 
       const elements = this.stripe.elements(stripeElementsOptions);
       this.card = elements.create('card', { style: cardStyles });
       this.card.mount(this.cardContainer);
       this.card.addEventListener('change', this.handleCardValueChange);
-      // EventListener is the only way to simulate breakpoints with Stripe.
-      window.addEventListener('resize', () => {
-        if (window.innerWidth < 768) {
-          this.card.update({ style: { base: { fontSize: '14px', lineHeight: '24px' } } });
-        } else {
-          this.card.update({ style: { base: { fontSize: '18px', lineHeight: '24px' } } });
-        }
-      });
+      window.addEventListener('resize', this.handleStripeResize);
     }
   }
   componentWillUnmount() {
+    this._stripeMountActive = false;
+    window.removeEventListener('resize', this.handleStripeResize);
     if (this.card) {
       this.card.removeEventListener('change', this.handleCardValueChange);
       this.card.unmount();
