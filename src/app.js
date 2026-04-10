@@ -19,6 +19,7 @@ import { mergeConfig } from './util/configHelpers';
 import { IntlProvider } from './util/reactIntl';
 import { includeCSSProperties } from './util/style';
 import { IncludeScripts } from './util/includeScripts';
+import DeferredAnalyticsScripts from './util/DeferredAnalyticsScripts';
 
 import { MaintenanceMode } from './components';
 
@@ -270,6 +271,7 @@ export const ClientApp = props => {
         <Provider store={store}>
           <HelmetProvider>
             <IncludeScripts config={appConfig} initialPathname={window.location.pathname} />
+            <DeferredAnalyticsScripts analytics={appConfig.analytics} />
             <BrowserRouter>
               <Routes logLoadDataCalls={logLoadDataCalls} />
             </BrowserRouter>

@@ -10,11 +10,21 @@ import FallbackPage from './FallbackPage';
 import { getDefaultLandingPageData, SectionDefaultLandingHero } from './FallbackPage';
 import SectionCategoryBar from '../PageBuilder/SectionBuilder/SectionCategoryBar';
 import SectionCategoryShortcuts from '../PageBuilder/SectionBuilder/SectionCategoryShortcuts';
-import SectionLogoSlider from '../PageBuilder/SectionBuilder/SectionLogoSlider';
-import SectionSpaceOwner from '../PageBuilder/SectionBuilder/SectionSpaceOwner';
-import SectionFaq from '../PageBuilder/SectionBuilder/SectionFaq';
 import SectionLandingListingRows from '../PageBuilder/SectionBuilder/SectionLandingListingRows/SectionLandingListingRows';
-import SectionLocations from '../PageBuilder/SectionBuilder/SectionLocations';
+
+// Below-the-hero sections: separate chunks to reduce initial JS parse (TBT) on the landing route.
+const SectionLogoSlider = loadable(() =>
+  import(/* webpackChunkName: "SectionLogoSlider" */ '../PageBuilder/SectionBuilder/SectionLogoSlider/SectionLogoSlider')
+);
+const SectionLocations = loadable(() =>
+  import(/* webpackChunkName: "SectionLocations" */ '../PageBuilder/SectionBuilder/SectionLocations/SectionLocations')
+);
+const SectionSpaceOwner = loadable(() =>
+  import(/* webpackChunkName: "SectionSpaceOwner" */ '../PageBuilder/SectionBuilder/SectionSpaceOwner/SectionSpaceOwner')
+);
+const SectionFaq = loadable(() =>
+  import(/* webpackChunkName: "SectionFaq" */ '../PageBuilder/SectionBuilder/SectionFaq/SectionFaq')
+);
 
 const PageBuilder = loadable(() =>
   import(/* webpackChunkName: "PageBuilder" */ '../PageBuilder/PageBuilder')

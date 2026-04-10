@@ -49,8 +49,7 @@ const deferredStylesheetProps = isDeferred => {
  *         should be whitelisted in the policy. Check: server/csp.js
  */
 export const IncludeScripts = props => {
-  const { maps, analytics } = props?.config || {};
-  const { googleAnalyticsId, plausibleDomains } = analytics;
+  const { maps } = props?.config || {};
 
   const routeConfiguration = useRouteConfiguration();
   // Note: Affects Mapbox only. Google Maps initialization is not yet ready to support asynchronous loading.
@@ -62,13 +61,8 @@ export const IncludeScripts = props => {
   const isGoogleMapsInUse = mapProvider === 'googleMaps';
   const isMapboxInUse = mapProvider === 'mapbox';
 
-  // Add Google Analytics script if correct id exists (it should start with 'G-' prefix)
-  // See: https://developers.google.com/analytics/devguides/collection/gtagjs
-  const hasGoogleAnalyticsv4Id = googleAnalyticsId?.indexOf('G-') === 0;
-
   // Collect relevant map libraries
   let mapLibraries = [];
-  let analyticsLibraries = [];
 
   if (isMapboxInUse) {
     // NOTE: remember to update mapbox-sdk.min.js to a new version regularly.
@@ -116,47 +110,7 @@ export const IncludeScripts = props => {
     );
   }
 
-  if (googleAnalyticsId && hasGoogleAnalyticsv4Id) {
-    // Google Analytics: gtag.js
-    // NOTE: This template is a single-page application (SPA).
-    //       gtag.js sends initial page_view event after page load.
-    //       but we need to handle subsequent events for in-app navigation.
-    //       This is done in src/analytics/handlers.js
-    // defer: run after document is parsed (less main-thread contention during first paint than async fire-when-ready).
-    analyticsLibraries.push(
-      <script
-        key="gtag.js"
-        defer
-        src={`https://www.googletagmanager.com/gtag/js?id=${googleAnalyticsId}`}
-        crossOrigin="anonymous"
-      ></script>
-    );
-
-    if (typeof window !== 'undefined') {
-      window.dataLayer = window.dataLayer || [];
-      // Ensure that gtag function is found from window scope
-      window.gtag = function gtag() {
-        dataLayer.push(arguments);
-      };
-      gtag('js', new Date());
-      gtag('config', googleAnalyticsId, {
-        cookie_flags: 'SameSite=None;Secure',
-      });
-    }
-  }
-
-  if (plausibleDomains) {
-    // If plausibleDomains is not an empty string, include their script too.
-    analyticsLibraries.push(
-      <script
-        key="plausible"
-        defer
-        src="https://plausible.io/js/script.js"
-        data-domain={plausibleDomains}
-        crossOrigin="anonymous"
-      ></script>
-    );
-  }
+  // GA4 and Plausible: loaded on the client after window load + idle — see DeferredAnalyticsScripts in app.js
 
   const isBrowser = typeof window !== 'undefined';
   const isMapboxLoaded = isBrowser && window.mapboxgl;
@@ -194,6 +148,5 @@ export const IncludeScripts = props => {
     }
   };
 
-  const allScripts = [...analyticsLibraries, ...mapLibraries];
-  return <Helmet onChangeClientState={onChangeClientState}>{allScripts}</Helmet>;
+  return <Helmet onChangeClientState={onChangeClientState}>{mapLibraries}</Helmet>;
 };
