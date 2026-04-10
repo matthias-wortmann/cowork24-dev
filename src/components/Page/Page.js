@@ -262,7 +262,11 @@ class PageComponent extends Component {
           <link rel="canonical" href={canonicalUrl} />
           <link rel="dns-prefetch" href="//assets-sharetribecom.sharetribe.com" />
           <link rel="dns-prefetch" href="//sharetribe.imgix.net" />
-          <link rel="preconnect" href="https://assets-sharetribecom.sharetribe.com" crossOrigin="" />
+          <link
+            rel="preconnect"
+            href="https://assets-sharetribecom.sharetribe.com"
+            crossOrigin=""
+          />
           <link rel="preconnect" href="https://sharetribe.imgix.net" crossOrigin="" />
 
           {faviconVariants.map(variant => {
