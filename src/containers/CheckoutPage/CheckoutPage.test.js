@@ -17,7 +17,9 @@ import {
   getDefaultConfiguration,
 } from '../../util/testHelpers';
 
-import CheckoutPageWithPayment from './CheckoutPageWithPayment';
+import CheckoutPageWithPayment, {
+  loadInitialDataForStripePayments,
+} from './CheckoutPageWithPayment';
 import CheckoutPageWithInquiryProcess from './CheckoutPageWithInquiryProcess';
 import checkoutPageReducer, { setInitialValues } from './CheckoutPage.duck';
 
@@ -39,6 +41,26 @@ const routeConfiguration = [
 ];
 
 describe('CheckoutPage', () => {
+  it('negotiation checkout without transaction skips speculate (no REQUEST_PAYMENT on default-negotiation)', () => {
+    const listing = createListing('00000000-0000-0000-0000-000000000099', {
+      publicData: {
+        unitType: 'request',
+        transactionProcessAlias: 'default-negotiation/release-1',
+      },
+    });
+    const fetchSpeculatedTransaction = jest.fn();
+    const fetchStripeCustomer = jest.fn();
+    expect(() =>
+      loadInitialDataForStripePayments({
+        pageData: { listing, orderData: { quantity: 1 }, transaction: null },
+        fetchSpeculatedTransaction,
+        fetchStripeCustomer,
+        config: getDefaultConfiguration(),
+      })
+    ).not.toThrow();
+    expect(fetchSpeculatedTransaction).not.toHaveBeenCalled();
+  });
+
   beforeEach(() => {
     // This is not defined by default on test env. AuthenticationPage needs it.
     window.matchMedia = jest.fn(() => ({

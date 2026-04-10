@@ -348,7 +348,7 @@ const speculateTransactionPayloadCreator = (
 
   const handleError = e => {
     log.error(e, 'speculate-transaction-failed', {
-      listingId: transitionParams.listingId.uuid,
+      listingId: transitionParams.listingId?.uuid,
       ...quantityMaybe,
       ...bookingParamsMaybe,
       ...orderData,
@@ -402,7 +402,12 @@ export const speculateTransaction = (
       transitionName,
       isPrivilegedTransition,
     })
-  ).unwrap();
+  )
+    .unwrap()
+    .catch(() => {
+      // Rejection is already stored on CheckoutPage state via extraReducers.
+      // Callers dispatch fire-and-forget; without this catch, .unwrap() causes an unhandled rejection.
+    });
 };
 
 ///////////////////////////

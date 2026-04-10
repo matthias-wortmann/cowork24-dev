@@ -20,11 +20,34 @@ const radix = 10;
 const PORT = parseInt(process.env.REACT_APP_DEV_API_SERVER_PORT, radix);
 const app = express();
 
+/**
+ * Dev API runs on a separate port (e.g. 3500) from the webpack dev server. Browsers send
+ * Origin: http://localhost:<frontendPort>. If that port differs from REACT_APP_MARKETPLACE_ROOT_URL
+ * (e.g. PORT=3001 while .env still says :3000), strict single-origin CORS blocks /api calls.
+ */
+const isLocalhostOrigin = origin => {
+  if (!origin) {
+    return true;
+  }
+  try {
+    const { hostname } = new URL(origin);
+    return hostname === 'localhost' || hostname === '127.0.0.1';
+  } catch {
+    return false;
+  }
+};
+
 // NOTE: CORS is only needed in this dev API server because it's
 // running in a different port than the main app.
 app.use(
   cors({
-    origin: process.env.REACT_APP_MARKETPLACE_ROOT_URL,
+    origin: (origin, callback) => {
+      const configured = process.env.REACT_APP_MARKETPLACE_ROOT_URL;
+      if (!origin || origin === configured || isLocalhostOrigin(origin)) {
+        return callback(null, true);
+      }
+      callback(new Error(`CORS blocked for origin: ${origin}`));
+    },
     credentials: true,
   })
 );

@@ -238,15 +238,16 @@ const getDateRangeQuantityAndLineItems = (orderData, code) => {
  * @returns {Array} lineItems
  */
 exports.transactionLineItems = (listing, orderData, providerCommission, customerCommission) => {
-  const publicData = listing.attributes.publicData;
+  const attrs = listing?.attributes || {};
+  const publicData = attrs.publicData || {};
   // Note: the unitType needs to be one of the following:
   // day, night, hour, fixed, week, month, or item (these are related to payment processes)
   const { unitType, priceVariants, priceVariationsEnabled } = publicData;
 
   const isBookable = ['day', 'night', 'hour', 'fixed', 'week', 'month'].includes(unitType);
   const isNegotiationUnitType = ['offer', 'request'].includes(unitType);
-  const priceAttribute = listing.attributes.price;
-  const currency = priceAttribute?.currency || orderData.currency;
+  const priceAttribute = attrs.price;
+  const currency = priceAttribute?.currency || orderData?.currency;
 
   const { priceVariantName, offer } = orderData || {};
   const priceVariantConfig = priceVariants
@@ -261,6 +262,26 @@ exports.transactionLineItems = (listing, orderData, providerCommission, customer
       : offer instanceof Money && isNegotiationUnitType
       ? offer
       : priceAttribute;
+
+  if (isBookable && !(unitPrice instanceof Money)) {
+    const configuredNames = Array.isArray(priceVariants)
+      ? priceVariants.map(pv => pv.name).filter(Boolean)
+      : [];
+    const namesHint = configuredNames.length ? configuredNames.join(', ') : 'none configured';
+    let message = 'Listing has no valid unit price for this booking.';
+    if (priceVariationsEnabled && priceVariantName && !priceVariantConfig) {
+      message = `Unknown price variant "${priceVariantName}". Configured variants: ${namesHint}.`;
+    } else if (priceVariationsEnabled && priceVariantName && !currency) {
+      message =
+        'Cannot resolve currency for price variant (listing price currency missing). ' +
+        'Set a base listing price or ensure orderData.currency is sent.';
+    }
+    const error = new Error(message);
+    error.status = 400;
+    error.statusText = message;
+    error.data = {};
+    throw error;
+  }
 
   /**
    * Pricing starts with order's base price:

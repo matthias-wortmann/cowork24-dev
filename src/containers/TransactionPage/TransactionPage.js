@@ -965,8 +965,7 @@ const mapDispatchToProps = dispatch => {
       dispatch(sendReview(tx, transitionOptions, params, config)),
     callSetInitialValues: (setInitialValues, values) => dispatch(setInitialValues(values)),
     onInitializeCardPaymentData: () => dispatch(initializeCardPaymentData()),
-    onFetchTransactionLineItems: (orderData, listingId, isOwnListing) =>
-      dispatch(fetchTransactionLineItems(orderData, listingId, isOwnListing)), // for OrderPanel
+    onFetchTransactionLineItems: params => dispatch(fetchTransactionLineItems(params)), // for OrderPanel
     onFetchTimeSlots: (listingId, start, end, timeZone, options) =>
       dispatch(fetchTimeSlots(listingId, start, end, timeZone, options)), // for OrderPanel
   };

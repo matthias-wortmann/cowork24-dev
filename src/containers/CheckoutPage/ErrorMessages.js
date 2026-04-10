@@ -103,7 +103,7 @@ export const getErrorMessages = (
     speculateErrorMessage = (
       <FormattedMessage id="CheckoutPage.providerCommissionBiggerThanMinPrice" />
     );
-  } else if (speculateTransactionError) {
+  } else if (speculateTransactionError && !isTooManyRequestsError(speculateTransactionError)) {
     speculateErrorMessage = <FormattedMessage id="CheckoutPage.speculateFailedMessage" />;
   }
 
@@ -121,7 +121,11 @@ export const getErrorMessages = (
     speculateTransactionError &&
     !isTransactionInitiateMissingStripeAccountError(speculateTransactionError) ? (
       <p className={css.speculateError}>
-        <FormattedMessage id="CheckoutPage.speculateTransactionError" />
+        {isTooManyRequestsError(speculateTransactionError) ? (
+          <FormattedMessage id="CheckoutPage.tooManyRequestsError" />
+        ) : (
+          <FormattedMessage id="CheckoutPage.speculateTransactionError" />
+        )}
       </p>
     ) : null;
 

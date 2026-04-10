@@ -567,6 +567,38 @@ describe('transactionLineItems', () => {
 
       expect(result[0].unitPrice).toEqual(new Money(15000, 'EUR'));
     });
+
+    it('should throw when variant name does not match and listing has no base price', () => {
+      const listing = {
+        ...mockListing,
+        attributes: {
+          ...mockListing.attributes,
+          price: undefined,
+          publicData: {
+            ...mockListing.attributes.publicData,
+            unitType: 'hour',
+            priceVariationsEnabled: true,
+            priceVariants: [
+              {
+                name: 'standard',
+                priceInSubunits: 5000,
+              },
+            ],
+          },
+        },
+      };
+
+      const orderData = {
+        bookingStart: '2024-01-01T10:00:00.000Z',
+        bookingEnd: '2024-01-01T11:00:00.000Z',
+        priceVariantName: 'Preis pro Stunde',
+        currency: 'EUR',
+      };
+
+      expect(() =>
+        transactionLineItems(listing, orderData, mockProviderCommission, mockCustomerCommission)
+      ).toThrow(/Unknown price variant/);
+    });
   });
 
   describe('Commission Handling', () => {
@@ -1329,7 +1361,7 @@ describe('transactionLineItems', () => {
   });
 
   describe('Currency Handling', () => {
-    it('should use currency from orderData when listing price has no currency', () => {
+    it('should throw when listing has no base price and no matching price variant', () => {
       const listing = {
         ...mockListing,
         attributes: {
@@ -1347,9 +1379,9 @@ describe('transactionLineItems', () => {
         currency: 'USD',
       };
 
-      const result = transactionLineItems(listing, orderData, null, null);
-
-      expect(result[0].unitPrice).toBeNull(); // No unit price when no listing price
+      expect(() => transactionLineItems(listing, orderData, null, null)).toThrow(
+        /no valid unit price/
+      );
     });
 
     it('should use currency from listing price when available', () => {

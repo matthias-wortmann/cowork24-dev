@@ -11,6 +11,7 @@ import { FormattedMessage, injectIntl } from '../../../util/reactIntl';
 import { propTypes } from '../../../util/types';
 import { ensurePaymentMethodCard } from '../../../util/data';
 import { loadStripeJs } from '../../../util/loadStripe';
+import { getPaymentRequestCountryForCurrency } from '../../../util/stripePaymentRequest';
 
 import {
   Heading,
@@ -251,6 +252,8 @@ const initialState = {
   // The mode can be 'onetimePayment', 'defaultCard', or 'replaceCard'
   // Check SavedCardDetails component for more information
   paymentMethod: null,
+  paymentRequestButtonShown: false,
+  walletError: null,
 };
 
 /**
@@ -308,6 +311,14 @@ class StripePaymentForm extends Component {
     this.finalFormAPI = null;
     this.cardContainer = null;
     this._stripeMountActive = false;
+    this.paymentRequestMountRef = React.createRef();
+    this.paymentRequest = null;
+    this.paymentRequestButton = null;
+    this._walletPayCurrency = null;
+    this._walletPayCountry = null;
+    this.handleWalletPaymentMethod = this.handleWalletPaymentMethod.bind(this);
+    this.tearDownPaymentRequestButton = this.tearDownPaymentRequestButton.bind(this);
+    this.syncPaymentRequestSetup = this.syncPaymentRequestSetup.bind(this);
   }
 
   async componentDidMount() {
@@ -335,11 +346,29 @@ class StripePaymentForm extends Component {
       if (!(hasHandledCardPayment || defaultPaymentMethod || loadingData)) {
         this.initializeStripeElement();
       }
+      this.syncPaymentRequestSetup();
+    }
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    const walletDepsChanged =
+      prevProps.payinTotalForPaymentRequest !== this.props.payinTotalForPaymentRequest ||
+      prevProps.hasHandledCardPayment !== this.props.hasHandledCardPayment ||
+      prevProps.confirmPaymentError !== this.props.confirmPaymentError ||
+      prevProps.listingTitle !== this.props.listingTitle ||
+      prevProps.marketplaceName !== this.props.marketplaceName ||
+      prevProps.defaultPaymentMethod !== this.props.defaultPaymentMethod ||
+      prevProps.onWalletConfirmPayment !== this.props.onWalletConfirmPayment ||
+      prevProps.loadingData !== this.props.loadingData;
+
+    if (walletDepsChanged || prevState.paymentMethod !== this.state.paymentMethod) {
+      this.syncPaymentRequestSetup();
     }
   }
 
   componentWillUnmount() {
     this._stripeMountActive = false;
+    this.tearDownPaymentRequestButton();
     if (this.card) {
       this.card.removeEventListener('change', this.handleCardValueChange);
       this.card.unmount();
@@ -420,6 +449,173 @@ class StripePaymentForm extends Component {
       };
     });
   }
+
+  tearDownPaymentRequestButton() {
+    if (this.paymentRequestButton) {
+      try {
+        this.paymentRequestButton.unmount();
+      } catch (e) {
+        // ignore
+      }
+      this.paymentRequestButton = null;
+    }
+    if (this.paymentRequest) {
+      try {
+        this.paymentRequest.off('paymentmethod');
+      } catch (e) {
+        // ignore: Stripe.js version differences
+      }
+      this.paymentRequest = null;
+    }
+    this._walletPayCurrency = null;
+    this._walletPayCountry = null;
+    if (
+      this._stripeMountActive &&
+      (this.state.paymentRequestButtonShown || this.state.walletError)
+    ) {
+      this.setState({ paymentRequestButtonShown: false, walletError: null });
+    }
+  }
+
+  syncPaymentRequestSetup() {
+    const {
+      payinTotalForPaymentRequest,
+      stripePublishableKey,
+      listingTitle,
+      marketplaceName,
+      config,
+      hasHandledCardPayment,
+      confirmPaymentError,
+      onWalletConfirmPayment,
+      loadingData,
+      defaultPaymentMethod,
+    } = this.props;
+
+    const billingDetailsNeeded = !(hasHandledCardPayment || confirmPaymentError);
+
+    if (
+      !this.stripe ||
+      typeof this.stripe.paymentRequest !== 'function' ||
+      !stripePublishableKey ||
+      !payinTotalForPaymentRequest ||
+      loadingData ||
+      !billingDetailsNeeded ||
+      hasHandledCardPayment ||
+      typeof onWalletConfirmPayment !== 'function'
+    ) {
+      this.tearDownPaymentRequestButton();
+      return;
+    }
+
+    const { amount: rawAmount, currency } = payinTotalForPaymentRequest;
+    const amount = Number(rawAmount);
+    if (!Number.isFinite(amount) || !currency) {
+      this.tearDownPaymentRequestButton();
+      return;
+    }
+
+    const ensuredDefault = ensurePaymentMethodCard(defaultPaymentMethod);
+    const hasDefaultPaymentMethod = !!ensuredDefault.id;
+    const selectedPaymentMethod = getPaymentMethod(this.state.paymentMethod, hasDefaultPaymentMethod);
+    if (selectedPaymentMethod === 'defaultCard') {
+      this.tearDownPaymentRequestButton();
+      return;
+    }
+
+    const supportedCountries = config?.stripe?.supportedCountries || [];
+    const country = getPaymentRequestCountryForCurrency(currency, supportedCountries);
+    const currencyKey = currency.toUpperCase();
+    const needsRecreate =
+      !this.paymentRequest ||
+      this._walletPayCurrency !== currencyKey ||
+      this._walletPayCountry !== country;
+
+    const totalLabel = listingTitle || marketplaceName || 'Total';
+
+    if (needsRecreate) {
+      this.tearDownPaymentRequestButton();
+      this.paymentRequest = this.stripe.paymentRequest({
+        country,
+        currency: currency.toLowerCase(),
+        total: {
+          label: totalLabel,
+          amount,
+        },
+        requestPayerName: true,
+        requestPayerEmail: true,
+      });
+      this._walletPayCurrency = currencyKey;
+      this._walletPayCountry = country;
+
+      this.paymentRequest.on('paymentmethod', this.handleWalletPaymentMethod);
+
+      this.paymentRequest.canMakePayment().then(result => {
+        if (!this._stripeMountActive || !result || !this.paymentRequestMountRef.current) {
+          return;
+        }
+        const elements = this.stripe.elements(stripeElementsOptions);
+        this.paymentRequestButton = elements.create('paymentRequestButton', {
+          paymentRequest: this.paymentRequest,
+          style: {
+            paymentRequestButton: {
+              type: 'default',
+              theme: 'dark',
+              height: '48px',
+            },
+          },
+        });
+        this.paymentRequestButton.mount(this.paymentRequestMountRef.current);
+        if (this._stripeMountActive) {
+          this.setState({ paymentRequestButtonShown: true });
+        }
+      });
+    } else if (typeof this.paymentRequest.update === 'function') {
+      // Stripe.js: `update` may return undefined (sync) or a Promise, depending on version.
+      try {
+        const updated = this.paymentRequest.update({
+          total: {
+            label: totalLabel,
+            amount,
+          },
+        });
+        if (updated != null && typeof updated.catch === 'function') {
+          updated.catch(() => {
+            /* non-fatal */
+          });
+        }
+      } catch (e) {
+        /* non-fatal */
+      }
+    }
+  }
+
+  async handleWalletPaymentMethod(ev) {
+    const { onWalletConfirmPayment, intl } = this.props;
+    const formApi = this.finalFormAPI;
+    if (!formApi || typeof onWalletConfirmPayment !== 'function') {
+      ev.complete('fail');
+      return;
+    }
+    const { invalid, values } = formApi.getState();
+    if (invalid) {
+      ev.complete('fail');
+      if (this._stripeMountActive) {
+        this.setState({
+          walletError: intl.formatMessage({ id: 'StripePaymentForm.walletFormInvalidError' }),
+        });
+      }
+      return;
+    }
+    if (this._stripeMountActive) {
+      this.setState({ walletError: null });
+    }
+    await onWalletConfirmPayment({
+      paymentMethod: ev.paymentMethod,
+      formValues: values,
+      completePaymentRequest: status => ev.complete(status),
+    });
+  }
+
   handleSubmit(values) {
     const {
       onSubmit,
@@ -490,12 +686,21 @@ class StripePaymentForm extends Component {
 
     this.finalFormAPI = formApi;
 
+    const { payinTotalForPaymentRequest, onWalletConfirmPayment } = this.props;
+
     const ensuredDefaultPaymentMethod = ensurePaymentMethodCard(defaultPaymentMethod);
     const billingDetailsNeeded = !(hasHandledCardPayment || confirmPaymentError);
 
     const { cardValueValid, paymentMethod } = this.state;
     const hasDefaultPaymentMethod = ensuredDefaultPaymentMethod.id;
     const selectedPaymentMethod = getPaymentMethod(paymentMethod, hasDefaultPaymentMethod);
+
+    const showWalletSection =
+      !!payinTotalForPaymentRequest &&
+      typeof onWalletConfirmPayment === 'function' &&
+      billingDetailsNeeded &&
+      !loadingData &&
+      selectedPaymentMethod !== 'defaultCard';
     const { onetimePaymentNeedsAttention, showOnetimePaymentFields } = checkOnetimePaymentFields(
       cardValueValid,
       selectedPaymentMethod,
@@ -676,6 +881,29 @@ class StripePaymentForm extends Component {
             />
           </div>
         ) : null}
+
+        {showWalletSection ? (
+          <div className={css.walletPaySection}>
+            {this.state.paymentRequestButtonShown ? (
+              <p className={css.walletOrDivider}>
+                <FormattedMessage id="StripePaymentForm.walletOrExpressPay" />
+              </p>
+            ) : null}
+            <Heading as="h3" rootClassName={css.heading}>
+              <FormattedMessage id="StripePaymentForm.walletPayHeading" />
+            </Heading>
+            <div
+              className={classNames(css.walletButtonMount, {
+                [css.walletButtonHidden]: !this.state.paymentRequestButtonShown,
+              })}
+              ref={this.paymentRequestMountRef}
+            />
+            {this.state.walletError ? (
+              <span className={css.error}>{this.state.walletError}</span>
+            ) : null}
+          </div>
+        ) : null}
+
         <div className={css.submitContainer}>
           {hasPaymentErrors ? (
             <span className={css.errorMessage}>{paymentErrorMessage}</span>

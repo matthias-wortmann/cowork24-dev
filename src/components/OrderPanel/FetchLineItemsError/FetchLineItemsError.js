@@ -21,6 +21,10 @@ const FetchLineItemsError = props => {
     <span className={css.error}>
       <FormattedMessage id="FetchLineItemsError.providerCommissionBiggerThanMinPrice" />
     </span>
+  ) : hasError && typeof error.statusText === 'string' && error.statusText.length > 0 ? (
+    <span className={css.error} role="alert">
+      {error.statusText}
+    </span>
   ) : hasError ? (
     <span className={css.error}>
       <FormattedMessage id="FetchLineItemsError.unknownError" />

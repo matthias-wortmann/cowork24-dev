@@ -169,11 +169,18 @@ export const handlePageData = ({ orderData, listing, transaction }, storageKey, 
 
   const hasDataInProps = !!(orderData && listing && hasNavigatedThroughLink);
   if (hasDataInProps) {
-    // Store data only if data is passed through props and user has navigated through a link.
     storeData(orderData, listing, transaction, storageKey);
+    return { orderData, listing, transaction };
+  }
+
+  // Redux already has checkout payload after setInitialValues + history.push, but
+  // history.action can still be POP in some timings (router/React 18). Previously we only
+  // read sessionStorage here — empty for many logged-in flows — which produced an empty page.
+  if (orderData && listing) {
+    storeData(orderData, listing, transaction, storageKey);
+    return { orderData, listing, transaction };
   }
 
   // NOTE: stored data can be empty if user has already successfully completed transaction.
-  const pageData = hasDataInProps ? { orderData, listing, transaction } : storedData(storageKey);
-  return pageData;
+  return storedData(storageKey);
 };

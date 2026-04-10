@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { compose } from 'redux';
 import { connect } from 'react-redux';
 import { useHistory } from 'react-router-dom';
@@ -50,6 +50,9 @@ import CheckoutPageWithInquiryProcess from './CheckoutPageWithInquiryProcess';
 
 const STORAGE_KEY = 'CheckoutPage';
 
+/** Batches rapid orderData/config updates so we do not spam speculate + Stripe customer fetches (429). */
+const CHECKOUT_STRIPE_INITIAL_DEBOUNCE_MS = 400;
+
 const onSubmitCallback = () => {
   clearData(STORAGE_KEY);
 };
@@ -65,50 +68,85 @@ const getProcessName = pageData => {
 };
 
 const EnhancedCheckoutPage = props => {
-  const [pageData, setPageData] = useState({});
-  const [isDataLoaded, setIsDataLoaded] = useState(false);
-  const config = useConfiguration();
-  const routeConfiguration = useRouteConfiguration();
-  const intl = useIntl();
-  const history = useHistory();
-
-  useEffect(() => {
-    const {
-      currentUser,
-      orderData,
-      listing,
-      transaction,
-      fetchSpeculatedTransaction,
-      fetchStripeCustomer,
-    } = props;
-    const initialData = { orderData, listing, transaction };
-    const data = handlePageData(initialData, STORAGE_KEY, history);
-    setPageData(data || {});
-    setIsDataLoaded(true);
-
-    // Do not fetch extra data if user is not active (E.g. they are in pending-approval state.)
-    if (isUserAuthorized(currentUser)) {
-      // This is for processes using payments with Stripe integration
-      if (getProcessName(data) !== INQUIRY_PROCESS_NAME) {
-        // Fetch StripeCustomer and speculateTransition for transactions that include Stripe payments
-        loadInitialDataForStripePayments({
-          pageData: data || {},
-          fetchSpeculatedTransaction,
-          fetchStripeCustomer,
-          config,
-        });
-      }
-    }
-  }, []);
-
   const {
     currentUser,
+    orderData,
+    listing: listingFromRedux,
+    transaction,
+    dispatch,
     params,
     scrollingDisabled,
     speculateTransactionInProgress,
     onInquiryWithoutPayment,
     initiateOrderError,
   } = props;
+
+  const [pageData, setPageData] = useState({});
+  const [isDataLoaded, setIsDataLoaded] = useState(false);
+  const config = useConfiguration();
+  const routeConfiguration = useRouteConfiguration();
+  const intl = useIntl();
+  const history = useHistory();
+  const stripeInitialLoadTimerRef = useRef(null);
+  /** Context config is often a new object each render; it must not retrigger speculate. */
+  const configRef = useRef(config);
+  configRef.current = config;
+  /** fetchCurrentUser (via stripeCustomer) replaces currentUser with a new object reference each time — that caused a speculate loop + 429. */
+  const checkoutUserUuid = currentUser?.id?.uuid ?? null;
+  const currentUserRef = useRef(currentUser);
+  currentUserRef.current = currentUser;
+
+  // Re-sync when Redux/session data arrives after first paint (empty `[]` only ran once and
+  // could leave pageData {} if props were still null on mount).
+  useEffect(() => {
+    const initialData = { orderData, listing: listingFromRedux, transaction };
+    const data = handlePageData(initialData, STORAGE_KEY, history);
+    setPageData(data || {});
+    setIsDataLoaded(true);
+
+    const clearScheduledStripeLoad = () => {
+      if (stripeInitialLoadTimerRef.current) {
+        clearTimeout(stripeInitialLoadTimerRef.current);
+        stripeInitialLoadTimerRef.current = null;
+      }
+    };
+
+    if (!isUserAuthorized(currentUserRef.current)) {
+      clearScheduledStripeLoad();
+      return;
+    }
+    if (getProcessName(data) === INQUIRY_PROCESS_NAME) {
+      clearScheduledStripeLoad();
+      return;
+    }
+
+    const pd = data || {};
+    const hasCheckoutPayload =
+      pd.listing?.id && (pd.orderData != null || pd.transaction?.id);
+    if (!hasCheckoutPayload) {
+      clearScheduledStripeLoad();
+      return;
+    }
+
+    clearScheduledStripeLoad();
+    stripeInitialLoadTimerRef.current = setTimeout(() => {
+      stripeInitialLoadTimerRef.current = null;
+
+      const fetchSpeculatedTransaction = (params, processAlias, txId, transitionName, isPrivileged) =>
+        dispatch(speculateTransaction(params, processAlias, txId, transitionName, isPrivileged));
+      const fetchStripeCustomer = () => dispatch(stripeCustomer());
+
+      loadInitialDataForStripePayments({
+        pageData: pd,
+        fetchSpeculatedTransaction,
+        fetchStripeCustomer,
+        config: configRef.current,
+      });
+    }, CHECKOUT_STRIPE_INITIAL_DEBOUNCE_MS);
+
+    return clearScheduledStripeLoad;
+  }, [orderData, listingFromRedux, transaction, checkoutUserUuid, history, dispatch]);
+
   const processName = getProcessName(pageData);
   const isInquiryProcess = processName === INQUIRY_PROCESS_NAME;
 

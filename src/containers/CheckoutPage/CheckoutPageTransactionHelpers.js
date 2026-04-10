@@ -3,8 +3,35 @@ import { findRouteByRouteName } from '../../util/routes';
 import { ensureStripeCustomer, ensureTransaction } from '../../util/data';
 import { minutesBetween } from '../../util/dates';
 import { formatMoney } from '../../util/currency';
-import { NEGOTIATION_PROCESS_NAME, resolveLatestProcessName } from '../../transactions/transaction';
+import {
+  NEGOTIATION_PROCESS_NAME,
+  resolveLatestProcessName,
+} from '../../transactions/transaction';
 import { storeData } from './CheckoutPageSessionHelpers';
+
+/**
+ * Transition for speculate / initiate-payment. default-negotiation has no REQUEST_PAYMENT;
+ * payment only from offer-pending via REQUEST_PAYMENT_TO_ACCEPT_OFFER.
+ *
+ * @param {Object} process from getProcess()
+ * @param {string} processName raw process name from listing or transaction
+ * @param {Object|null|undefined} tx transaction entity or null when initiating
+ * @returns {string|null} transition name, or null when no payment speculate applies
+ */
+export const getRequestPaymentTransition = (process, processName, tx) => {
+  const resolved = resolveLatestProcessName(processName);
+  if (resolved === NEGOTIATION_PROCESS_NAME) {
+    if (tx && process.getState(tx) === process.states.OFFER_PENDING) {
+      return process.transitions.REQUEST_PAYMENT_TO_ACCEPT_OFFER;
+    }
+    return null;
+  }
+  const isInquiryInPaymentProcess =
+    tx?.attributes?.lastTransition === process.transitions.INQUIRE;
+  return isInquiryInPaymentProcess
+    ? process.transitions.REQUEST_PAYMENT_AFTER_INQUIRY
+    : process.transitions.REQUEST_PAYMENT;
+};
 
 /**
  * Extract relevant transaction type data from listing type
@@ -22,6 +49,27 @@ export const getTransactionTypeData = (listingType, unitTypeInPublicData, config
   // Note: we want to rely on unitType written in public data of the listing entity.
   //       The listingType configuration might have changed on the fly.
   return unitTypeInPublicData ? { unitType: unitTypeInPublicData, ...rest } : {};
+};
+
+/**
+ * Normalize booking range from checkout `orderData`.
+ * Listing submit uses `bookingDates: { bookingStart, bookingEnd }`; some callers (e.g. line-item fetch) use flat keys.
+ *
+ * @param {Object} orderData
+ * @returns {{ bookingStart: Date, bookingEnd: Date }|null}
+ */
+export const bookingDatesFromOrderData = orderData => {
+  if (!orderData) {
+    return null;
+  }
+  const nested = orderData.bookingDates;
+  if (nested?.bookingStart && nested?.bookingEnd) {
+    return nested;
+  }
+  if (orderData.bookingStart && orderData.bookingEnd) {
+    return { bookingStart: orderData.bookingStart, bookingEnd: orderData.bookingEnd };
+  }
+  return null;
 };
 
 /**
@@ -181,6 +229,8 @@ export const processCheckoutWithPayment = (orderParams, extraPaymentParams) => {
     hasPaymentIntentUserActionsDone,
     isPaymentFlowUseSavedCard,
     isPaymentFlowPayAndSaveCard,
+    isPaymentFlowWallet,
+    walletPaymentMethodId,
     message,
     onConfirmCardPayment,
     onConfirmPayment,
@@ -210,16 +260,19 @@ export const processCheckoutWithPayment = (orderParams, extraPaymentParams) => {
     // fnParams should be { listingId, deliveryMethod?, quantity?, bookingDates?, paymentMethod?.setupPaymentMethodForSaving?, protectedData }
     const hasPaymentIntents = storedTx.attributes.protectedData?.stripePaymentIntents;
 
-    const isOfferPendingInNegotiationProcess =
-      resolveLatestProcessName(processAlias.split('/')[0]) === NEGOTIATION_PROCESS_NAME &&
-      storedTx.attributes.state === `state/${process.states.OFFER_PENDING}`;
-
-    const requestTransition =
-      storedTx?.attributes?.lastTransition === process.transitions.INQUIRE
-        ? process.transitions.REQUEST_PAYMENT_AFTER_INQUIRY
-        : isOfferPendingInNegotiationProcess
-        ? process.transitions.REQUEST_PAYMENT_TO_ACCEPT_OFFER
-        : process.transitions.REQUEST_PAYMENT;
+    const processNameFromAlias = processAlias.split('/')[0];
+    const requestTransition = getRequestPaymentTransition(
+      process,
+      processNameFromAlias,
+      storedTx
+    );
+    if (!requestTransition) {
+      return Promise.reject(
+        new Error(
+          'CheckoutPage: no request-payment transition for this process/transaction state'
+        )
+      );
+    }
     const isPrivileged = process.isPrivileged(requestTransition);
 
     // If paymentIntent exists, order has been initiated previously.
@@ -254,11 +307,19 @@ export const processCheckoutWithPayment = (orderParams, extraPaymentParams) => {
       : null;
 
     const { stripe, card, billingDetails, paymentIntent } = extraPaymentParams;
-    const stripeElementMaybe = !isPaymentFlowUseSavedCard ? { card } : {};
+
+    // Apple Pay / Google Pay (Payment Request): PM id from wallet, no Card Element.
+    const useWallet =
+      isPaymentFlowWallet && typeof walletPaymentMethodId === 'string' && walletPaymentMethodId.length > 0;
+
+    const stripeElementMaybe =
+      useWallet || isPaymentFlowUseSavedCard ? {} : { card };
 
     // Note: For basic USE_SAVED_CARD scenario, we have set it already on API side, when PaymentIntent was created.
     // However, the payment_method is save here for USE_SAVED_CARD flow if customer first attempted onetime payment
-    const paymentParams = !isPaymentFlowUseSavedCard
+    const paymentParams = useWallet
+      ? { payment_method: walletPaymentMethodId }
+      : !isPaymentFlowUseSavedCard
       ? {
           payment_method: {
             billing_details: billingDetails,
@@ -316,6 +377,11 @@ export const processCheckoutWithPayment = (orderParams, extraPaymentParams) => {
   //////////////////////////////////////////////////////////
   const fnSavePaymentMethod = fnParams => {
     const pi = createdPaymentIntent || paymentIntent;
+
+    // Wallet PMs are not attached as the customer's default saved card in this template.
+    if (isPaymentFlowWallet) {
+      return Promise.resolve({ ...fnParams, paymentMethodSaved: true });
+    }
 
     if (isPaymentFlowPayAndSaveCard) {
       return onSavePaymentMethod(ensuredStripeCustomer, pi.payment_method)

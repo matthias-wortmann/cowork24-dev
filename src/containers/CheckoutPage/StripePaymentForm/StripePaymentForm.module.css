@@ -5,6 +5,34 @@
   flex-direction: column;
 }
 
+.walletPaySection {
+  margin-bottom: 32px;
+
+  @media (--viewportMedium) {
+    margin-bottom: 40px;
+  }
+}
+
+.walletButtonMount {
+  min-height: 48px;
+}
+
+.walletButtonHidden {
+  display: none;
+}
+
+.walletOrDivider {
+  composes: h5 from global;
+
+  color: var(--colorGrey600);
+  text-align: center;
+  margin: 20px 0 0 0;
+
+  @media (--viewportMedium) {
+    margin: 24px 0 0 0;
+  }
+}
+
 .locationWrapper {
   margin-bottom: 40px;
 }

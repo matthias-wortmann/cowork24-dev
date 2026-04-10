@@ -358,7 +358,7 @@ const fetchTransactionLineItemsPayloadCreator = (
     })
     .catch(e => {
       log.error(e, 'fetching-line-items-failed', {
-        listingId: listingId.uuid,
+        listingId: listingId?.uuid ?? listingId,
         orderData,
         statusText: e.statusText,
       });
