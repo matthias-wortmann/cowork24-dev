@@ -66,6 +66,11 @@ const optimizeLogoUrl = url => {
   }
 
   if (url.includes('sharetribe.imgix.net')) {
+    // Sharetribe/imgix URLs are often signed (`s=`). Appending params invalidates the
+    // signature and breaks loading — use the URL as provided.
+    if (/[?&]s=/.test(url)) {
+      return url;
+    }
     const separator = url.includes('?') ? '&' : '?';
     return `${url}${separator}auto=format,compress&fit=crop&w=160&h=80`;
   }
@@ -97,9 +102,8 @@ const LogoItem = ({ name, logo, color }) => {
           src={optimizeLogoUrl(logo)}
           alt={name}
           className={css.logoImage}
-          loading="lazy"
+          loading="eager"
           decoding="async"
-          fetchpriority="low"
           width="80"
           height="40"
           onError={() => setImageLoadFailed(true)}
