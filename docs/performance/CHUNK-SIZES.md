@@ -17,7 +17,7 @@ Erzeugt mit `yarn build` (Web-Build). Die genauen Hash-Namen wechseln pro Build;
 | **~16 kB** | `EditListingPage` |
 | **~13 kB** | `TransactionPage` |
 | **~12 kB** | Shared-Chunk `3743` (Landing + PageBuilder + CategoryBar/CSS-Gruppe; siehe Build-Warnung zu CSS-Reihenfolge) |
-| **~801 B** | `LandingPage.*.chunk.js` – dünner Einstieg; untere Sektionen (Logo-Slider, Standorte, Space Owner, FAQ) als **eigene Lazy-Chunks** (`SectionLogoSlider`, `SectionLocations`, …) |
+| **~801 B** | `LandingPage.*.chunk.js` – Einstiegs-Chunk; untere Sektionen wieder **statisch** eingebunden (Lazy-Splitting wurde wegen Desktop-PSI-Regression zurückgenommen). |
 
 ## Hinweise für weitere Arbeit
 
