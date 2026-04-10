@@ -122,10 +122,11 @@ export const IncludeScripts = props => {
     //       gtag.js sends initial page_view event after page load.
     //       but we need to handle subsequent events for in-app navigation.
     //       This is done in src/analytics/handlers.js
+    // defer: run after document is parsed (less main-thread contention during first paint than async fire-when-ready).
     analyticsLibraries.push(
       <script
         key="gtag.js"
-        async
+        defer
         src={`https://www.googletagmanager.com/gtag/js?id=${googleAnalyticsId}`}
         crossOrigin="anonymous"
       ></script>

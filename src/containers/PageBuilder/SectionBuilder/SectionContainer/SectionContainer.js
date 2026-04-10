@@ -28,7 +28,17 @@ import css from './SectionContainer.module.css';
  * @returns {JSX.Element} containing wrapper that can be used inside Block components.
  */
 const SectionContainer = props => {
-  const { className, rootClassName, id, as, children, appearance, options, ...otherProps } = props;
+  const {
+    className,
+    rootClassName,
+    id,
+    as,
+    children,
+    appearance,
+    options,
+    appearanceFieldProps,
+    ...otherProps
+  } = props;
   const Tag = as || 'section';
   const classes = classNames(rootClassName || css.root, className);
 
@@ -39,6 +49,7 @@ const SectionContainer = props => {
           data={{ alt: `Background image for ${id}`, ...appearance }}
           className={className}
           options={options}
+          {...(appearanceFieldProps || {})}
         />
       ) : null}
 

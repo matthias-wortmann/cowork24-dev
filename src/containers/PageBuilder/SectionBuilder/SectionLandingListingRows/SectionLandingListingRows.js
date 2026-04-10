@@ -26,7 +26,7 @@ const LANDING_CARD_RENDER_SIZES = [
  * @param {Object} props.row - landingPage.listingRows entry
  * @returns {JSX.Element|null}
  */
-const LandingListingRow = ({ row }) => {
+const LandingListingRow = ({ row, isFirstRow }) => {
   const intl = useIntl();
   const rowState = useSelector(state => state.LandingPage?.listingRows?.[row.id] || {});
   const { ids = [], inProgress, error, viewAllSearchParams = {} } = rowState;
@@ -59,7 +59,7 @@ const LandingListingRow = ({ row }) => {
             { title: intl.formatMessage({ id: row.titleTranslationKey }) }
           )}
         >
-          {listings.map(listing => (
+          {listings.map((listing, index) => (
             <li key={listing.id.uuid} className={css.cardWrap}>
               <div className={css.cardShell}>
                 <ListingCard
@@ -67,6 +67,7 @@ const LandingListingRow = ({ row }) => {
                   listing={listing}
                   renderSizes={LANDING_CARD_RENDER_SIZES}
                   intl={intl}
+                  highImagePriority={isFirstRow && index === 0}
                 />
               </div>
             </li>
@@ -118,8 +119,8 @@ const SectionLandingListingRows = props => {
       )}
     >
       <div className={css.wrapper}>
-        {rows.map(row => (
-          <LandingListingRow key={row.id} row={row} />
+        {rows.map((row, rowIndex) => (
+          <LandingListingRow key={row.id} row={row} isFirstRow={rowIndex === 0} />
         ))}
       </div>
     </section>

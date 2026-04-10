@@ -285,7 +285,7 @@ class PageComponent extends Component {
             <link rel="apple-touch-icon" sizes="180x180" href={appleTouchIcon} />
           ) : null}
 
-          <link rel="manifest" href={webmanifestURL(marketplaceRootURL)} />
+          <link rel="manifest" href={webmanifestURL()} />
 
           <meta httpEquiv="Content-Type" content="text/html; charset=UTF-8" />
           <meta httpEquiv="Content-Language" content={intl.locale} />

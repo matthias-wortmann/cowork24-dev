@@ -44,12 +44,23 @@ export const CustomAppearance = React.forwardRef((props, ref) => {
     backgroundImageOverlay,
     alt = 'background image',
     sizes,
+    fetchPriority,
+    loading,
+    decoding,
+    width,
+    height,
   } = props;
 
   const getVariantNames = img => {
     const { variants } = img?.attributes || {};
     return variants ? Object.keys(variants) : [];
   };
+
+  const variantNames = getVariantNames(backgroundImage);
+  const firstVariant =
+    variantNames.length > 0 ? backgroundImage?.attributes?.variants?.[variantNames[0]] : null;
+  const intrinsicWidth = width ?? firstVariant?.width;
+  const intrinsicHeight = height ?? firstVariant?.height;
 
   const backgroundColorMaybe = backgroundColor ? { backgroundColor } : {};
   // On top of the background image there could be an overlay that mixes in some color (e.g. black)
@@ -70,8 +81,13 @@ export const CustomAppearance = React.forwardRef((props, ref) => {
           ref={ref}
           alt={alt}
           image={backgroundImage}
-          variants={getVariantNames(backgroundImage)}
+          variants={variantNames}
           sizes={sizes}
+          width={intrinsicWidth}
+          height={intrinsicHeight}
+          fetchPriority={fetchPriority}
+          loading={loading}
+          decoding={decoding}
         />
       ) : null}
       {hasBackgroundOverlay ? <div className={css.backgroundOverlay} style={overlayStyle} /> : null}

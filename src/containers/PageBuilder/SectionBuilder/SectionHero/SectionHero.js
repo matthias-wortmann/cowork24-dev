@@ -55,6 +55,10 @@ const SectionHero = props => {
 
   const hasHeaderFields = hasDataInFields([title, description, callToAction], fieldOptions);
 
+  const heroHasLcpBackground =
+    appearance?.fieldType === 'customAppearance' &&
+    appearance?.backgroundImage?.type === 'imageAsset';
+
   return (
     <SectionContainer
       id={sectionId}
@@ -62,6 +66,11 @@ const SectionHero = props => {
       rootClassName={classNames(rootClassName || css.root)}
       appearance={appearance}
       options={fieldOptions}
+      appearanceFieldProps={
+        heroHasLcpBackground
+          ? { fetchPriority: 'high', loading: 'eager', decoding: 'async' }
+          : undefined
+      }
     >
       {hasHeaderFields ? (
         <header className={defaultClasses.sectionDetails}>
