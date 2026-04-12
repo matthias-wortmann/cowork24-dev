@@ -25,11 +25,10 @@ describe('FetchLineItemsError', () => {
     expect(unknownErrorText).toBeInTheDocument();
   });
 
-  it('renders unknown error message if error status text is incorrect', () => {
+  it('renders statusText when error includes a non-empty statusText string', () => {
     const error = { statusText: 'Error status text' };
-    const tree = render(<FetchLineItemsError error={error} />);
-    const unknownErrorText = screen.getByText('FetchLineItemsError.unknownError');
-    expect(unknownErrorText).toBeInTheDocument();
+    render(<FetchLineItemsError error={error} />);
+    expect(screen.getByRole('alert')).toHaveTextContent('Error status text');
   });
 
   it('renders provider commission is bigger than minimum commission error message with correctly formed error object', () => {
