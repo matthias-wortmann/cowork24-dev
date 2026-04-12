@@ -169,6 +169,18 @@ export const getShippingDetailsMaybe = formValues => {
 };
 
 /**
+ * Whether shipping form has the minimum fields required before checkout (e.g. Apple Pay with Versand).
+ * Mirrors the guard in {@link getShippingDetailsMaybe}.
+ *
+ * @param {Object} formValues - Final Form values
+ * @returns {boolean}
+ */
+export const hasShippingDetailsForOrder = formValues => {
+  const { recipientName, recipientAddressLine1, recipientPostal } = formValues || {};
+  return !!(recipientName && recipientAddressLine1 && recipientPostal);
+};
+
+/**
  * Check if the default payment method exists for the currentUser
  * @param {Boolean} stripeCustomerFetched
  * @param {Object} currentUser

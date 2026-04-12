@@ -117,8 +117,10 @@ cards runs in `processCheckoutWithPayment` (wallet path uses `payment_method: <p
 - **Google Pay:** Chrome with a saved card in Google Pay; on desktop you may need a real card in
   wallet—test cards behave like normal cards for the PaymentIntent, but the wallet sheet still
   depends on Google Pay availability.
-- Fill **required billing (and shipping) fields** on the checkout form first; the template shows an
-  error if the form is invalid when using the wallet button.
+- **Express checkout:** billing name, email, phone (when offered), and billing address are taken
+  from the wallet sheet where Apple/Google provides them — you do not need to fill the manual billing
+  block first. If delivery is **shipping**, complete the **shipping address** section first; the
+  wallet button still appears above the card/billing fields for a faster path after that.
 
 **Note:** Additional Stripe methods (e.g. iDEAL, Klarna) are not enabled by this button alone; they
 typically need Stripe **Payment Element** and broader backend/marketplace changes beyond the default

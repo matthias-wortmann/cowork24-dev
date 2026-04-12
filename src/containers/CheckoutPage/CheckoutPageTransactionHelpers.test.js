@@ -5,6 +5,7 @@ import { createTransaction } from '../../util/testData';
 import {
   bookingDatesFromOrderData,
   getRequestPaymentTransition,
+  hasShippingDetailsForOrder,
 } from './CheckoutPageTransactionHelpers';
 
 describe('bookingDatesFromOrderData', () => {
@@ -96,5 +97,27 @@ describe('getRequestPaymentTransition', () => {
       ],
     });
     expect(getRequestPaymentTransition(process, 'default-negotiation', tx)).toBe(null);
+  });
+});
+
+describe('hasShippingDetailsForOrder', () => {
+  it('returns true when name, line1 and postal are set', () => {
+    expect(
+      hasShippingDetailsForOrder({
+        recipientName: 'A',
+        recipientAddressLine1: 'B',
+        recipientPostal: 'C',
+      })
+    ).toBe(true);
+  });
+
+  it('returns false when any required field is missing', () => {
+    expect(
+      hasShippingDetailsForOrder({
+        recipientName: 'A',
+        recipientAddressLine1: 'B',
+      })
+    ).toBe(false);
+    expect(hasShippingDetailsForOrder(null)).toBe(false);
   });
 });

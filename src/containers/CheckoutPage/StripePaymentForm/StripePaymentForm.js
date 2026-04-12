@@ -25,6 +25,7 @@ import {
 } from '../../../components';
 
 import ShippingDetails from '../ShippingDetails/ShippingDetails';
+import { hasShippingDetailsForOrder } from '../CheckoutPageTransactionHelpers';
 
 import css from './StripePaymentForm.module.css';
 
@@ -543,6 +544,7 @@ class StripePaymentForm extends Component {
         },
         requestPayerName: true,
         requestPayerEmail: true,
+        requestPayerPhone: true,
       });
       this._walletPayCurrency = currencyKey;
       this._walletPayCountry = country;
@@ -590,18 +592,21 @@ class StripePaymentForm extends Component {
   }
 
   async handleWalletPaymentMethod(ev) {
-    const { onWalletConfirmPayment, intl } = this.props;
+    const { onWalletConfirmPayment, intl, askShippingDetails } = this.props;
     const formApi = this.finalFormAPI;
     if (!formApi || typeof onWalletConfirmPayment !== 'function') {
       ev.complete('fail');
       return;
     }
-    const { invalid, values } = formApi.getState();
-    if (invalid) {
+    const { values } = formApi.getState();
+    // Billing name/address come from Apple Pay / Google Pay on the PaymentMethod — no manual fields.
+    if (askShippingDetails && !hasShippingDetailsForOrder(values)) {
       ev.complete('fail');
       if (this._stripeMountActive) {
         this.setState({
-          walletError: intl.formatMessage({ id: 'StripePaymentForm.walletFormInvalidError' }),
+          walletError: intl.formatMessage({
+            id: 'StripePaymentForm.walletShippingIncompleteError',
+          }),
         });
       }
       return;
@@ -791,6 +796,28 @@ class StripePaymentForm extends Component {
           intl={intl}
         />
 
+        {showWalletSection ? (
+          <div className={css.walletPaySection}>
+            <Heading as="h3" rootClassName={css.heading}>
+              <FormattedMessage id="StripePaymentForm.walletPayHeading" />
+            </Heading>
+            <div
+              className={classNames(css.walletButtonMount, {
+                [css.walletButtonHidden]: !this.state.paymentRequestButtonShown,
+              })}
+              ref={this.paymentRequestMountRef}
+            />
+            {this.state.walletError ? (
+              <span className={css.error}>{this.state.walletError}</span>
+            ) : null}
+            {billingDetailsNeeded && !loadingData ? (
+              <p className={css.walletOrDivider}>
+                <FormattedMessage id="StripePaymentForm.payWithCardAfterWallet" />
+              </p>
+            ) : null}
+          </div>
+        ) : null}
+
         {billingDetailsNeeded && !loadingData ? (
           <React.Fragment>
             {hasDefaultPaymentMethod ? (
@@ -881,28 +908,6 @@ class StripePaymentForm extends Component {
               placeholder={messagePlaceholder}
               className={css.message}
             />
-          </div>
-        ) : null}
-
-        {showWalletSection ? (
-          <div className={css.walletPaySection}>
-            {this.state.paymentRequestButtonShown ? (
-              <p className={css.walletOrDivider}>
-                <FormattedMessage id="StripePaymentForm.walletOrExpressPay" />
-              </p>
-            ) : null}
-            <Heading as="h3" rootClassName={css.heading}>
-              <FormattedMessage id="StripePaymentForm.walletPayHeading" />
-            </Heading>
-            <div
-              className={classNames(css.walletButtonMount, {
-                [css.walletButtonHidden]: !this.state.paymentRequestButtonShown,
-              })}
-              ref={this.paymentRequestMountRef}
-            />
-            {this.state.walletError ? (
-              <span className={css.error}>{this.state.walletError}</span>
-            ) : null}
           </div>
         ) : null}
 
