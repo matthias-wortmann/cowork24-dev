@@ -95,6 +95,35 @@ Read more:
 After those API calls have been made, customer is redirected to TransactionPage, where customer can
 continue messaging and view the order.
 
+### Apple Pay, Google Pay (Stripe Payment Request Button)
+
+The checkout form mounts Stripe’s **Payment Request Button** when a speculative (or existing)
+transaction has `payinTotal` and line items. The browser shows **Apple Pay** or **Google Pay** when
+the customer’s device and wallet support it; the same Sharetribe + PaymentIntent sequence as for
+cards runs in `processCheckoutWithPayment` (wallet path uses `payment_method: <pm_id>` with
+`confirmCardPayment`).
+
+**How to test**
+
+- Use **Stripe test mode** (`pk_test_…` in `REACT_APP_STRIPE_PUBLISHABLE_KEY` and matching Connect /
+  marketplace setup in Sharetribe Console).
+- Serve the app over **HTTPS** (required for Payment Request in production-like setups). Local HTTPS
+  or a tunnel (e.g. ngrok) is enough for domain verification.
+- In the [Stripe Dashboard](https://dashboard.stripe.com/) → **Settings → Payment methods**, ensure
+  **Apple Pay** (and **Google Pay** if you test in Chrome) are enabled for your platform account.
+- **Apple Pay on the web:** register your domain under **Settings → Payment methods → Apple Pay →
+  Add domain** (Stripe walks through hosting a verification file or using their flow). Without this,
+  the button often does not appear on Safari.
+- **Google Pay:** Chrome with a saved card in Google Pay; on desktop you may need a real card in
+  wallet—test cards behave like normal cards for the PaymentIntent, but the wallet sheet still
+  depends on Google Pay availability.
+- Fill **required billing (and shipping) fields** on the checkout form first; the template shows an
+  error if the form is invalid when using the wallet button.
+
+**Note:** Additional Stripe methods (e.g. iDEAL, Klarna) are not enabled by this button alone; they
+typically need Stripe **Payment Element** and broader backend/marketplace changes beyond the default
+Sharetribe PaymentIntent + card flow.
+
 ### Inquiry transactions
 
 The transaction flow for inquiry transaction is much simpler. It just creates new transactions by

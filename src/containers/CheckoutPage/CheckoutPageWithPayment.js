@@ -247,7 +247,7 @@ const completeCheckoutAfterPayment = (response, props, setSubmitting) => {
  * Apple Pay / Google Pay: Payment Request flow with the same Sharetribe + PaymentIntent sequence as cards.
  */
 const handleWalletConfirmPayment = async (
-  { paymentMethod, formValues, completePaymentRequest },
+  { paymentMethod, formValues, completePaymentRequest, stripe: stripeFromForm },
   process,
   props,
   stripe,
@@ -257,7 +257,8 @@ const handleWalletConfirmPayment = async (
   if (submitting) {
     return;
   }
-  if (!stripe || !paymentMethod?.id) {
+  const stripeClient = stripeFromForm || stripe;
+  if (!stripeClient || !paymentMethod?.id) {
     completePaymentRequest('fail');
     return;
   }
@@ -289,7 +290,7 @@ const handleWalletConfirmPayment = async (
   const requestPaymentParams = {
     pageData,
     speculatedTransaction,
-    stripe,
+    stripe: stripeClient,
     card: null,
     billingDetails: getBillingDetails(formValues, currentUser),
     message,

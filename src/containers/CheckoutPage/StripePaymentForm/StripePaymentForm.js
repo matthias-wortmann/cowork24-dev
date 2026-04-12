@@ -613,6 +613,8 @@ class StripePaymentForm extends Component {
       paymentMethod: ev.paymentMethod,
       formValues: values,
       completePaymentRequest: status => ev.complete(status),
+      // Parent state `stripe` can lag behind; wallet UI uses this instance.
+      stripe: this.stripe,
     });
   }
 
