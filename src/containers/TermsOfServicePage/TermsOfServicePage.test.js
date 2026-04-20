@@ -19,8 +19,8 @@ describe('TermsOfServicePage', () => {
     );
 
     await waitFor(() => {
-      expect(getByText('Terms of Service')).toBeInTheDocument();
-      expect(getByText('An error occurred')).toBeInTheDocument();
+      expect(getByText('Kurzfassung für dich')).toBeInTheDocument();
+      expect(getByText('Allgemeine Geschäftsbedingungen (AGB)')).toBeInTheDocument();
     });
   });
 });

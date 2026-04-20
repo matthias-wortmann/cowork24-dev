@@ -68,35 +68,54 @@ const SectionArticle = props => {
   const hasHeaderFields = hasDataInFields([title, description, callToAction], fieldOptions);
   const hasBlocks = blocks?.length > 0;
 
+  /** AGB-/Datenschutz-Kurzfassung: eigenes, ruhiges Editorial-Layout */
+  const isLegalPlainSummary = sectionId === 'tos-plain' || sectionId === 'privacy-plain';
+
+  const headerMaybe = hasHeaderFields ? (
+    <header className={defaultClasses.sectionDetails}>
+      <Field data={title} className={defaultClasses.title} options={fieldOptions} />
+      <Field data={description} className={defaultClasses.description} options={fieldOptions} />
+      <Field data={callToAction} className={defaultClasses.ctaButton} options={fieldOptions} />
+    </header>
+  ) : null;
+
+  const blocksMaybe = hasBlocks ? (
+    <div
+      className={classNames(defaultClasses.blockContainer, css.articleMain, {
+        [css.noSidePaddings]: isInsideContainer,
+        [css.legalPlainArticleMain]: isLegalPlainSummary,
+      })}
+    >
+      <BlockBuilder
+        blocks={blocks}
+        sectionId={sectionId}
+        ctaButtonClass={defaultClasses.ctaButton}
+        options={options}
+      />
+    </div>
+  ) : null;
+
+  const body = isLegalPlainSummary ? (
+    <div className={css.legalPlainSummaryWrap}>
+      {headerMaybe}
+      {blocksMaybe}
+    </div>
+  ) : (
+    <>
+      {headerMaybe}
+      {blocksMaybe}
+    </>
+  );
+
   return (
     <SectionContainer
       id={sectionId}
-      className={className}
+      className={classNames(className, isLegalPlainSummary && css.legalPlainSummarySection)}
       rootClassName={rootClassName}
       appearance={appearance}
       options={fieldOptions}
     >
-      {hasHeaderFields ? (
-        <header className={defaultClasses.sectionDetails}>
-          <Field data={title} className={defaultClasses.title} options={fieldOptions} />
-          <Field data={description} className={defaultClasses.description} options={fieldOptions} />
-          <Field data={callToAction} className={defaultClasses.ctaButton} options={fieldOptions} />
-        </header>
-      ) : null}
-      {hasBlocks ? (
-        <div
-          className={classNames(defaultClasses.blockContainer, css.articleMain, {
-            [css.noSidePaddings]: isInsideContainer,
-          })}
-        >
-          <BlockBuilder
-            blocks={blocks}
-            sectionId={sectionId}
-            ctaButtonClass={defaultClasses.ctaButton}
-            options={options}
-          />
-        </div>
-      ) : null}
+      {body}
     </SectionContainer>
   );
 };

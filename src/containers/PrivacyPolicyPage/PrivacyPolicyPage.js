@@ -5,11 +5,12 @@ import { bool, object } from 'prop-types';
 import { compose } from 'redux';
 import { connect } from 'react-redux';
 
+import { resolvePrivacyPolicyPageAssetData } from '../../util/legalPageAssets';
 import { camelize } from '../../util/string';
 import { propTypes } from '../../util/types';
 
 import { H1 } from '../PageBuilder/Primitives/Heading';
-import FallbackPage, { fallbackSections } from './FallbackPage';
+import FallbackPage from './FallbackPage';
 import { ASSET_NAME } from './PrivacyPolicyPage.duck';
 
 const PageBuilder = loadable(() =>
@@ -39,8 +40,7 @@ const PrivacyPolicyContent = props => {
 
   const CustomHeading1 = props => <H1 as="h2" {...props} />;
 
-  const hasData = error === null && data;
-  const sectionsData = hasData ? data : fallbackSections;
+  const sectionsData = resolvePrivacyPolicyPageAssetData(data);
 
   return (
     <SectionBuilder
@@ -58,10 +58,12 @@ const PrivacyPolicyContent = props => {
 // Presentational component for PrivacyPolicyPage
 const PrivacyPolicyPageComponent = props => {
   const { pageAssetsData, inProgress, error } = props;
+  const hostedData = pageAssetsData?.[camelize(ASSET_NAME)]?.data;
+  const pageAssetsResolved = resolvePrivacyPolicyPageAssetData(hostedData);
 
   return (
     <PageBuilder
-      pageAssetsData={pageAssetsData?.[camelize(ASSET_NAME)]?.data}
+      pageAssetsData={pageAssetsResolved}
       inProgress={inProgress}
       error={error}
       fallbackPage={<FallbackPage />}

@@ -19,8 +19,8 @@ describe('PrivacyPolicyPage', () => {
     );
 
     await waitFor(() => {
-      expect(getByText('Privacy Policy')).toBeInTheDocument();
-      expect(getByText('An error occurred')).toBeInTheDocument();
+      expect(getByText('Datenschutz in Kürze')).toBeInTheDocument();
+      expect(getByText('Datenschutzerklärung (vollständige Fassung)')).toBeInTheDocument();
     });
   });
 });

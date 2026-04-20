@@ -1,0 +1,54 @@
+{
+  "sections": [
+    {
+      "sectionType": "article",
+      "sectionId": "privacy-plain",
+      "title": {
+        "fieldType": "heading1",
+        "content": "Datenschutz in Kürze"
+      },
+      "blocks": [
+        {
+          "blockType": "defaultBlock",
+          "blockId": "privacy-plain-body",
+          "text": {
+            "fieldType": "markdown",
+            "content": "### Hinweis zur Kurzfassung\n\nDieser Abschnitt fasst die Datenschutzerklärung verständlich zusammen. **Rechtlich verbindlich** ist ausschliesslich der Abschnitt [„Datenschutzerklärung (vollständige Fassung)“](#privacy-legal) weiter unten.\n\n### Das Wichtigste auf einen Blick\n\n- **Verantwortliche Stelle:** **Pinnacle Interactive GmbH**, Herzogstrasse 10, 5000 Aarau, betreibt **cowork24.ch**. Anfragen zu Datenschutz: **privacy@cowork24.ch** (bitte bei Go-Live auf die gültige Kontaktadresse prüfen).\n- **Welche Daten:** u. a. Stammdaten deines Kontos, Kommunikationsdaten, Nutzungs- und Gerätedaten, Buchungs- und Zahlungsdaten (Zahlungsdaten werden von **Zahlungsdienstleistern** wie **Stripe** verarbeitet), ggf. Standortdaten, wenn du sie freigibst.\n- **Wofür wir Daten nutzen:** Betrieb der Plattform, Vertragsabwicklung, Support, Sicherheit, Verbesserung des Angebots, gesetzliche Pflichten sowie – nur mit Einwilligung – Analyse/Marketing.\n- **Weitergabe:** Daten geben wir nur weiter, wenn das für die Plattformleistung nötig ist, du eingewilligt hast, wir rechtlich dazu verpflichtet sind oder **Auftragsbearbeiter** (z. B. **Sharetribe**, Hosting, **Stripe**, E-Mail-/Newsletter-Dienste) im Auftrag tätig werden.\n- **Cookies:** notwendige Cookies für den Betrieb; Analyse- und Marketing-Cookies nur mit Einwilligung, soweit eingesetzt.\n- **Speicherung:** nur so lange wie nötig oder gesetzlich vorgeschrieben.\n- **Deine Rechte:** Auskunft, Berichtigung, Löschung, Widerspruch, Datenherausgabe u. a. gemäss anwendbarem Datenschutzrecht (insb. **revDSG**; ggf. **DSGVO**).\n- **Beschwerde:** Du kannst dich bei der **Eidgenössischen Datenschutz- und Öffentlichkeitsbeauftragten (EDÖB)** melden.\n- **Nutzungsbedingungen:** Für die Nutzung der Plattform gelten die [Allgemeinen Geschäftsbedingungen (AGB)](/terms-of-service).\n\n[Zur vollständigen, juristischen Fassung springen →](#privacy-legal) · [Direkt zu den AGB](/terms-of-service)\n"
+          }
+        }
+      ]
+    },
+    {
+      "sectionType": "article",
+      "sectionId": "privacy-legal",
+      "appearance": {
+        "fieldType": "customAppearance",
+        "backgroundColor": "#ffffff"
+      },
+      "title": {
+        "fieldType": "heading1",
+        "content": "Datenschutzerklärung (vollständige Fassung)"
+      },
+      "blocks": [
+        {
+          "blockType": "defaultBlock",
+          "blockId": "privacy-legal-body",
+          "text": {
+            "fieldType": "markdown",
+            "content": "**Stand:** April 2026\n\n### 1. Allgemeines\n\n(1) Diese Datenschutzerklärung informiert darüber, wie die **Pinnacle Interactive GmbH**, Herzogstrasse 10, 5000 Aarau, Schweiz (nachfolgend „**wir**“, „**uns**“), als Betreiberin von **cowork24.ch** personenbezogene Daten bearbeitet.\n\n(2) Es gelten die Vorgaben des **Bundesgesetzes über den Datenschutz (revDSG)** sowie – soweit anwendbar – der **EU-Datenschutz-Grundverordnung (DSGVO)** und weitere einschlägige Bestimmungen.\n\n(3) **Kontakt Datenschutz:** privacy@cowork24.ch (bitte durch die gültige Adresse ersetzen).\n\n(4) Für die **Nutzung der Plattform** (nicht für die Datenbearbeitung im engeren Sinn) gelten die [Allgemeinen Geschäftsbedingungen (AGB)](/terms-of-service).\n\n### 2. Begriffe\n\n„Personenbezogene Daten“, „Bearbeitung“, „Auftragsbearbeiter“ und verwandte Begriffe entsprechen den Definitionen des **revDSG** bzw. der **DSGVO**, soweit anwendbar.\n\n### 3. Welche Daten bearbeiten wir?\n\nAbhängig von deiner Nutzung können u. a. folgende Kategorien bearbeitet werden:\n\n- **Stammdaten und Kontaktdaten** (z. B. Name, E-Mail, Telefonnummer, Profilangaben)\n- **Konto- und Authentifizierungsdaten** (z. B. Login-Informationen, technische Identifikatoren)\n- **Kommunikationsdaten** (z. B. Nachrichten über die Plattform, Supportanfragen)\n- **Vertrags- und Buchungsdaten** (z. B. Buchungszeiten, Anbieterreferenzen, Transaktionsstatus)\n- **Zahlungsdaten** (z. B. Zahlungsreferenzen; **Zahlungsmittelinformationen** werden in der Regel durch **Stripe** als Zahlungsdienstleister verarbeitet)\n- **Nutzungs-, Log- und Gerätedaten** (z. B. IP-Adresse, Browser, Zugriffszeitpunkte, Fehlerprotokolle)\n- **Standortdaten**, sofern du eine entsprechende Freigabe in deinem Browser oder Gerät erteilst\n- **Inhaltsdaten**, die du als Nutzer:in oder Anbieter:in einstellst (z. B. Listings, Bilder, Bewertungen)\n\n### 4. Zwecke und Rechtsgrundlagen\n\n(1) Wir bearbeiten personenbezogene Daten insbesondere zu folgenden Zwecken und gestützt auf folgende Rechtsgrundlagen (revDSG / ggf. DSGVO):\n\n| Zweck (Kurz) | Rechtsgrundlage (typisch) |\n| --- | --- |\n| Bereitstellung und Sicherheit der Plattform, Authentifizierung | Vertragserfüllung; berechtigtes Interesse an IT-Sicherheit |\n| Abwicklung von Buchungen und Zahlungsflüssen | Vertragserfüllung; rechtliche Verpflichtungen |\n| Kommunikation mit Nutzer:innen und Anbietern | Vertragserfüllung; berechtigtes Interesse |\n| Einhaltung gesetzlicher Pflichten (z. B. Aufbewahrung) | Rechtliche Verpflichtung |\n| Produktanalyse und Verbesserung in nicht-personenbezogener oder aggregierter Form | Berechtigtes Interesse |\n| Direktmarketing per E-Mail an Bestandskund:innen, soweit zulässig | Berechtigtes Interesse / Einwilligung (je nach Fall) |\n| nicht notwendige Cookies, Analyse- oder Marketing-Tools | Einwilligung (wo erforderlich) |\n\n(2) Soweit wir deine **Einwilligung** einholen, kannst du diese jederzeit mit Wirkung für die Zukunft **widerrufen**. Der Widerruf berührt nicht die Rechtmässigkeit der aufgrund der Einwilligung bis zum Widerruf erfolgten Bearbeitung.\n\n### 5. Empfänger und Auftragsbearbeiter\n\n(1) Wir geben personenbezogene Daten nur weiter, wenn eine Rechtsgrundlage besteht und die Weitergabe für den jeweiligen Zweck erforderlich ist.\n\n(2) Wir setzen insbesondere folgende Kategorien von Dienstleistern ein (ohne Anspruch auf Vollständigkeit):\n\n- **Sharetribe** und zugehörige Infrastruktur für den Betrieb der Marktplatz-Software und des Hostings\n- **Stripe** (oder vergleichbare Zahlungsdienstleister) für Zahlungsabwicklung\n- **Hosting-, E-Mail- und Support-Dienstleister**\n- ggf. **Analyse- oder Marketingdienstleister** (z. B. **Google Analytics**), **nur** mit Einwilligung, soweit eingesetzt\n\n(3) Mit Auftragsbearbeitern werden **Verträge** gemäss revDSG bzw. Art. 28 DSGVO (soweit anwendbar) abgeschlossen.\n\n### 6. Drittlandübermittlungen\n\n(1) Soweit Bearbeitungen in **Drittländern** stattfinden (z. B. USA bei bestimmten Cloud- oder Analysediensten), stellen wir sicher, dass ein **Angemessenheitsbeschluss** vorliegt oder geeignete **Garantien** (z. B. **Standardvertragsklauseln**, **TDCA**) verwendet werden, soweit gesetzlich erforderlich.\n\n### 7. Cookies und ähnliche Technologien\n\n(1) Wir verwenden Cookies und ähnliche Technologien, soweit erforderlich, um Funktionen bereitzustellen (z. B. Login, Sicherheit).\n\n(2) **Nicht notwendige** Cookies (z. B. Analyse, Marketing) setzen wir nur, wenn du **einwilligst** und soweit ein entsprechendes Cookie-Banner oder eine vergleichbare Einwilligungslösung eingesetzt wird.\n\n### 8. Speicherdauer\n\n(1) Wir speichern Daten nur so lange, wie es für die genannten Zwecke erforderlich ist oder gesetzliche Aufbewahrungspflichten bestehen. Anschliessend löschen oder anonymisieren wir die Daten, soweit möglich.\n\n(2) Beispiele (ohne Gewähr, abhängig vom konkreten System): Buchungs- und Abrechnungsdaten können **mehrere Jahre** gespeichert werden, wenn handels- oder steuerrechtliche Pflichten dies erfordern; Logdaten typischerweise **kürzer**, sofern keine längere Aufbewahrung aus Sicherheitsgründen erforderlich ist.\n\n### 9. Sicherheit\n\n(1) Wir treffen angemessene **technische und organisatorische Massnahmen** zum Schutz personenbezogener Daten vor unbefugtem Zugriff, Verlust oder Missbrauch.\n\n### 10. Deine Rechte\n\n(1) Du hast im Rahmen der anwendbaren gesetzlichen Vorgaben insbesondere Rechte auf:\n\n- **Auskunft** über die bearbeiteten Daten\n- **Berichtigung** unrichtiger Daten\n- **Löschung**, soweit keine gesetzlichen Aufbewahrungspflichten entgegenstehen\n- **Einschränkung** der Bearbeitung\n- **Widerspruch** gegen bestimmte Bearbeitungen\n- **Datenherausgabe** in einem gängigen Format, soweit vorgesehen\n\n(2) Anfragen richtest du an **privacy@cowork24.ch** (bitte durch die gültige Adresse ersetzen).\n\n### 11. Beschwerderecht\n\n(1) Du hast das Recht, dich bei der **Eidgenössischen Datenschutz- und Öffentlichkeitsbeauftragten (EDÖB)**, Feldeggweg 1, 3003 Bern, Schweiz, www.edoeb.admin.ch, zu beschweren.\n\n(2) Soweit die **DSGVO** anwendbar ist, steht dir zusätzlich ein Beschwerderecht bei einer **Aufsichtsbehörde** am gewöhnlichen Aufenthalt in der EU zu.\n\n### 12. Profiling und automatisierte Entscheidfindung\n\n(1) Wir führen **keine** automatisierte Entscheidfindung im Sinne von Art. 22 DSGVO durch, die dir gegenüber rechtliche Wirkung entfaltet oder dich in vergleichbarer Weise erheblich beeinträchtigt. Sollte sich dies ändern, informieren wir gesondert.\n\n### 13. Änderungen\n\n(1) Wir können diese Datenschutzerklärung anpassen. Es gilt die jeweils auf der Plattform veröffentlichte **aktuelle Version**.\n\n[Zurück zur Kurzfassung →](#privacy-plain) · [Allgemeine Geschäftsbedingungen (AGB)](/terms-of-service)\n"
+          }
+        }
+      ]
+    }
+  ],
+  "meta": {
+    "pageTitle": {
+      "fieldType": "metaTitle",
+      "content": "Datenschutzerklärung | cowork24"
+    },
+    "pageDescription": {
+      "fieldType": "metaDescription",
+      "content": "Informationen zur Bearbeitung personenbezogener Daten auf cowork24.ch gemäss revDSG und ggf. DSGVO."
+    }
+  }
+}

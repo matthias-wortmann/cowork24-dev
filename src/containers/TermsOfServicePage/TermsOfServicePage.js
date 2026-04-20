@@ -5,6 +5,7 @@ import { bool, object } from 'prop-types';
 import { compose } from 'redux';
 import { connect } from 'react-redux';
 
+import { resolveTermsOfServicePageAssetData } from '../../util/legalPageAssets';
 import { camelize } from '../../util/string';
 import { propTypes } from '../../util/types';
 
@@ -20,7 +21,7 @@ const SectionBuilder = loadable(
   }
 );
 
-import FallbackPage, { fallbackSections } from './FallbackPage';
+import FallbackPage from './FallbackPage';
 import { ASSET_NAME } from './TermsOfServicePage.duck';
 
 // This "content-only" component can be used in modals etc.
@@ -40,8 +41,7 @@ const TermsOfServiceContent = props => {
 
   const CustomHeading1 = props => <H1 as="h2" {...props} />;
 
-  const hasData = error === null && data;
-  const sectionsData = hasData ? data : fallbackSections;
+  const sectionsData = resolveTermsOfServicePageAssetData(data);
 
   return (
     <SectionBuilder
@@ -59,10 +59,12 @@ const TermsOfServiceContent = props => {
 // Presentational component for TermsOfServicePage
 const TermsOfServicePageComponent = props => {
   const { pageAssetsData, inProgress, error } = props;
+  const hostedData = pageAssetsData?.[camelize(ASSET_NAME)]?.data;
+  const pageAssetsResolved = resolveTermsOfServicePageAssetData(hostedData);
 
   return (
     <PageBuilder
-      pageAssetsData={pageAssetsData?.[camelize(ASSET_NAME)]?.data}
+      pageAssetsData={pageAssetsResolved}
       inProgress={inProgress}
       error={error}
       fallbackPage={<FallbackPage />}

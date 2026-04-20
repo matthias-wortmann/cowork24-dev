@@ -1,0 +1,180 @@
+/* eslint-disable max-len */
+/**
+ * Default-Inhalt für `content/pages/terms-of-service.json` (Sharetribe Console).
+ * Bei Änderungen: Kopie nach `ext/page-assets/terms-of-service.json` erzeugen
+ * (`yarn run export-hosted-page-defaults`).
+ *
+ * Hinweis: Rechtlich bindende Prüfung und Freigabe durch eine Rechtsanwältin /
+ * einen Rechtsanwalt in der Schweiz sind vor Produktivbetrieb erforderlich.
+ */
+
+const plainMarkdown = `### Hinweis zur Kurzfassung
+
+Dieser Abschnitt fasst die AGB verständlich zusammen. **Rechtlich verbindlich** ist ausschliesslich der Abschnitt [„Allgemeine Geschäftsbedingungen (AGB)“](#tos-legal) weiter unten. Die Kurzfassung ist keine Rechtsberatung und ersetzt die juristische Fassung nicht.
+
+### Das Wichtigste auf einen Blick
+
+- **Vermittlung:** cowork24.ch wird von der **Pinnacle Interactive GmbH** betrieben. cowork24 ist eine **Online-Plattform** zum Suchen, Vergleichen und – soweit technisch möglich – Buchen von Coworking-Arbeitsplätzen. cowork24 ist **kein** Vermieter oder Dienstleister der gebuchten Spaces.
+- **Vertragspartner:** Kommt eine Buchung zustande, schliesst du den Nutzungsvertrag in der Regel **direkt mit dem Anbieter** des Coworking-Space ab, nicht mit cowork24.
+- **Zahlungen:** Je nach eingesetztem Modell können Zahlungen über **integrierte Zahlungsdienstleister** (z. B. **Stripe**) abgewickelt werden. cowork24 ist dann nicht Partei des Zahlungsflusses, soweit nicht ausdrücklich anders angegeben.
+- **Inhalte:** Anbieter:innen sind für Listings (Texte, Bilder, Preise, Verfügbarkeit) verantwortlich. cowork24 kann Inhalte prüfen, anpassen oder entfernen, wenn ein rechtlicher oder vertraglicher Anlass besteht.
+- **Deine Pflichten:** Du nutzt die Plattform **rechtstreu**, machst **keine** manipulierenden Buchungen oder Bewertungen und hältst dich an die Regeln des jeweiligen Anbieters vor Ort.
+- **Haftung:** cowork24 haftet im gesetzlich zulässigen Rahmen; für **Mängel oder Nichterfüllung** durch Anbieter:innen oder andere Nutzer:innen übernimmt cowork24 **keine** Verantwortung.
+- **Änderungen:** cowork24 kann diese AGB anpassen. Wesentliche Änderungen werden – wo möglich – zusätzlich kommuniziert (z. B. per E-Mail an registrierte Nutzer:innen).
+- **Datenschutz:** Wie wir personenbezogene Daten bearbeiten, steht in der [Datenschutzerklärung](/privacy-policy).
+
+[Zur vollständigen, juristischen Fassung springen →](#tos-legal) · [Direkt zur Datenschutzerklärung](/privacy-policy)
+`;
+
+const legalMarkdown = `**Stand:** April 2026 · **Geltungsbereich:** Website und zugehörige Dienste von cowork24.ch
+
+### 1. Vertragsparteien und Geltung
+
+(1) Diese Allgemeinen Geschäftsbedingungen („**AGB**“) regeln die Nutzung der Plattform **cowork24.ch** (nachfolgend „**Plattform**“) sowie die vertraglichen Beziehungen zwischen der **Pinnacle Interactive GmbH**, Herzogstrasse 10, 5000 Aarau, Schweiz (nachfolgend „**wir**“, „**uns**“, „**Betreiber**“) und **Nutzer:innen** der Plattform sowie **Anbieter:innen** von Coworking-Spaces (nachfolgend „**Anbieter**“).
+
+(2) Mit Zugriff auf oder Nutzung der Plattform erklärst du dich mit diesen AGB einverstanden, soweit du nicht ausdrücklich abweichende Bedingungen mit uns vereinbart hast.
+
+(3) Soweit zwischen dir und einem Anbieter **gesonderte Bedingungen** bestehen (z. B. Hausordnung, Stornobedingungen, Preise), gehen diese **im Verhältnis zwischen dir und dem Anbieter** diesen AGB vor.
+
+### 2. Leistungsgegenstand der Plattform
+
+(1) Die Plattform dient der **Vermittlung von Informationen** über Coworking-Arbeitsplätze sowie – soweit technisch und vertraglich vorgesehen – der **Abwicklung von Buchungsanfragen oder Buchungen** zwischen Nutzer:innen und Anbietern.
+
+(2) cowork24 ist **kein** Anbieter der inserierten Arbeitsplätze oder sonstigen Dienstleistungen der Anbieter. **Verträge** über die Nutzung von Coworking-Spaces kommen – vorbehältlich der jeweiligen technischen und vertraglichen Ausgestaltung – **direkt zwischen Nutzer:in und Anbieter** zustande.
+
+(3) Die Plattform wird über **Software und Infrastruktur** bereitgestellt, u. a. unter Einsatz von **Drittanbietern** (z. B. **Sharetribe** als Marktplatz-Software/-Hosting, **Stripe** für Zahlungsabwicklung). Der Betreiber ist bemüht um eine hohe Verfügbarkeit, schuldet jedoch **keinen** durchgehenden, fehlerfreien Betrieb.
+
+### 3. Registrierung, Konto, Alter
+
+(1) Teile der Plattform sind ohne Registrierung nutzbar. Für bestimmte Funktionen (z. B. Buchung, Inseratverwaltung) kann ein **Nutzerkonto** erforderlich sein.
+
+(2) Du versicherst, bei der Registrierung **wahrheitsgemässe und vollständige** Angaben zu machen und diese aktuell zu halten.
+
+(3) **Zugangsdaten** sind vertraulich zu behandeln und dürfen nicht an Dritte weitergegeben werden. Für Aktivitäten unter deinem Konto bist du verantwortlich, soweit du den Missbrauch nicht nachweislich nicht zu vertreten hast.
+
+(4) Die Nutzung setzt voraus, dass du **mindestens 18 Jahre** alt bist oder die erforderliche Einwilligung deiner gesetzlichen Vertretung hast.
+
+### 4. Inserate, Inhalte, Bewertungen
+
+(1) Anbieter sind für die **Richtigkeit, Vollständigkeit und Aktualität** ihrer Inserate (Beschreibungen, Bilder, Preise, Verfügbarkeit) sowie für die **Einhaltung** einschlägiger Gesetze (z. B. Miet- und Gewerberecht, Datenschutz, Arbeitsschutz) verantwortlich.
+
+(2) Nutzer:innen und Anbieter räumen dem Betreiber ein **einfaches, nicht ausschliessliches, zeitlich und räumlich auf den Betrieb der Plattform beschränktes Nutzungsrecht** an den von ihnen hochgeladenen Inhalten (Texte, Bilder, Marken, sonstige Werke) ein, soweit dies zur Darstellung, technischen Bereitstellung, Qualitätssicherung und Moderation erforderlich ist.
+
+(3) **Bewertungen** sollen sachlich und wahrheitsgemäss sein. Manipulative oder irreführende Bewertungen sind untersagt. Der Betreiber kann Bewertungen entfernen oder einschränken, wenn ein berechtigter Anlass besteht (z. B. Verstoss gegen diese AGB oder geltendes Recht).
+
+(4) Der Betreiber ist **nicht verpflichtet**, Inhalte permanent zu prüfen. Er kann Inhalte jedoch **prüfen, korrigieren, sperren oder löschen**, wenn konkrete Anhaltspunkte für Rechtsverstösse oder Verstösse gegen diese AGB bestehen.
+
+### 5. Buchungen, Vertragsschluss, Zahlungen
+
+(1) Buchungsabläufe über die Plattform können als **Angebot** des/der Nutzer:in oder des Anbieters ausgestaltet sein. Der **Zeitpunkt des Vertragsschlusses** richtet sich nach den Angaben auf der Plattform und den Bedingungen des jeweiligen Anbieters.
+
+(2) cowork24 ist **Regelfall** nicht Vertragspartner der Coworking-Nutzung zwischen Nutzer:in und Anbieter. cowork24 stellt die **technische Infrastruktur** bereit.
+
+(3) **Zahlungen** können – je nach Modell – direkt zwischen Nutzer:in und Anbieter oder über **Zahlungsdienstleister** (insbesondere **Stripe**) erfolgen. Es gelten zusätzlich die Bedingungen des jeweiligen Zahlungsdienstleisters.
+
+(4) **Stornierungen, Rückerstattungen und Gebühren** richten sich nach den Angaben des Anbieters und den auf der Plattform dargestellten Regeln, soweit anwendbar.
+
+### 6. Preise und Gebühren
+
+(1) Die Nutzung der Plattform für **Suchende** kann kostenlos sein; abweichende Modelle werden transparent dargestellt.
+
+(2) Der Betreiber kann **Gebühren oder Provisionen** von Anbietern erheben. Umfang und Fälligkeit werden im jeweiligen Anbieterbereich oder in gesonderten Vereinbarungen kommuniziert.
+
+### 7. Nutzungsverbote und Sicherheit
+
+(1) Untersagt sind insbesondere: rechtswidrige, beleidigende oder diskriminierende Inhalte; Schadsoftware; Umgehung technischer Schutzmassnahmen; unerlaubtes Scraping oder automatisierte Nutzung, soweit nicht ausdrücklich gestattet; Täuschung Dritter; Störung des Betriebs.
+
+(2) Der Betreiber kann bei Verstössen **Massnahmen** ergreifen, insbesondere Inhalte entfernen, Buchungen stornieren oder Konten **sperren oder kündigen**, unter Berücksichtigung der Treu und Glaub und der Verhältnismässigkeit.
+
+### 8. Gewährleistung und Haftung
+
+(1) cowork24 übernimmt **keine Gewährleistung** für die Richtigkeit von Inhalten Dritter (Anbieter, Nutzer:innen) und keine Haftung für die **Erbringung oder Nichterbringung** von Leistungen durch Anbieter.
+
+(2) Für eigene Pflichtverletzungen haftet der Betreiber nach **massgebenden schweizerischen Bestimmungen**, insbesondere den Grenzen des **OR** (z. B. Art. 100 OR). **Unbeschränkte Haftung** bleibt für **Vorsatz** und **grobe Fahrlässigkeit** vorbehalten. Bei **leichter Fahrlässigkeit** haftet der Betreiber nur bei Verletzung **wesentlicher Vertragspflichten** und begrenzt auf den **typischerweise vorhersehbaren Schaden**.
+
+(3) Ein Ausschluss oder eine Begrenzung der Haftung gilt **nicht**, soweit zwingendes Recht entgegensteht.
+
+### 9. Geistiges Eigentum
+
+(1) Marken, Designs, Texte und Softwareelemente der Plattform unterliegen dem Schutz des **geistigen Eigentums**. Eine weitergehende Nutzung als die zum Zweck der Plattformnutzung erforderliche ist untersagt, soweit nicht ausdrücklich gestattet.
+
+### 10. Datenschutz
+
+(1) Informationen zur Bearbeitung personenbezogener Daten findest du in der [Datenschutzerklärung](/privacy-policy).
+
+### 11. Änderungen der AGB
+
+(1) Der Betreiber kann diese AGB **ändern**. Die jeweils aktuelle Fassung wird auf der Plattform veröffentlicht. Bei **wesentlichen** Änderungen werden registrierte Nutzer:innen – soweit technisch und rechtlich möglich – zusätzlich informiert (z. B. per E-Mail).
+
+### 12. Abtretung, Salvatorische Klausel, elektronische Kommunikation
+
+(1) Der Betreiber kann Rechte und Pflichten aus diesen AGB auf **verbundene Unternehmen oder Rechtsnachfolger** übertragen, soweit dir dadurch keine Nachteile entstehen.
+
+(2) Sollten einzelne Bestimmungen unwirksam sein oder werden, bleibt die **Wirksamkeit der übrigen** Bestimmungen unberührt.
+
+(3) Erklärungen können in **elektronischer Form** erfolgen, soweit gesetzlich zulässig.
+
+### 13. Anwendbares Recht und Gerichtsstand
+
+(1) Es gilt **Schweizer Recht** unter Ausschluss der Kollisionsnormen, soweit diese zulässig sind.
+
+(2) **Gerichtsstand** ist – soweit zulässig – der Sitz des Betreibers. Zwingende Gerichtsstände für **Konsument:innen** bleiben vorbehalten.
+
+[Zurück zur Kurzfassung →](#tos-plain) · [Datenschutzerklärung](/privacy-policy)
+`;
+
+export const termsOfServicePageAsset = {
+  sections: [
+    {
+      sectionType: 'article',
+      sectionId: 'tos-plain',
+      title: {
+        fieldType: 'heading1',
+        content: 'Kurzfassung für dich',
+      },
+      blocks: [
+        {
+          blockType: 'defaultBlock',
+          blockId: 'tos-plain-body',
+          text: {
+            fieldType: 'markdown',
+            content: plainMarkdown,
+          },
+        },
+      ],
+    },
+    {
+      sectionType: 'article',
+      sectionId: 'tos-legal',
+      appearance: {
+        fieldType: 'customAppearance',
+        backgroundColor: '#ffffff',
+      },
+      title: {
+        fieldType: 'heading1',
+        content: 'Allgemeine Geschäftsbedingungen (AGB)',
+      },
+      blocks: [
+        {
+          blockType: 'defaultBlock',
+          blockId: 'tos-legal-body',
+          text: {
+            fieldType: 'markdown',
+            content: legalMarkdown,
+          },
+        },
+      ],
+    },
+  ],
+  meta: {
+    pageTitle: {
+      fieldType: 'metaTitle',
+      content: 'Allgemeine Geschäftsbedingungen (AGB) | cowork24',
+    },
+    pageDescription: {
+      fieldType: 'metaDescription',
+      content:
+        'AGB der Plattform cowork24.ch: Vermittlung von Coworking-Spaces, Rollen von Nutzer:innen und Anbietern, Buchungen und Haftung.',
+    },
+  },
+};
