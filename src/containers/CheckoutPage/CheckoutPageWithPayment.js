@@ -616,8 +616,7 @@ export const CheckoutPageWithPayment = props => {
   // ensures it is supported by Stripe, as indicated by the 'stripe' parameter.
   // If using a transaction process without any stripe actions, leave out the 'stripe' parameter.
   const currency =
-    existingTransaction?.attributes?.payinTotal?.currency ||
-    listing?.attributes?.price?.currency;
+    existingTransaction?.attributes?.payinTotal?.currency || listing?.attributes?.price?.currency;
   const isStripeCompatibleCurrency = isValidCurrencyForTransactionProcess(
     transactionProcessAlias,
     currency,
@@ -715,7 +714,14 @@ export const CheckoutPageWithPayment = props => {
                 listingTitle={listingTitle}
                 config={config}
                 onWalletConfirmPayment={payload =>
-                  handleWalletConfirmPayment(payload, process, props, stripe, submitting, setSubmitting)
+                  handleWalletConfirmPayment(
+                    payload,
+                    process,
+                    props,
+                    stripe,
+                    submitting,
+                    setSubmitting
+                  )
                 }
               />
             ) : null}

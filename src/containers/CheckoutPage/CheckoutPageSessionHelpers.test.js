@@ -21,11 +21,7 @@ describe('CheckoutPageSessionHelpers', () => {
     const transaction = null;
     const history = { action: 'POP' };
 
-    const pageData = handlePageData(
-      { orderData, listing, transaction },
-      STORAGE_KEY,
-      history
-    );
+    const pageData = handlePageData({ orderData, listing, transaction }, STORAGE_KEY, history);
 
     expect(pageData.listing).toEqual(listing);
     expect(pageData.orderData).toEqual(orderData);

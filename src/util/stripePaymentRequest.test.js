@@ -1,10 +1,7 @@
 import { getPaymentRequestCountryForCurrency } from './stripePaymentRequest';
 
 describe('getPaymentRequestCountryForCurrency', () => {
-  const supported = [
-    { code: 'DE', currency: 'EUR' },
-    { code: 'US', currency: 'USD' },
-  ];
+  const supported = [{ code: 'DE', currency: 'EUR' }, { code: 'US', currency: 'USD' }];
 
   it('returns first config country for currency', () => {
     expect(getPaymentRequestCountryForCurrency('EUR', supported)).toBe('DE');

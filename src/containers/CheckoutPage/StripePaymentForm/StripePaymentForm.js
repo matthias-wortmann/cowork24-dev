@@ -517,7 +517,10 @@ class StripePaymentForm extends Component {
 
     const ensuredDefault = ensurePaymentMethodCard(defaultPaymentMethod);
     const hasDefaultPaymentMethod = !!ensuredDefault.id;
-    const selectedPaymentMethod = getPaymentMethod(this.state.paymentMethod, hasDefaultPaymentMethod);
+    const selectedPaymentMethod = getPaymentMethod(
+      this.state.paymentMethod,
+      hasDefaultPaymentMethod
+    );
     if (selectedPaymentMethod === 'defaultCard') {
       this.tearDownPaymentRequestButton();
       return;

@@ -3,10 +3,7 @@ import { findRouteByRouteName } from '../../util/routes';
 import { ensureStripeCustomer, ensureTransaction } from '../../util/data';
 import { minutesBetween } from '../../util/dates';
 import { formatMoney } from '../../util/currency';
-import {
-  NEGOTIATION_PROCESS_NAME,
-  resolveLatestProcessName,
-} from '../../transactions/transaction';
+import { NEGOTIATION_PROCESS_NAME, resolveLatestProcessName } from '../../transactions/transaction';
 import { storeData } from './CheckoutPageSessionHelpers';
 
 /**
@@ -26,8 +23,7 @@ export const getRequestPaymentTransition = (process, processName, tx) => {
     }
     return null;
   }
-  const isInquiryInPaymentProcess =
-    tx?.attributes?.lastTransition === process.transitions.INQUIRE;
+  const isInquiryInPaymentProcess = tx?.attributes?.lastTransition === process.transitions.INQUIRE;
   return isInquiryInPaymentProcess
     ? process.transitions.REQUEST_PAYMENT_AFTER_INQUIRY
     : process.transitions.REQUEST_PAYMENT;
@@ -273,16 +269,10 @@ export const processCheckoutWithPayment = (orderParams, extraPaymentParams) => {
     const hasPaymentIntents = storedTx.attributes.protectedData?.stripePaymentIntents;
 
     const processNameFromAlias = processAlias.split('/')[0];
-    const requestTransition = getRequestPaymentTransition(
-      process,
-      processNameFromAlias,
-      storedTx
-    );
+    const requestTransition = getRequestPaymentTransition(process, processNameFromAlias, storedTx);
     if (!requestTransition) {
       return Promise.reject(
-        new Error(
-          'CheckoutPage: no request-payment transition for this process/transaction state'
-        )
+        new Error('CheckoutPage: no request-payment transition for this process/transaction state')
       );
     }
     const isPrivileged = process.isPrivileged(requestTransition);
@@ -322,10 +312,11 @@ export const processCheckoutWithPayment = (orderParams, extraPaymentParams) => {
 
     // Apple Pay / Google Pay (Payment Request): PM id from wallet, no Card Element.
     const useWallet =
-      isPaymentFlowWallet && typeof walletPaymentMethodId === 'string' && walletPaymentMethodId.length > 0;
+      isPaymentFlowWallet &&
+      typeof walletPaymentMethodId === 'string' &&
+      walletPaymentMethodId.length > 0;
 
-    const stripeElementMaybe =
-      useWallet || isPaymentFlowUseSavedCard ? {} : { card };
+    const stripeElementMaybe = useWallet || isPaymentFlowUseSavedCard ? {} : { card };
 
     // Note: For basic USE_SAVED_CARD scenario, we have set it already on API side, when PaymentIntent was created.
     // However, the payment_method is save here for USE_SAVED_CARD flow if customer first attempted onetime payment

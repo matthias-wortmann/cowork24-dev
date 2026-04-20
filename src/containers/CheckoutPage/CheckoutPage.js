@@ -121,8 +121,7 @@ const EnhancedCheckoutPage = props => {
     }
 
     const pd = data || {};
-    const hasCheckoutPayload =
-      pd.listing?.id && (pd.orderData != null || pd.transaction?.id);
+    const hasCheckoutPayload = pd.listing?.id && (pd.orderData != null || pd.transaction?.id);
     if (!hasCheckoutPayload) {
       clearScheduledStripeLoad();
       return;
@@ -132,8 +131,13 @@ const EnhancedCheckoutPage = props => {
     stripeInitialLoadTimerRef.current = setTimeout(() => {
       stripeInitialLoadTimerRef.current = null;
 
-      const fetchSpeculatedTransaction = (params, processAlias, txId, transitionName, isPrivileged) =>
-        dispatch(speculateTransaction(params, processAlias, txId, transitionName, isPrivileged));
+      const fetchSpeculatedTransaction = (
+        params,
+        processAlias,
+        txId,
+        transitionName,
+        isPrivileged
+      ) => dispatch(speculateTransaction(params, processAlias, txId, transitionName, isPrivileged));
       const fetchStripeCustomer = () => dispatch(stripeCustomer());
 
       loadInitialDataForStripePayments({
