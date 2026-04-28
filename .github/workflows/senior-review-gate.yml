@@ -1,0 +1,27 @@
+name: Senior Review Gate
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+  push:
+    branches:
+      - main
+      - 'cursor/**'
+
+jobs:
+  senior-review-gate:
+    name: Senior Review Policy Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Run senior review gate
+        run: yarn review:senior-agent
