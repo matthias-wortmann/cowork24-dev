@@ -253,7 +253,7 @@ export const processCheckoutWithPayment = (orderParams, extraPaymentParams) => {
     stripeCustomer,
     stripePaymentMethodId,
   } = extraPaymentParams;
-  const storedTx = ensureTransaction(pageData.transaction);
+  const storedTx = ensureTransaction(pageData?.transaction);
 
   const ensuredStripeCustomer = ensureStripeCustomer(stripeCustomer);
   const processAlias = pageData?.listing?.attributes?.publicData?.transactionProcessAlias;
@@ -266,9 +266,15 @@ export const processCheckoutWithPayment = (orderParams, extraPaymentParams) => {
   ////////////////////////////////////////////////
   const fnRequestPayment = fnParams => {
     // fnParams should be { listingId, deliveryMethod?, quantity?, bookingDates?, paymentMethod?.setupPaymentMethodForSaving?, protectedData }
-    const hasPaymentIntents = storedTx.attributes.protectedData?.stripePaymentIntents;
+    const hasPaymentIntents = storedTx.attributes?.protectedData?.stripePaymentIntents;
+    const hasStoredTxId = !!storedTx?.id;
+    const processNameFromAlias = processAlias?.split('/')[0];
+    if (!processAlias || !processNameFromAlias) {
+      return Promise.reject(
+        new Error('CheckoutPage: missing transaction process alias on listing checkout payload')
+      );
+    }
 
-    const processNameFromAlias = processAlias.split('/')[0];
     const requestTransition = getRequestPaymentTransition(process, processNameFromAlias, storedTx);
     if (!requestTransition) {
       return Promise.reject(
@@ -278,7 +284,7 @@ export const processCheckoutWithPayment = (orderParams, extraPaymentParams) => {
     const isPrivileged = process.isPrivileged(requestTransition);
 
     // If paymentIntent exists, order has been initiated previously.
-    const orderPromise = hasPaymentIntents
+    const orderPromise = hasPaymentIntents && hasStoredTxId
       ? Promise.resolve(storedTx)
       : onInitiateOrder(fnParams, processAlias, storedTx.id, requestTransition, isPrivileged);
 
@@ -353,6 +359,11 @@ export const processCheckoutWithPayment = (orderParams, extraPaymentParams) => {
     // Remember the created PaymentIntent for step 5
     createdPaymentIntent = fnParams.paymentIntent;
     const transactionId = fnParams.transactionId;
+    if (!transactionId) {
+      return Promise.reject(
+        new Error('CheckoutPage: missing transactionId before confirm-payment transition')
+      );
+    }
     const transitionName = process.transitions.CONFIRM_PAYMENT;
     const isTransitionedAlready = storedTx?.attributes?.lastTransition === transitionName;
     const orderPromise = isTransitionedAlready
@@ -387,6 +398,10 @@ export const processCheckoutWithPayment = (orderParams, extraPaymentParams) => {
     }
 
     if (isPaymentFlowPayAndSaveCard) {
+      const paymentMethodFromIntent = pi?.payment_method;
+      if (!paymentMethodFromIntent) {
+        return Promise.resolve({ ...fnParams, paymentMethodSaved: false });
+      }
       return onSavePaymentMethod(ensuredStripeCustomer, pi.payment_method)
         .then(response => {
           if (response.errors) {

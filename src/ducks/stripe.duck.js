@@ -225,7 +225,7 @@ const stripeSlice = createSlice({
         state.confirmCardPaymentInProgress = true;
       })
       .addCase(confirmCardPaymentThunk.fulfilled, (state, action) => {
-        state.paymentIntent = action.payload;
+        state.paymentIntent = action.payload.paymentIntent;
         state.confirmCardPaymentInProgress = false;
       })
       .addCase(confirmCardPaymentThunk.rejected, (state, action) => {
