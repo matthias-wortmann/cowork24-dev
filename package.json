@@ -109,7 +109,8 @@
     "heroku-postbuild": "yarn run build",
     "postinstall": "patch-package",
     "translate": "node scripts/translations.js",
-    "export-hosted-page-defaults": "node scripts/export-hosted-page-defaults.mjs"
+    "export-hosted-page-defaults": "node scripts/export-hosted-page-defaults.mjs",
+    "review:senior-agent": "node scripts/senior-review.cjs"
   },
   "browserslist": {
     "production": [
