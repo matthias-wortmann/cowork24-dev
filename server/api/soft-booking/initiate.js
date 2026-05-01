@@ -9,12 +9,8 @@ module.exports = async (req, res) => {
   const { listingId, bookingStart, bookingEnd, seats } = req.body;
 
   try {
-    console.log('[soft-booking/initiate] body:', { listingId, bookingStart, bookingEnd, seats });
-
-    console.log('[soft-booking/initiate] fetching listing...');
     const listingRes = await sdk.listings.show({ id: listingId });
     const listing = listingRes.data.data;
-    console.log('[soft-booking/initiate] listing ok');
 
     const fetchAssetsResponse = await fetchCommission(sdk);
     const commissionAsset = fetchAssetsResponse.data.data[0];
@@ -30,11 +26,9 @@ module.exports = async (req, res) => {
     const lineItems = transactionLineItems(listing, orderData, providerCommission, customerCommission);
     const validLineItems = constructValidLineItems(lineItems);
 
-    console.log('[soft-booking/initiate] fetching currentUser...');
     const userRes = await sdk.currentUser.show({
       include: ['stripeCustomer.defaultPaymentMethod'],
     });
-    console.log('[soft-booking/initiate] currentUser ok');
     const hasPaymentMethod = userRes.data.included?.some(i => i.type === 'stripePaymentMethod');
     if (!hasPaymentMethod) {
       return res.status(400).json({
@@ -43,7 +37,6 @@ module.exports = async (req, res) => {
       });
     }
 
-    console.log('[soft-booking/initiate] initiating transaction...');
     const trustedSdk = await getTrustedSdk(req);
     const response = await trustedSdk.transactions.initiate(
       {
@@ -63,9 +56,20 @@ module.exports = async (req, res) => {
     res.json({ transactionId: response.data.data.id.uuid });
   } catch (e) {
     const status = e.status || e.statusCode || (e.data && e.data.status);
-    console.error('[soft-booking/initiate] ERROR status=%s message=%s', status, e.message, JSON.stringify(e.data || {}));
+    const apiErrors = e?.data?.errors;
+    const errorCode = Array.isArray(apiErrors) && apiErrors[0]?.code;
+
     if (status === 401 || status === 403) {
-      return res.status(401).json({ error: 'Unauthorized', detail: e.message });
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+    if (errorCode === 'transaction-invalid-transition' || status === 409) {
+      // Most likely cause: cowork24-soft-booking process not deployed yet on this marketplace.
+      return res.status(409).json({
+        error: 'PROCESS_NOT_FOUND',
+        message:
+          'Die Buchungsprozess-Konfiguration fehlt. Bitte den Administrator informieren ' +
+          '(flex-cli: process push + create-alias für cowork24-soft-booking).',
+      });
     }
     res.status(500).json({ error: e.message });
   }

@@ -310,14 +310,19 @@ export const handleSubmit = parameters => values => {
 
   const saveToSessionStorage = !currentUser;
 
-  // Route to soft booking checkout if provider has no Stripe Connect set up.
-  const shouldUseSoftBooking =
+  // Route cowork24-soft-booking listings to the dedicated soft-booking checkout.
+  // These listings allow providers to receive booking requests without Stripe
+  // set up — payment is only captured when the provider accepts.
+  const listingProcessName =
+    listing?.attributes?.publicData?.transactionProcessAlias?.split('/')[0];
+  const isSoftBookingListing = listingProcessName === 'cowork24-soft-booking';
+
+  if (
+    isSoftBookingListing &&
     !!currentUser &&
     isUserAuthorized(currentUser) &&
-    hasPermissionToInitiateTransactions(currentUser) &&
-    requiresSoftReservationFallback(listing);
-
-  if (shouldUseSoftBooking) {
+    hasPermissionToInitiateTransactions(currentUser)
+  ) {
     history.push(
       createResourceLocatorString('SoftBookingCheckoutPage', routes, {}, {}),
       {
