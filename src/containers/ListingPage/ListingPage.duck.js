@@ -68,6 +68,9 @@ const showListingPayloadCreator = ({ listingId, config, isOwn = false }, thunkAP
   const params = {
     id: listingId,
     include: ['author', 'author.profileImage', 'images', 'currentStock'],
+    // No fields.user restriction — we need the full author profile including
+    // profile.publicData to read stripeConnected (set by stripeConnectAccount.duck.js).
+    // 'fields.user': ['profile.displayName', 'profile.abbreviatedName'],
     'fields.image': [
       // Scaled variants for large images
       'variants.scaled-small',
@@ -216,7 +219,7 @@ export const fetchTimeSlots = (listingId, start, end, timeZone, options) => (
 // Send Inquiry //
 //////////////////
 const sendInquiryPayloadCreator = (
-  { listing, message },
+  { listing, message, protectedData = null },
   { dispatch, rejectWithValue, extra: sdk }
 ) => {
   const processAlias = listing?.attributes?.publicData?.transactionProcessAlias;
@@ -249,15 +252,23 @@ const sendInquiryPayloadCreator = (
   const bodyParams = {
     transition: transitions.INQUIRE,
     processAlias,
-    params: { listingId },
+    params: {
+      listingId,
+      ...(protectedData ? { protectedData } : {}),
+    },
   };
   return sdk.transactions
     .initiate(bodyParams)
     .then(response => {
       const transactionId = response.data.data.id;
 
-      // Send the message to the created transaction
-      return sdk.messages.send({ transactionId, content: message }).then(() => {
+      const sendMessagePromise =
+        typeof message === 'string' && message.trim().length > 0
+          ? sdk.messages.send({ transactionId, content: message.trim() })
+          : Promise.resolve();
+
+      // Send the message to the created transaction only if user wrote one
+      return sendMessagePromise.then(() => {
         dispatch(setCurrentUserHasOrders());
         return transactionId;
       });
@@ -272,8 +283,8 @@ export const sendInquiryThunk = createAsyncThunk(
   sendInquiryPayloadCreator
 );
 // Backward compatible wrapper for the thunk
-export const sendInquiry = (listing, message) => (dispatch, getState, sdk) => {
-  return dispatch(sendInquiryThunk({ listing, message })).unwrap();
+export const sendInquiry = (listing, message, protectedData = null) => (dispatch, getState, sdk) => {
+  return dispatch(sendInquiryThunk({ listing, message, protectedData })).unwrap();
 };
 
 // Helper function for loadData call.
@@ -352,11 +363,20 @@ const fetchTransactionLineItemsPayloadCreator = (
   { orderData, listingId, isOwnListing },
   { rejectWithValue }
 ) => {
+  // #region agent log
+  fetch('http://127.0.0.1:7895/ingest/33d38d03-4fa1-479e-9d26-e1a321da42b1',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'1fbec4'},body:JSON.stringify({sessionId:'1fbec4',runId:'pre-fix',hypothesisId:'H4',location:'ListingPage.duck.js:fetchTransactionLineItemsPayloadCreator:start',message:'Starting line items fetch',data:{listingId:listingId?.uuid ?? listingId,isOwnListing,orderDataKeys:Object.keys(orderData || {}),hasBookingStart:!!orderData?.bookingStart,hasBookingEnd:!!orderData?.bookingEnd,bookingStartType:orderData?.bookingStart ? Object.prototype.toString.call(orderData.bookingStart) : null,bookingEndType:orderData?.bookingEnd ? Object.prototype.toString.call(orderData.bookingEnd) : null,priceVariantName:orderData?.priceVariantName ?? null,seats:orderData?.seats ?? null,quantity:orderData?.quantity ?? null},timestamp:Date.now()})}).catch(()=>{});
+  // #endregion
   return transactionLineItems({ orderData, listingId, isOwnListing })
     .then(response => {
+      // #region agent log
+      fetch('http://127.0.0.1:7895/ingest/33d38d03-4fa1-479e-9d26-e1a321da42b1',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'1fbec4'},body:JSON.stringify({sessionId:'1fbec4',runId:'pre-fix',hypothesisId:'H5',location:'ListingPage.duck.js:fetchTransactionLineItemsPayloadCreator:success',message:'Line items fetch succeeded',data:{hasResponseData:!!response?.data,lineItemsCount:Array.isArray(response?.data?.lineItems)?response.data.lineItems.length:null},timestamp:Date.now()})}).catch(()=>{});
+      // #endregion
       return response.data;
     })
     .catch(e => {
+      // #region agent log
+      fetch('http://127.0.0.1:7895/ingest/33d38d03-4fa1-479e-9d26-e1a321da42b1',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'1fbec4'},body:JSON.stringify({sessionId:'1fbec4',runId:'pre-fix',hypothesisId:'H5',location:'ListingPage.duck.js:fetchTransactionLineItemsPayloadCreator:error',message:'Line items fetch failed',data:{status:e?.status ?? null,statusText:e?.statusText ?? null,errorName:e?.name ?? null,errorMessage:e?.message ?? null,errorCode:e?.code ?? null},timestamp:Date.now()})}).catch(()=>{});
+      // #endregion
       log.error(e, 'fetching-line-items-failed', {
         listingId: listingId?.uuid ?? listingId,
         orderData,

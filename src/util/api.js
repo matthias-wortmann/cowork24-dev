@@ -70,7 +70,6 @@ const request = (path, options = {}) => {
   return window.fetch(url, fetchOptions).then(res => {
     const contentTypeHeader = res.headers.get('Content-Type');
     const contentType = contentTypeHeader ? contentTypeHeader.split(';')[0] : null;
-
     if (res.status >= 400) {
       return res.json().then(data => {
         let e = new Error();
@@ -150,4 +149,40 @@ export const createUserWithIdp = body => {
 // the marketplace.
 export const deleteUserAccount = body => {
   return post('/api/delete-account', body);
+};
+
+// Fetch a Stripe SetupIntent client_secret for the soft-booking checkout flow.
+export const softBookingSetupIntent = () => {
+  return window
+    .fetch(`${apiBaseUrl()}/api/soft-booking/setup-intent`, { credentials: 'include' })
+    .then(res => {
+      if (!res.ok) return res.json().then(err => Promise.reject(err));
+      return res.json();
+    });
+};
+
+// Sync provider's Stripe connection status into profile.publicData so it is
+// readable by customers on ListingPage.
+export const syncStripeStatus = () => {
+  return window
+    .fetch(`${apiBaseUrl()}/api/sync-stripe-status`, { credentials: 'include' })
+    .then(res => {
+      if (!res.ok) return res.json().then(err => Promise.reject(err));
+      return res.json();
+    });
+};
+
+// Initiate a soft-booking transaction on the server.
+export const softBookingInitiate = body => {
+  return window
+    .fetch(`${apiBaseUrl()}/api/soft-booking/initiate`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    })
+    .then(res => {
+      if (!res.ok) return res.json().then(err => Promise.reject(err));
+      return res.json();
+    });
 };

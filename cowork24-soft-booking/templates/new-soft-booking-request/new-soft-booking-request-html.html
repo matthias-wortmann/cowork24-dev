@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"></head>
+<body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+  <h2>Neue Buchungsanfrage</h2>
+  <p>Hallo {{transaction.provider.display-name}},</p>
+  <p>Sie haben eine neue Buchungsanfrage für <strong>{{transaction.listing.title}}</strong> von <strong>{{transaction.customer.display-name}}</strong> erhalten.</p>
+
+  <div style="background: #fff3cd; border: 1px solid #ffc107; border-radius: 4px; padding: 16px; margin: 20px 0;">
+    <strong>⚠️ Stripe-Konto erforderlich</strong><br>
+    Sie müssen Ihr Stripe-Konto verbinden, bevor Sie diese Buchung annehmen können.<br>
+    <a href="{{marketplace.url}}/account/payments" style="color: #856404;">Jetzt verbinden: {{marketplace.url}}/account/payments</a>
+  </div>
+
+  <h3>Buchungsdetails</h3>
+  <ul>
+    <li>Zeitraum: {{transaction.booking.display-start}} – {{transaction.booking.display-end}}</li>
+    <li>Betrag: {{transaction.payin-total.amount}} {{transaction.payin-total.currency}}</li>
+    <li>Kunde: {{transaction.customer.display-name}}</li>
+  </ul>
+
+  <p><a href="{{marketplace.url}}/order/{{transaction.id}}/details" style="background: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block;">Anfrage ansehen</a></p>
+
+  <p>Mit freundlichen Grüssen,<br>Das {{marketplace.name}} Team</p>
+</body>
+</html>

@@ -1,0 +1,1 @@
+Buchungsanfrage abgelaufen: {{transaction.listing.title}}

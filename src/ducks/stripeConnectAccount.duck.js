@@ -4,6 +4,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import * as log from '../util/log';
 import { storableError } from '../util/errors';
 import { loadStripeJs } from '../util/loadStripe';
+import { syncStripeStatus } from '../util/api';
 
 // ================ Async thunks ================ //
 
@@ -53,6 +54,13 @@ const createStripeAccountPayloadCreator = async (params, { extra: sdk, rejectWit
     })
     .then(response => {
       const stripeAccount = response.data.data;
+      // Mirror stripe connection status into publicData so it is readable by other
+      // users (e.g. customers checking if provider can accept direct bookings).
+      // profile.publicData is public; currentUser.attributes.stripeConnected is not.
+      // Use server endpoint for reliability.
+      if (typeof window !== 'undefined') {
+        syncStripeStatus().catch(() => {}); // non-fatal, fire and forget
+      }
       return stripeAccount;
     })
     .catch(err => {
@@ -114,11 +122,22 @@ export const updateStripeAccount = params => dispatch => {
 //////////////////////////
 // Fetch Stripe Account //
 //////////////////////////
-const fetchStripeAccountPayloadCreator = (params, { extra: sdk, rejectWithValue }) => {
+const fetchStripeAccountPayloadCreator = (params, { extra: sdk, rejectWithValue, getState }) => {
   return sdk.stripeAccount
     .fetch()
     .then(response => {
       const stripeAccount = response.data.data;
+      // Sync to publicData if not already set — handles providers who connected Stripe
+      // before this feature was added. profile.publicData is publicly readable by customers.
+      // Use server endpoint for reliability (session-cookie SDK on server side).
+      const currentUser = getState()?.user?.currentUser;
+      const alreadySynced = currentUser?.attributes?.profile?.publicData?.stripeConnected;
+      if (!alreadySynced && typeof window !== 'undefined') {
+        console.log('[stripeConnectAccount.duck] Syncing stripeConnected to publicData via server...');
+        syncStripeStatus()
+          .then(result => console.log('[stripeConnectAccount.duck] syncStripeStatus:', result))
+          .catch(e => console.error('[stripeConnectAccount.duck] syncStripeStatus failed:', e));
+      }
       return stripeAccount;
     })
     .catch(err => {

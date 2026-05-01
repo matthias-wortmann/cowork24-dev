@@ -14,6 +14,7 @@ const pageDataLoadingAPI = getPageDataLoadingAPI();
 
 const AuthenticationPage = loadable(() => import(/* webpackChunkName: "AuthenticationPage" */ '../containers/AuthenticationPage/AuthenticationPage'));
 const CheckoutPage = loadable(() => import(/* webpackChunkName: "CheckoutPage" */ '../containers/CheckoutPage/CheckoutPage'));
+const SoftBookingCheckoutPage = loadable(() => import(/* webpackChunkName: "SoftBookingCheckoutPage" */ '../containers/SoftBookingCheckoutPage/SoftBookingCheckoutPage'));
 const CMSPage = loadable(() => import(/* webpackChunkName: "CMSPage" */ '../containers/CMSPage/CMSPage'));
 const ContactDetailsPage = loadable(() => import(/* webpackChunkName: "ContactDetailsPage" */ '../containers/ContactDetailsPage/ContactDetailsPage'));
 const EditListingPage = loadable(() => import(/* webpackChunkName: "EditListingPage" */ '../containers/EditListingPage/EditListingPage'));
@@ -155,6 +156,13 @@ const routeConfiguration = (layoutConfig, accessControlConfig) => {
       component: RequestQuotePage,
       extraProps: { mode: 'request-quote' },
       loadData: pageDataLoadingAPI.RequestQuotePage.loadData,
+    },
+    {
+      path: '/soft-booking-checkout',
+      name: 'SoftBookingCheckoutPage',
+      auth: true,
+      authPage: 'LoginPage',
+      component: SoftBookingCheckoutPage,
     },
     {
       path: '/l/:slug/:id/checkout',

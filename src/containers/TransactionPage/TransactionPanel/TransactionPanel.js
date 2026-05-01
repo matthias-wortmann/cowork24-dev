@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, useState } from 'react';
 import classNames from 'classnames';
 
 import { FormattedMessage, injectIntl, intlShape } from '../../../util/reactIntl';
@@ -26,6 +26,311 @@ import DiminishedActionButtonMaybe from './DiminishedActionButtonMaybe';
 import PanelHeading from './PanelHeading';
 
 import css from './TransactionPanel.module.css';
+
+const formatSoftReservationDateTime = (isoString, intl) => {
+  if (!isoString) {
+    return null;
+  }
+  const parsed = new Date(isoString);
+  if (Number.isNaN(parsed.getTime())) {
+    return null;
+  }
+  return intl.formatDate(parsed, {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+};
+
+const SoftReservationDetailsMaybe = props => {
+  const {
+    softReservation,
+    softReservationStart,
+    softReservationEnd,
+    softReservationDeadline,
+    isProvider,
+    headingClassName,
+  } = props;
+
+  if (!softReservation) {
+    return null;
+  }
+
+  return (
+    <div className={classNames(css.inquiryMessageContainer, css.softReservationCard)}>
+      <h3 className={headingClassName || css.detailCardTitle}>
+        <FormattedMessage id="TransactionPanel.softReservationHeading" />
+      </h3>
+      <p className={css.softReservationStatus}>
+        <FormattedMessage id="TransactionPanel.softReservation.statusSetupPending" />
+      </p>
+      {softReservationStart && softReservationEnd ? (
+        <p className={css.softReservationRow}>
+          <FormattedMessage
+            id="TransactionPanel.softReservation.bookingWindow"
+            values={{ start: softReservationStart, end: softReservationEnd }}
+          />
+        </p>
+      ) : null}
+      {Number.isInteger(softReservation?.quantity) ? (
+        <p className={css.softReservationRow}>
+          <FormattedMessage
+            id="TransactionPanel.softReservation.quantity"
+            values={{ quantity: softReservation.quantity }}
+          />
+        </p>
+      ) : null}
+      {Number.isInteger(softReservation?.seats) ? (
+        <p className={css.softReservationRow}>
+          <FormattedMessage
+            id="TransactionPanel.softReservation.seats"
+            values={{ seats: softReservation.seats }}
+          />
+        </p>
+      ) : null}
+      {softReservation?.deliveryMethod ? (
+        <p className={css.softReservationRow}>
+          <FormattedMessage
+            id="TransactionPanel.softReservation.deliveryMethod"
+            values={{ deliveryMethod: softReservation.deliveryMethod }}
+          />
+        </p>
+      ) : null}
+      {softReservation?.priceVariantName ? (
+        <p className={css.softReservationRow}>
+          <FormattedMessage
+            id="TransactionPanel.softReservation.priceVariant"
+            values={{ priceVariant: softReservation.priceVariantName }}
+          />
+        </p>
+      ) : null}
+      {softReservationDeadline ? (
+        <p className={css.softReservationRow}>
+          <FormattedMessage
+            id="TransactionPanel.softReservation.setupDeadline"
+            values={{ deadline: softReservationDeadline }}
+          />
+        </p>
+      ) : null}
+      {isProvider ? (
+        <p className={css.softReservationProviderNotice}>
+          <FormattedMessage
+            id="TransactionPanel.softReservation.providerPayoutHint"
+            values={{
+              payoutDetailsLink: (
+                <NamedLink className={css.softReservationCtaLink} name="StripePayoutPage">
+                  <FormattedMessage id="TransactionPanel.softReservation.providerPayoutHintCta" />
+                </NamedLink>
+              ),
+            }}
+          />
+        </p>
+      ) : null}
+    </div>
+  );
+};
+
+const SOFT_BOOKING_PROCESS = 'cowork24-soft-booking';
+const TRANSITION_REQUEST_SOFT_BOOKING = 'transition/request-soft-booking';
+const TRANSITION_ACCEPT_AND_CHARGE = 'transition/accept-and-charge';
+const TRANSITION_DECLINE = 'transition/decline';
+const TRANSITION_WITHDRAW = 'transition/customer-cancel';
+const STATE_SOFT_REQUESTED = 'soft-requested';
+const STATE_ACCEPTED = 'accepted';
+const STATE_DECLINED = 'declined';
+const STATE_EXPIRED = 'expired';
+const STATE_CANCELLED = 'cancelled';
+
+const parseSoftBookingError = (error, intl) => {
+  const msg = error?.message || error?.toString() || '';
+  if (msg.includes('requires_action') || msg.includes('authentication_required')) {
+    return intl.formatMessage({ id: 'TransactionPanel.SoftBooking.error3dsRequired' });
+  }
+  if (msg.includes('no payment method') || msg.includes('PaymentMethod')) {
+    return intl.formatMessage({ id: 'TransactionPanel.SoftBooking.errorNoPaymentMethod' });
+  }
+  if (msg.includes('availability') || msg.includes('booking conflict')) {
+    return intl.formatMessage({ id: 'TransactionPanel.SoftBooking.errorAvailabilityConflict' });
+  }
+  return msg;
+};
+
+const SoftBookingProviderActions = props => {
+  const {
+    transaction,
+    currentUser,
+    isProvider,
+    onMakeTransition,
+    transitionInProgress,
+    transitionError,
+    intl,
+  } = props;
+
+  if (!isProvider) return null;
+
+  const lastTransition = transaction?.attributes?.lastTransition;
+  const txState = transaction?.attributes?.state;
+  const isSoftRequested =
+    lastTransition === TRANSITION_REQUEST_SOFT_BOOKING || txState === STATE_SOFT_REQUESTED;
+  if (!isSoftRequested) return null;
+
+  // stripeConnected is a private currentUser attribute — always available for self.
+  // Fall back to stripeAccount entity presence for extra safety.
+  const stripeReady =
+    !!currentUser?.attributes?.stripeConnected || !!currentUser?.stripeAccount?.id;
+
+  const acceptLabel = intl.formatMessage({ id: 'TransactionPanel.SoftBooking.acceptButton' });
+  const declineLabel = intl.formatMessage({ id: 'TransactionPanel.SoftBooking.declineButton' });
+  const errorMessage = transitionError ? parseSoftBookingError(transitionError, intl) : null;
+
+  if (!stripeReady) {
+    return (
+      <div className={css.softBookingStripeGate}>
+        <h3 className={css.softBookingStripeGateHeading}>
+          {intl.formatMessage({ id: 'TransactionPanel.SoftBooking.providerStripeRequiredHeading' })}
+        </h3>
+        <p className={css.softBookingStripeGateBody}>
+          {intl.formatMessage({ id: 'TransactionPanel.SoftBooking.providerStripeRequiredBody' })}
+        </p>
+        <div className={css.softBookingStripeGateActions}>
+          <NamedLink name="StripePayoutPage" className={css.softBookingStripeConnectLink}>
+            {intl.formatMessage({ id: 'TransactionPanel.SoftBooking.stripeConnectButton' })}
+          </NamedLink>
+          <button
+            className={css.softBookingDeclineButton}
+            onClick={() => onMakeTransition(transaction.id, TRANSITION_DECLINE, {})}
+            disabled={transitionInProgress === TRANSITION_DECLINE}
+          >
+            {transitionInProgress === TRANSITION_DECLINE ? '...' : declineLabel}
+          </button>
+        </div>
+        <p className={css.softBookingStripeGateNote}>
+          {intl.formatMessage({ id: 'TransactionPanel.SoftBooking.stripeRequiredTooltip' })}
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className={css.softBookingActions}>
+      {errorMessage ? (
+        <div className={css.softBookingError}>{errorMessage}</div>
+      ) : null}
+      <button
+        className={css.softBookingAcceptButton}
+        onClick={() => onMakeTransition(transaction.id, TRANSITION_ACCEPT_AND_CHARGE, {})}
+        disabled={transitionInProgress === TRANSITION_ACCEPT_AND_CHARGE}
+      >
+        {transitionInProgress === TRANSITION_ACCEPT_AND_CHARGE ? '...' : acceptLabel}
+      </button>
+      <button
+        className={css.softBookingDeclineButton}
+        onClick={() => onMakeTransition(transaction.id, TRANSITION_DECLINE, {})}
+        disabled={transitionInProgress === TRANSITION_DECLINE}
+      >
+        {transitionInProgress === TRANSITION_DECLINE ? '...' : declineLabel}
+      </button>
+    </div>
+  );
+};
+
+const SoftBookingCustomerStatus = props => {
+  const { transaction, isCustomer, onMakeTransition, transitionInProgress, intl } = props;
+
+  if (!isCustomer) return null;
+
+  const [showWithdrawConfirm, setShowWithdrawConfirm] = useState(false);
+
+  const lastTransition = transaction?.attributes?.lastTransition;
+  const txState = transaction?.attributes?.state;
+
+  const isSoftRequested =
+    lastTransition === TRANSITION_REQUEST_SOFT_BOOKING || txState === STATE_SOFT_REQUESTED;
+  const isAccepted = txState === STATE_ACCEPTED;
+  const isDeclined = txState === STATE_DECLINED;
+  const isExpired = txState === STATE_EXPIRED;
+  const isCancelled = txState === STATE_CANCELLED;
+
+  const handleWithdrawClick = () => setShowWithdrawConfirm(true);
+  const cancelWithdraw = () => setShowWithdrawConfirm(false);
+  const confirmWithdraw = () => {
+    setShowWithdrawConfirm(false);
+    onMakeTransition(transaction.id, TRANSITION_WITHDRAW, {});
+  };
+
+  if (isSoftRequested) {
+    return (
+      <div className={css.softBookingCustomerStatus}>
+        <h3 className={css.softBookingStatusHeading}>
+          {intl.formatMessage({ id: 'TransactionPanel.SoftBooking.customerSoftRequestedHeading' })}
+        </h3>
+        <p>{intl.formatMessage({ id: 'TransactionPanel.SoftBooking.customerSoftRequestedBody' })}</p>
+        {!showWithdrawConfirm ? (
+          <button
+            className={css.softBookingWithdrawButton}
+            onClick={handleWithdrawClick}
+            disabled={transitionInProgress === TRANSITION_WITHDRAW}
+          >
+            {intl.formatMessage({ id: 'TransactionPanel.SoftBooking.withdrawButton' })}
+          </button>
+        ) : (
+          <div className={css.softBookingWithdrawConfirm}>
+            <p className={css.softBookingWithdrawConfirmText}>
+              {intl.formatMessage({ id: 'TransactionPanel.SoftBooking.withdrawConfirmHeading' })}
+            </p>
+            <p>{intl.formatMessage({ id: 'TransactionPanel.SoftBooking.withdrawConfirmBody' })}</p>
+            <div className={css.softBookingWithdrawConfirmButtons}>
+              <button className={css.softBookingDeclineButton} onClick={confirmWithdraw}>
+                {intl.formatMessage({ id: 'TransactionPanel.SoftBooking.withdrawConfirmButton' })}
+              </button>
+              <button className={css.softBookingSecondaryButton} onClick={cancelWithdraw}>
+                {intl.formatMessage({ id: 'TransactionPanel.SoftBooking.withdrawCancelButton' })}
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  if (isAccepted) {
+    return (
+      <div className={css.softBookingCustomerStatus}>
+        <h3>{intl.formatMessage({ id: 'TransactionPanel.SoftBooking.acceptedHeading' })}</h3>
+      </div>
+    );
+  }
+
+  if (isDeclined) {
+    return (
+      <div className={css.softBookingCustomerStatus}>
+        <h3>{intl.formatMessage({ id: 'TransactionPanel.SoftBooking.declinedHeading' })}</h3>
+        <p>{intl.formatMessage({ id: 'TransactionPanel.SoftBooking.declinedBody' })}</p>
+      </div>
+    );
+  }
+
+  if (isExpired) {
+    return (
+      <div className={css.softBookingCustomerStatus}>
+        <h3>{intl.formatMessage({ id: 'TransactionPanel.SoftBooking.expiredHeading' })}</h3>
+        <p>{intl.formatMessage({ id: 'TransactionPanel.SoftBooking.expiredBody' })}</p>
+      </div>
+    );
+  }
+
+  if (isCancelled) {
+    return (
+      <div className={css.softBookingCustomerStatus}>
+        <h3>{intl.formatMessage({ id: 'TransactionPanel.SoftBooking.cancelledHeading' })}</h3>
+      </div>
+    );
+  }
+
+  return null;
+};
 
 // Helper function to get display names for different roles
 const displayNames = (currentUser, provider, customer, intl) => {
@@ -193,6 +498,10 @@ export class TransactionPanelComponent extends Component {
       orderPanel,
       config,
       hasViewingRights,
+      transaction,
+      transitionInProgress,
+      transitionError,
+      onMakeTransition,
     } = this.props;
 
     const hasTransitions = transitions.length > 0;
@@ -244,10 +553,16 @@ export class TransactionPanelComponent extends Component {
 
     const deliveryMethod = protectedData?.deliveryMethod || 'none';
     const priceVariantName = protectedData?.priceVariantName;
+    const softReservation = protectedData?.softReservation;
+    const softReservationStart = formatSoftReservationDateTime(softReservation?.bookingStart, intl);
+    const softReservationEnd = formatSoftReservationDateTime(softReservation?.bookingEnd, intl);
+    const softReservationDeadline = formatSoftReservationDateTime(
+      softReservation?.setupDeadline,
+      intl
+    );
 
-    const inquiryMessage = !isCustomerBanned
-      ? protectedData?.inquiryMessage
-      : intl.formatMessage({ id: 'TransactionPage.messageSenderBanned' });
+    const inquiryMessage = !isCustomerBanned ? protectedData?.inquiryMessage : null;
+    const showInquiryMessage = typeof inquiryMessage === 'string' && inquiryMessage.trim().length > 0;
 
     const classes = classNames(rootClassName || css.root, className);
 
@@ -293,11 +608,42 @@ export class TransactionPanelComponent extends Component {
               heading={intl.formatMessage({ id: 'TransactionPanel.inquiryMessageHeading' })}
               text={inquiryMessage}
               isOwn={isCustomer}
-              showText={isInquiryProcess}
+              showText={showInquiryMessage}
             />
+            {softReservation ? (
+              <SoftReservationDetailsMaybe
+                softReservation={softReservation}
+                softReservationStart={softReservationStart}
+                softReservationEnd={softReservationEnd}
+                softReservationDeadline={softReservationDeadline}
+                isProvider={isProvider}
+              />
+            ) : null}
 
             {requestQuote}
             {offer}
+
+            {stateData.processName === SOFT_BOOKING_PROCESS ? (
+              isProvider ? (
+                <SoftBookingProviderActions
+                  transaction={transaction}
+                  currentUser={currentUser}
+                  isProvider={isProvider}
+                  onMakeTransition={onMakeTransition}
+                  transitionInProgress={transitionInProgress}
+                  transitionError={transitionError}
+                  intl={intl}
+                />
+              ) : (
+                <SoftBookingCustomerStatus
+                  transaction={transaction}
+                  isCustomer={isCustomer}
+                  onMakeTransition={onMakeTransition}
+                  transitionInProgress={transitionInProgress}
+                  intl={intl}
+                />
+              )
+            ) : null}
 
             {!isInquiryProcess ? (
               <div className={css.orderDetails}>
@@ -416,6 +762,16 @@ export class TransactionPanelComponent extends Component {
                   intl={intl}
                 />
                 {showOrderPanel ? orderPanel : null}
+                {softReservation ? (
+                  <SoftReservationDetailsMaybe
+                    softReservation={softReservation}
+                    softReservationStart={softReservationStart}
+                    softReservationEnd={softReservationEnd}
+                    softReservationDeadline={softReservationDeadline}
+                    isProvider={isProvider}
+                    headingClassName={css.detailCardTitle}
+                  />
+                ) : null}
                 {showBreakDown ? (
                   <BreakdownMaybe
                     className={css.breakdownContainer}

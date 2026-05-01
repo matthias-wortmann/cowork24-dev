@@ -1,0 +1,108 @@
+.root {
+  padding: 24px 16px 48px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Two-column layout: form left, summary right */
+.twoColumns {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 32px;
+}
+
+@media (min-width: 768px) {
+  .twoColumns {
+    grid-template-columns: 1fr 380px;
+    gap: 48px;
+  }
+}
+
+/* ---- Left column ---- */
+.formColumn {
+  min-width: 0;
+}
+
+.heading {
+  margin-top: 0;
+  margin-bottom: 8px;
+}
+
+.subHeading {
+  margin-top: 0;
+  margin-bottom: 24px;
+  color: #4a4a4a;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.progress {
+  margin-bottom: 16px;
+  font-size: 13px;
+  color: #666;
+  font-style: italic;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Stripe card element wrapper */
+.cardWrapper {
+  border: 1px solid #d8dce3;
+  border-radius: 4px;
+  padding: 12px;
+  background: #fff;
+}
+
+.cardElement {
+  /* Stripe mounts its iframe here — do not add overflow:hidden */
+  min-height: 24px;
+}
+
+.error {
+  color: #d0021b;
+  font-size: 14px;
+  margin: 0;
+}
+
+.submitButton,
+.retryButton {
+  width: 100%;
+}
+
+/* ---- Right column ---- */
+.summaryColumn {
+  min-width: 0;
+}
+
+.bookingSummary {
+  background: #f9f9f9;
+  border: 1px solid #e3e3e3;
+  border-radius: 8px;
+  padding: 24px;
+}
+
+.summaryHeading {
+  margin-top: 0;
+  margin-bottom: 16px;
+}
+
+.summaryTitle {
+  font-weight: 600;
+  margin: 0 0 8px;
+}
+
+.summaryDates {
+  margin: 0 0 8px;
+  font-size: 14px;
+  color: #4a4a4a;
+}
+
+.summaryPrice {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+}

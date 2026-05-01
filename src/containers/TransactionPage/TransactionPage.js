@@ -685,6 +685,10 @@ export const TransactionPageComponent = props => {
       showBookingLocation={showBookingLocation}
       hasViewingRights={hasViewingRights}
       showListingImage={showListingImage}
+      transaction={transaction}
+      transitionInProgress={transitionInProgress}
+      transitionError={transitionError}
+      onMakeTransition={onTransition}
       actionButtons={containerId => (
         <ActionButtons
           containerId={containerId}

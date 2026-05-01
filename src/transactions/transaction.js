@@ -1,6 +1,7 @@
 import * as log from '../util/log';
 import * as purchaseProcess from './transactionProcessPurchase';
 import * as bookingProcess from './transactionProcessBooking';
+import * as softBookingProcess from './transactionProcessSoftBooking';
 import * as inquiryProcess from './transactionProcessInquiry';
 import * as negotiationProcess from './transactionProcessNegotiation';
 
@@ -21,6 +22,7 @@ export const REQUEST = 'request'; // The unitType 'request' means that customer 
 // Then names of supported processes
 export const PURCHASE_PROCESS_NAME = 'default-purchase';
 export const BOOKING_PROCESS_NAME = 'default-booking';
+export const SOFT_BOOKING_PROCESS_NAME = 'cowork24-soft-booking';
 export const INQUIRY_PROCESS_NAME = 'default-inquiry';
 export const NEGOTIATION_PROCESS_NAME = 'default-negotiation';
 
@@ -49,6 +51,12 @@ const PROCESSES = [
     alias: `${BOOKING_PROCESS_NAME}/release-1`,
     process: bookingProcess,
     unitTypes: [DAY, NIGHT, HOUR, FIXED, WEEK, MONTH],
+  },
+  {
+    name: SOFT_BOOKING_PROCESS_NAME,
+    alias: `${SOFT_BOOKING_PROCESS_NAME}/release-1`,
+    process: softBookingProcess,
+    unitTypes: [DAY],
   },
   {
     name: INQUIRY_PROCESS_NAME,
@@ -231,6 +239,8 @@ export const resolveLatestProcessName = processName => {
       return INQUIRY_PROCESS_NAME;
     case NEGOTIATION_PROCESS_NAME:
       return NEGOTIATION_PROCESS_NAME;
+    case SOFT_BOOKING_PROCESS_NAME:
+      return SOFT_BOOKING_PROCESS_NAME;
     default:
       return processName;
   }
@@ -316,6 +326,27 @@ export const isBookingProcess = processName => {
 export const isBookingProcessAlias = processAlias => {
   const processName = processAlias ? processAlias.split('/')[0] : null;
   return processAlias ? isBookingProcess(processName) : false;
+};
+
+/**
+ * Check if the process is soft booking process
+ *
+ * @param {String} processName
+ */
+export const isSoftBookingProcess = processName => {
+  const latestProcessName = resolveLatestProcessName(processName);
+  const processInfo = PROCESSES.find(process => process.name === latestProcessName);
+  return [SOFT_BOOKING_PROCESS_NAME].includes(processInfo?.name);
+};
+
+/**
+ * Check if the process/alias points to a soft booking process
+ *
+ * @param {String} processAlias
+ */
+export const isSoftBookingProcessAlias = processAlias => {
+  const processName = processAlias ? processAlias.split('/')[0] : null;
+  return processAlias ? isSoftBookingProcess(processName) : false;
 };
 
 /**

@@ -6,6 +6,10 @@ import { convertMoneyToNumber, formatMoney } from '../../util/currency';
 import { timestampToDate } from '../../util/dates';
 import { hasPermissionToInitiateTransactions, isUserAuthorized } from '../../util/userHelpers';
 import {
+  createSoftReservationProtectedData,
+  requiresSoftReservationFallback,
+} from '../../util/softReservation';
+import {
   NO_ACCESS_PAGE_INITIATE_TRANSACTIONS,
   NO_ACCESS_PAGE_USER_PENDING_APPROVAL,
   createSlug,
@@ -229,6 +233,7 @@ export const handleSubmit = parameters => values => {
     getListing,
     callSetInitialValues,
     onInitializeCardPaymentData,
+    onSendInquiry,
     routes,
   } = parameters;
   const listingId = new UUID(params.id);
@@ -247,6 +252,19 @@ export const handleSubmit = parameters => values => {
     ...otherOrderData
   } = values;
 
+  const dateFromFieldValue = fieldValue => {
+    if (fieldValue instanceof Date) {
+      return fieldValue;
+    }
+    if (fieldValue?.date instanceof Date) {
+      return fieldValue.date;
+    }
+    return null;
+  };
+
+  const bookingStartDateValue = dateFromFieldValue(bookingStartDate);
+  const bookingEndDateValue = dateFromFieldValue(bookingEndDate);
+
   const bookingMaybe = bookingDates
     ? {
         bookingDates: {
@@ -259,6 +277,13 @@ export const handleSubmit = parameters => values => {
         bookingDates: {
           bookingStart: timestampToDate(bookingStartTime),
           bookingEnd: timestampToDate(bookingEndTime),
+        },
+      }
+    : bookingStartDateValue && bookingEndDateValue
+    ? {
+        bookingDates: {
+          bookingStart: bookingStartDateValue,
+          bookingEnd: bookingEndDateValue,
         },
       }
     : {};
@@ -284,6 +309,27 @@ export const handleSubmit = parameters => values => {
   };
 
   const saveToSessionStorage = !currentUser;
+
+  // Route to soft booking checkout if provider has no Stripe Connect set up.
+  const shouldUseSoftBooking =
+    !!currentUser &&
+    isUserAuthorized(currentUser) &&
+    hasPermissionToInitiateTransactions(currentUser) &&
+    requiresSoftReservationFallback(listing);
+
+  if (shouldUseSoftBooking) {
+    history.push(
+      createResourceLocatorString('SoftBookingCheckoutPage', routes, {}, {}),
+      {
+        listingId: listing.id.uuid,
+        bookingStart: initialValues.orderData?.bookingDates?.bookingStart,
+        bookingEnd: initialValues.orderData?.bookingDates?.bookingEnd,
+        listingTitle: listing.attributes.title,
+        price: listing.attributes.price,
+      }
+    );
+    return;
+  }
 
   // Customize checkout page state with current listing and selected orderData
   const { setInitialValues } = findRouteByRouteName('CheckoutPage', routes);

@@ -441,6 +441,43 @@
   }
 }
 
+.softReservationCard {
+  border: 1px solid var(--colorGrey100);
+  border-radius: 12px;
+  background: linear-gradient(180deg, var(--colorWhite) 0%, var(--colorGrey50) 100%);
+  padding: 18px 16px;
+
+  @media (--viewportLarge) {
+    padding: 20px 18px;
+  }
+}
+
+.softReservationStatus {
+  composes: marketplaceTinyFontStyles from global;
+  color: var(--colorSuccess);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin: 8px 0 12px 0;
+}
+
+.softReservationRow {
+  margin: 0 0 8px 0;
+}
+
+.softReservationProviderNotice {
+  margin: 12px 0 0 0;
+  padding: 12px;
+  border-radius: 8px;
+  background-color: var(--colorWhite);
+  border: 1px dashed var(--colorGrey300);
+}
+
+.softReservationCtaLink {
+  display: inline-block;
+  margin-left: 4px;
+  font-weight: var(--fontWeightMedium);
+}
+
 /* Prop to be passed to SendMessageForm component */
 .sendMessageForm {
   position: relative;
@@ -505,6 +542,200 @@
     align-items: center;
     padding: 0;
   }
+}
+
+/* ========================================================
+   Soft booking provider actions
+   ======================================================== */
+
+/* Yellow warning banner when Stripe is not connected */
+.softBookingStripeGate {
+  background-color: #fff8e1;
+  border: 1px solid #f59e0b;
+  border-radius: 8px;
+  padding: 20px;
+  margin: 24px 0;
+}
+
+.softBookingStripeGateHeading {
+  margin: 0 0 8px 0;
+  font-size: 16px;
+  font-weight: var(--fontWeightSemiBold);
+  color: #92400e;
+}
+
+.softBookingStripeGateBody {
+  margin: 0 0 16px 0;
+  color: #78350f;
+  font-size: 14px;
+}
+
+.softBookingStripeGateActions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.softBookingStripeGateNote {
+  margin: 0;
+  font-size: 12px;
+  color: #92400e;
+  font-style: italic;
+}
+
+/* Primary CTA link styled as a button (Stripe Connect) */
+.softBookingStripeConnectLink {
+  display: inline-block;
+  padding: 10px 20px;
+  background-color: #635bff;
+  color: #fff;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: var(--fontWeightSemiBold);
+  text-decoration: none;
+  transition: background-color 0.15s ease;
+
+  &:hover {
+    background-color: #4f46e5;
+    text-decoration: none;
+    color: #fff;
+  }
+}
+
+/* Accept button (green) */
+.softBookingAcceptButton {
+  padding: 10px 24px;
+  background-color: var(--colorSuccess, #16a34a);
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: var(--fontWeightSemiBold);
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+
+  &:hover:not(:disabled) {
+    background-color: #15803d;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+/* Decline / withdraw button (outlined red) */
+.softBookingDeclineButton {
+  padding: 10px 24px;
+  background-color: transparent;
+  color: var(--colorFail, #ef4444);
+  border: 1px solid var(--colorFail, #ef4444);
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: var(--fontWeightSemiBold);
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+
+  &:hover:not(:disabled) {
+    background-color: var(--colorFail, #ef4444);
+    color: #fff;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+/* Neutral secondary button (cancel withdraw) */
+.softBookingSecondaryButton {
+  padding: 10px 24px;
+  background-color: transparent;
+  color: var(--colorGrey600);
+  border: 1px solid var(--colorGrey300);
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+
+  &:hover {
+    background-color: var(--colorGrey50);
+  }
+}
+
+/* Withdraw button (customer) */
+.softBookingWithdrawButton {
+  padding: 8px 20px;
+  background-color: transparent;
+  color: var(--colorGrey600);
+  border: 1px solid var(--colorGrey300);
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  margin-top: 12px;
+  transition: background-color 0.15s ease;
+
+  &:hover:not(:disabled) {
+    background-color: var(--colorGrey50);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+/* Withdraw confirmation box */
+.softBookingWithdrawConfirm {
+  margin-top: 12px;
+  background-color: var(--colorGrey50);
+  border: 1px solid var(--colorGrey200);
+  border-radius: 6px;
+  padding: 16px;
+}
+
+.softBookingWithdrawConfirmText {
+  font-weight: var(--fontWeightSemiBold);
+  margin: 0 0 6px 0;
+}
+
+.softBookingWithdrawConfirmButtons {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+.softBookingActions {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+  flex-wrap: wrap;
+}
+
+.softBookingError {
+  color: #d32f2f;
+  background-color: #fdecea;
+  border-radius: 4px;
+  padding: 12px;
+  margin-bottom: 16px;
+  width: 100%;
+}
+
+.softBookingCustomerStatus {
+  padding: 24px 0;
+}
+
+.softBookingStatusHeading {
+  margin: 0 0 8px 0;
+  font-size: 16px;
+  font-weight: var(--fontWeightSemiBold);
+}
+
+.softBookingDates {
+  margin: 12px 0;
+  font-weight: var(--fontWeightSemiBold);
 }
 
 /* e.g. dispute "link" */
