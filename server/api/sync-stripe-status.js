@@ -13,18 +13,29 @@ const { getSdk, handleError } = require('../api-util/sdk');
 module.exports = (req, res) => {
   const sdk = getSdk(req, res);
 
-  sdk.stripeAccount
-    .fetch()
-    .then(() => {
-      // Provider has a Stripe account — mirror status into publicData.
-      return sdk.currentUser.updateProfile({ publicData: { stripeConnected: true } });
-    })
-    .then(() => {
-      res.status(200).json({ synced: true });
+  // Fetch currentUser with stripeAccount relationship.
+  // currentUser.attributes.stripeConnected is the authoritative flag — it is true
+  // only when the provider has completed Stripe Connect onboarding (not just created
+  // an account object). We mirror this exact value into profile.publicData so that
+  // listing authors' Stripe readiness is readable by customers.
+  sdk.currentUser
+    .show({ include: ['stripeAccount'] })
+    .then(response => {
+      const currentUser = response.data.data;
+      const isFullyConnected = !!currentUser?.attributes?.stripeConnected;
+
+      if (!isFullyConnected) {
+        // Account exists but onboarding is incomplete — mark as not connected.
+        return sdk.currentUser
+          .updateProfile({ publicData: { stripeConnected: false } })
+          .then(() => res.status(200).json({ synced: false, reason: 'stripe_not_onboarded' }));
+      }
+
+      return sdk.currentUser
+        .updateProfile({ publicData: { stripeConnected: true } })
+        .then(() => res.status(200).json({ synced: true }));
     })
     .catch(e => {
-      // If stripeAccount.fetch fails (no account, unauthenticated, or any API error)
-      // return 200 + synced:false so the caller can silently skip.
       const status = e?.status || e?.response?.status;
       const apiErrors = e?.data?.errors || e?.apiErrors;
       const isNotFound = status === 404 || status === 403 || status === 401;

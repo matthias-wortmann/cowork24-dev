@@ -131,12 +131,10 @@ const fetchStripeAccountPayloadCreator = (params, { extra: sdk, rejectWithValue,
       // before this feature was added. profile.publicData is publicly readable by customers.
       // Use server endpoint for reliability (session-cookie SDK on server side).
       const currentUser = getState()?.user?.currentUser;
-      const alreadySynced = currentUser?.attributes?.profile?.publicData?.stripeConnected;
-      if (!alreadySynced && typeof window !== 'undefined') {
-        console.log('[stripeConnectAccount.duck] Syncing stripeConnected to publicData via server...');
-        syncStripeStatus()
-          .then(result => console.log('[stripeConnectAccount.duck] syncStripeStatus:', result))
-          .catch(e => console.error('[stripeConnectAccount.duck] syncStripeStatus failed:', e));
+      const actuallyConnected = !!stripeAccount?.attributes?.stripeConnected;
+      const cachedConnected = currentUser?.attributes?.profile?.publicData?.stripeConnected;
+      if (typeof window !== 'undefined' && cachedConnected !== actuallyConnected) {
+        syncStripeStatus().catch(() => {});
       }
       return stripeAccount;
     })

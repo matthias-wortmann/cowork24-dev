@@ -50,14 +50,6 @@ export const requiresSoftReservationFallback = listing => {
   const authorPublicData = listing?.author?.attributes?.profile?.publicData;
   const authorStripeConnected = !!authorPublicData?.stripeConnected;
 
-  // Debug: log what the API returned for the author so we can diagnose detection
-  if (typeof window !== 'undefined') {
-    console.log('[softReservation] author.attributes:', listing?.author?.attributes);
-    console.log('[softReservation] authorPublicData:', authorPublicData);
-    console.log('[softReservation] authorStripeConnected:', authorStripeConnected);
-    console.log('[softReservation] isPaymentProcess:', isPaymentProcess, '→ requiresFallback:', isPaymentProcess && !authorStripeConnected);
-  }
-
   return isPaymentProcess && !authorStripeConnected;
 };
 

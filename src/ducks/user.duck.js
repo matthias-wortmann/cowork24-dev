@@ -211,22 +211,19 @@ const fetchCurrentUserPayloadCreator = (options, thunkAPI) => {
       // Save stripeAccount to store.stripe.stripeAccount if it exists
       if (currentUser.stripeAccount) {
         dispatch(updateStripeConnectAccount(currentUser.stripeAccount));
+      }
 
-        // Mirror stripeConnected into profile.publicData so it is publicly readable
-        // by other users (e.g. customers checking provider Stripe status on ListingPage).
-        // currentUser.attributes.stripeConnected is private; profile.publicData is public.
-        // We call the server endpoint (which uses the session SDK) for reliability.
-        const alreadySynced =
-          currentUser.attributes?.profile?.publicData?.stripeConnected;
-        if (!alreadySynced && typeof window !== 'undefined') {
-          console.log('[user.duck] stripeAccount present but publicData.stripeConnected missing — syncing via server...');
-          syncStripeStatus()
-            .then(result => {
-              console.log('[user.duck] syncStripeStatus result:', result);
-            })
-            .catch(e => {
-              console.error('[user.duck] syncStripeStatus failed:', e);
-            });
+      // Mirror the authoritative stripeConnected flag into profile.publicData so it is
+      // readable by other users (e.g. customers on ListingPage).
+      // currentUser.attributes.stripeConnected is private; publicData is public.
+      // Sync whenever: (a) stripeAccount exists but flag is missing, OR (b) the
+      // actual connected status differs from what is cached in publicData.
+      if (typeof window !== 'undefined') {
+        const actuallyConnected = !!currentUser.attributes?.stripeConnected;
+        const cachedConnected = currentUser.attributes?.profile?.publicData?.stripeConnected;
+        const needsSync = cachedConnected !== actuallyConnected;
+        if (needsSync) {
+          syncStripeStatus().catch(() => {});
         }
       }
 
