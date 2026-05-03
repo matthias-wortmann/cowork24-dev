@@ -12,6 +12,7 @@ import {
 
 import { authInfo } from './auth.duck';
 import { updateStripeConnectAccount } from './stripeConnectAccount.duck';
+import { syncStripeStatus } from '../util/api';
 
 // ================ Helper Functions ================ //
 
@@ -210,6 +211,20 @@ const fetchCurrentUserPayloadCreator = (options, thunkAPI) => {
       // Save stripeAccount to store.stripe.stripeAccount if it exists
       if (currentUser.stripeAccount) {
         dispatch(updateStripeConnectAccount(currentUser.stripeAccount));
+      }
+
+      // Mirror the authoritative stripeConnected flag into profile.publicData so it is
+      // readable by other users (e.g. customers on ListingPage).
+      // currentUser.attributes.stripeConnected is private; publicData is public.
+      // Sync whenever: (a) stripeAccount exists but flag is missing, OR (b) the
+      // actual connected status differs from what is cached in publicData.
+      if (typeof window !== 'undefined') {
+        const actuallyConnected = !!currentUser.attributes?.stripeConnected;
+        const cachedConnected = currentUser.attributes?.profile?.publicData?.stripeConnected;
+        const needsSync = cachedConnected !== actuallyConnected;
+        if (needsSync) {
+          syncStripeStatus().catch(() => {});
+        }
       }
 
       // set current user id to the logger

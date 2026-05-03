@@ -1,6 +1,6 @@
 # AGENTS.md – AI Agent guide for Sharetribe Web Template
 
-For a concise AI-oriented index (cowork24, Cursor rules/skills), see **`CLAUDE.md`** in the repository root.
+For a concise AI-oriented index (cowork24, Cursor rules/skills), see `**CLAUDE.md**` in the repository root.
 
 Sharetribe Web Template is a React-based marketplace web application with server-side rendering.
 
@@ -66,7 +66,7 @@ components via `useConfiguration()` hook.
 If key assets are missing, the app shows a MaintenanceModeError (see `src/app.js` ClientApp for
 details).
 
-Full technical asset reference is available in https://www.sharetribe.com/docs/references/assets/.
+Full technical asset reference is available in [https://www.sharetribe.com/docs/references/assets/](https://www.sharetribe.com/docs/references/assets/).
 
 # Code conventions
 
@@ -80,7 +80,7 @@ Full technical asset reference is available in https://www.sharetribe.com/docs/r
   - `--viewportLarge` starts at 1024px.
   - common breakpoints are defined in `src/styles/customMediaQueries.css`
 - `/src/styles/marketplaceDefaults.css` file contains CSS variables, global CSS classes, and the
-  default styles for DOM elements.
+default styles for DOM elements.
 - Write component styles using class selectors. Do not use element selectors.
 
 ## Dependency import order
@@ -89,35 +89,35 @@ Full technical asset reference is available in https://www.sharetribe.com/docs/r
   1. Import external libraries and third-party assets
   2. Import configurations, contexts, and `util` modules
   3. Import shared components – the src/components/index.js file maintains correct import order
-     within the directory and has a comment link to further reading.
+    within the directory and has a comment link to further reading.
   4. Import modules from parent directory
   5. Import modules from same directory
 - See `src/containers/CheckoutPage/CheckoutPage.js` for an example on the correct import order
 - Group similar imports and separate them with descriptive code comments similarly to
-  `CheckoutPage.js`.
+`CheckoutPage.js`.
 - Imports from shared `components` directory or `util` directory should use relative paths that
-  include the directory name (e.g.import { IconComponent } from '../../components';)
+include the directory name (e.g.import { IconComponent } from '../../components';)
 
 ## Forms
 
 - Always use React Final Form for creating forms to gather user input
 - There are ready-made shared components to cover basic React Final Form field inputs, e.g.
-  "FieldTextInput" and "FieldSelect", etc.
-- Components that start with Field\* on src/components/index.js file are meant for React Final Form.
+"FieldTextInput" and "FieldSelect", etc.
+- Components that start with Field on src/components/index.js file are meant for React Final Form.
 - If new custom field is created, add potential label above the input and show errors below the
-  input using <ValidationError> component. Check that the input follows accessibility standards.
+input using  component. Check that the input follows accessibility standards.
 
 ## Utilities
 
 - This codebase prefers local utilities instead of imported libraries due to bundle size concerns
-  and dependency management.
+and dependency management.
 - The `src/util/` directory contains production-ready utility helper functions to handle different
-  entities and use cases in the codebase. These utility functions are grouped by category in
-  descriptively named files, e.g. `currency.js`, `dates.js`, etc, and most files have a
-  correspondingly named test file.
+entities and use cases in the codebase. These utility functions are grouped by category in
+descriptively named files, e.g. `currency.js`, `dates.js`, etc, and most files have a
+correspondingly named test file.
 - Review the available utility functions and prefer using existing ones or adding a new local
-  utility function instead of importing new helper libraries. Ask the user explicitly before
-  importing a new library.
+utility function instead of importing new helper libraries. Ask the user explicitly before
+importing a new library.
 
 ## Redux
 
@@ -125,31 +125,31 @@ Full technical asset reference is available in https://www.sharetribe.com/docs/r
 - There are two types of Redux duck files in the application:
   - Global .duck.js files are used from multiple pages, and they live in the `src/ducks/` directory
   - Page-level .duck.js files are used from a specific page, and they live in the corresponding page
-    directory.
+  directory.
 
 ## API calls
 
 - Use the Sharetribe SDK to call Sharetribe Marketplace API
 - For other API calls, including to the app's own server, create a function in `src/util/api.js` and
-  follow the established conventions.
+follow the established conventions.
 - Make API calls for a page (using the SDK) in a `src/containers/{PageName}.duck.js` file. See
-  `src/containers/ListingPage/ListingPage.duck.js` for an example.
+`src/containers/ListingPage/ListingPage.duck.js` for an example.
 - Do not use a `useEffect` hook to make API data loading calls. Instead, add a page-level .duck.js
-  file that contains a loadData function. Register the loadData in
-  `src/containers/pageDataLoadingAPI.js` and `routeConfiguration.js` files following the existing
-  conventions in those files. This pattern is important for SSR, so with components that only render
-  content client-side, it is safe to diverge from this rule.
+file that contains a loadData function. Register the loadData in
+`src/containers/pageDataLoadingAPI.js` and `routeConfiguration.js` files following the existing
+conventions in those files. This pattern is important for SSR, so with components that only render
+content client-side, it is safe to diverge from this rule.
 - Marketplace API reference
-  https://www.sharetribe.com/api-reference/marketplace.html#marketplace-api-reference
+[https://www.sharetribe.com/api-reference/marketplace.html#marketplace-api-reference](https://www.sharetribe.com/api-reference/marketplace.html#marketplace-api-reference)
 
 ## Transaction processes
 
 - The Sharetribe Web Template supports four transaction processes by default
   - View `src/transactions/transaction.js` for transaction process definitions
   - View `src/transactions/README.md` for more context on transaction process handling in this
-    repository.
+  repository.
 - Always ask for approval from user if attempting to make changes to transaction processes, and
-  remind them to make the necessary process updates towards the Sharetribe backend.
+remind them to make the necessary process updates towards the Sharetribe backend.
 
 ## Formatting
 
@@ -159,8 +159,8 @@ Prettier: single quotes, 2 spaces, trailing commas, max line 100
 
 - Always use React Intl `FormattedMessage` or `intl.formatMessage()` for copy texts.
 - Add new internationalization strings as key-value pairs to `/src/translations/{en,de,es,fr}.json`
-  for local fallback values in the corresponding languages. Hosted translations are fetched
-  similarly to hosted configurations.
+for local fallback values in the corresponding languages. Hosted translations are fetched
+similarly to hosted configurations.
   - pattern: `"ComponentName.key" : "Message with {variable}"`,
 - To access `intl` in components, use the `useIntl()` hook
 
@@ -169,3 +169,4 @@ Prettier: single quotes, 2 spaces, trailing commas, max line 100
 - Prefer functional components and React hooks
 - Add JSDoc comments for the component and any exported functions
 - Components should use semantic HTML elements
+

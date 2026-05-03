@@ -34,6 +34,9 @@ router.use(
   })
 );
 
+// Parse plain JSON bodies (used by soft-booking endpoints)
+router.use(bodyParser.json());
+
 // Parse URL-encoded bodies (needed for Apple Sign-In callback, which uses response_mode=form_post)
 router.use(bodyParser.urlencoded({ extended: true }));
 
@@ -60,6 +63,10 @@ router.post('/transaction-line-items', transactionLineItems);
 router.post('/initiate-privileged', initiatePrivileged);
 router.post('/transition-privileged', transitionPrivileged);
 router.post('/delete-account', deleteAccount);
+
+router.get('/soft-booking/setup-intent', require('./api/soft-booking/setup-intent'));
+router.post('/soft-booking/initiate', require('./api/soft-booking/initiate'));
+router.get('/sync-stripe-status', require('./api/sync-stripe-status'));
 
 // Create user with identity provider (e.g. Facebook or Google)
 // This endpoint is called to create a new user after user has confirmed

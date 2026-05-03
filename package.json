@@ -62,6 +62,7 @@
     "sitemap": "^9.0.0",
     "smoothscroll-polyfill": "^0.4.0",
     "source-map-support": "^0.5.21",
+    "stripe": "^22.1.0",
     "unified": "^9.2.2"
   },
   "devDependencies": {
@@ -75,7 +76,8 @@
     "cross-env": "10.1.0",
     "inquirer": "^8.2.6",
     "nodemon": "^3.1.11",
-    "prettier": "^1.18.2"
+    "prettier": "^1.18.2",
+    "sharetribe-flex-integration-sdk": "^1.11.0"
   },
   "resolutions": {
     "sharetribe-scripts/webpack-dev-server/express/path-to-regexp": "0.1.12",
@@ -106,6 +108,7 @@
     "start": "node server/index.js",
     "dev-server": "cross-env-shell NODE_ENV=development PORT=4000 REACT_APP_MARKETPLACE_ROOT_URL=http://localhost:4000 \"yarn run build&&nodemon --watch server server/index.js\"",
     "test-server": "jest --testPathPattern=server/.*\\.test\\.js$",
+    "sync-stripe-status": "node scripts/sync-stripe-status-all.js",
     "heroku-postbuild": "yarn run build",
     "postinstall": "patch-package",
     "translate": "node scripts/translations.js",

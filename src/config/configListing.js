@@ -332,6 +332,24 @@ export const listingTypes = [
   //     location: true,
   //   },
   // },
+  {
+    // cowork24-soft-booking: providers can receive booking requests without Stripe.
+    // Payment is only captured when the provider accepts the booking.
+    listingType: 'cowork24-soft-booking',
+    label: 'Coworking Space (Soft Booking)',
+    transactionType: {
+      process: 'cowork24-soft-booking',
+      alias: 'cowork24-soft-booking/release-1',
+      unitType: 'day',
+    },
+    availabilityType: 'oneSeat',
+    defaultListingFields: {
+      location: true,
+      // payoutDetails: false means providers can publish without Stripe connected.
+      // The soft-booking process defers payment until the provider accepts.
+      payoutDetails: false,
+    },
+  },
 ];
 
 // SearchPage can enforce listing query to only those listings with valid listingType
