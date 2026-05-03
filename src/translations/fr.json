@@ -994,6 +994,7 @@
   "SoftBookingCheckoutPage.step1Progress": "1/3 Enregistrement de la carte...",
   "SoftBookingCheckoutPage.step2Progress": "2/3 Enregistrement de la carte...",
   "SoftBookingCheckoutPage.step3Progress": "3/3 Envoi de la demande...",
+  "SoftBookingCheckoutPage.orPayWithCard": "ou payer par carte",
   "SoftBookingCheckoutPage.subHeading": "Votre carte ne sera débitée que lorsque l'hôte confirmera votre demande.",
   "SoftBookingCheckoutPage.submitButton": "Enregistrer la carte et envoyer la demande",
   "SearchFiltersMobile.cancel": "ANNULER",

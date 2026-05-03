@@ -994,6 +994,7 @@
   "SoftBookingCheckoutPage.step1Progress": "1/3 Guardando tarjeta...",
   "SoftBookingCheckoutPage.step2Progress": "2/3 Registrando tarjeta...",
   "SoftBookingCheckoutPage.step3Progress": "3/3 Enviando solicitud...",
+  "SoftBookingCheckoutPage.orPayWithCard": "o pagar con tarjeta",
   "SoftBookingCheckoutPage.subHeading": "Su tarjeta solo se cargará cuando el anfitrión confirme su solicitud.",
   "SoftBookingCheckoutPage.submitButton": "Guardar tarjeta y enviar solicitud",
   "SearchFiltersMobile.cancel": "CANCELAR",

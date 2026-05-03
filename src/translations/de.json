@@ -994,6 +994,7 @@
   "SoftBookingCheckoutPage.step1Progress": "1/3 Karte speichern...",
   "SoftBookingCheckoutPage.step2Progress": "2/3 Karte registrieren...",
   "SoftBookingCheckoutPage.step3Progress": "3/3 Anfrage senden...",
+  "SoftBookingCheckoutPage.orPayWithCard": "oder mit Karte bezahlen",
   "SoftBookingCheckoutPage.subHeading": "Ihre Karte wird erst belastet, wenn der Anbieter Ihre Anfrage bestätigt.",
   "SoftBookingCheckoutPage.submitButton": "Karte speichern & Anfrage senden",
   "SearchFiltersMobile.cancel": "ABBRECHEN",

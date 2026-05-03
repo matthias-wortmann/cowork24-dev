@@ -5,6 +5,7 @@ import { useHistory } from 'react-router-dom';
 import { useConfiguration } from '../../context/configurationContext';
 import { FormattedMessage, useIntl } from '../../util/reactIntl';
 import { loadStripeJs } from '../../util/loadStripe';
+import { getPaymentRequestCountryForCurrency } from '../../util/stripePaymentRequest';
 import { softBookingSetupIntent, softBookingInitiate } from '../../util/api';
 import {
   addPaymentMethod,
@@ -120,6 +121,7 @@ const SoftBookingCheckoutPage = () => {
   // ---------------- Local state ----------------
   const [clientSecret, setClientSecret] = useState(null);
   const [fetchError, setFetchError] = useState(null);
+  const [stripeReady, setStripeReady] = useState(false);
 
   // step: 'idle' | 'saving-card' | 'registering-card' | 'initiating' | 'done' | 'error'
   const [step, setStep] = useState('idle');
@@ -127,11 +129,17 @@ const SoftBookingCheckoutPage = () => {
   const [errorMsg, setErrorMsg] = useState(null);
   const [paymentMethodId, setPaymentMethodId] = useState(null);
 
+  // Payment Request Button (Apple Pay / Google Pay) state
+  const [paymentRequestShown, setPaymentRequestShown] = useState(false);
+
   // Stripe refs (using raw Stripe.js — matching StripePaymentForm / PaymentMethodsForm pattern)
   const stripeRef = useRef(null);
   const cardRef = useRef(null);
   const cardContainerRef = useRef(null);
   const stripeMountActiveRef = useRef(false);
+  const prButtonContainerRef = useRef(null);
+  const prButtonElementRef = useRef(null);
+  const paymentRequestRef = useRef(null);
 
   // ---------------- Fetch SetupIntent on mount ----------------
   useEffect(() => {
@@ -158,6 +166,7 @@ const SoftBookingCheckoutPage = () => {
         const elements = stripeRef.current.elements(stripeElementsOptions);
         cardRef.current = elements.create('card', { style: cardStyles });
         cardRef.current.mount(cardContainerRef.current);
+        setStripeReady(true);
       })
       .catch(e => {
         console.error('Stripe load error', e);
@@ -171,6 +180,114 @@ const SoftBookingCheckoutPage = () => {
       }
     };
   }, [config]); // re-mount only when config changes
+
+  // ---------------- Set up Payment Request Button (Apple Pay / Google Pay) ----------------
+  useEffect(() => {
+    if (!stripeReady || !clientSecret || !price?.amount || !price?.currency) return;
+    if (!prButtonContainerRef.current) return;
+
+    const stripe = stripeRef.current;
+    if (!stripe || typeof stripe.paymentRequest !== 'function') return;
+
+    const currency = price.currency.toLowerCase();
+    const amount = Number(price.amount);
+    const supportedCountries = config?.stripe?.supportedCountries || [];
+    const country = getPaymentRequestCountryForCurrency(price.currency, supportedCountries);
+
+    // Tear down any previous button
+    if (prButtonElementRef.current) {
+      try { prButtonElementRef.current.unmount(); } catch (e) { /* ignore */ }
+      prButtonElementRef.current = null;
+    }
+    if (paymentRequestRef.current) {
+      try { paymentRequestRef.current.off('paymentmethod'); } catch (e) { /* ignore */ }
+      paymentRequestRef.current = null;
+    }
+
+    const pr = stripe.paymentRequest({
+      country,
+      currency,
+      total: {
+        label: listingTitle || intl.formatMessage({ id: 'SoftBookingCheckoutPage.heading' }),
+        amount,
+      },
+      requestPayerName: true,
+      requestPayerEmail: true,
+    });
+
+    pr.on('paymentmethod', async ev => {
+      setStep('saving-card');
+      setErrorMsg(null);
+      setErrorStep(null);
+
+      // For SetupIntents: confirmCardSetup with handleActions:false first,
+      // then handle any 3DS action in a second call.
+      const { error, setupIntent } = await stripe.confirmCardSetup(
+        clientSecret,
+        { payment_method: ev.paymentMethod.id },
+        { handleActions: false }
+      );
+
+      if (error) {
+        ev.complete('fail');
+        setErrorStep(1);
+        setErrorMsg(error.message || 'Karte konnte nicht gespeichert werden.');
+        setStep('error');
+        return;
+      }
+
+      // Tell Apple Pay / Google Pay the payment sheet can close
+      ev.complete('success');
+
+      if (setupIntent.status === 'requires_action') {
+        // Handle 3DS authentication (redirects inside the wallet UI)
+        const { error: actionError } = await stripe.confirmCardSetup(clientSecret);
+        if (actionError) {
+          setErrorStep(1);
+          setErrorMsg(actionError.message || 'Karte konnte nicht verifiziert werden.');
+          setStep('error');
+          return;
+        }
+      }
+
+      const pmId = setupIntent.payment_method;
+      setPaymentMethodId(pmId);
+      await runStep2(pmId);
+    });
+
+    paymentRequestRef.current = pr;
+
+    pr.canMakePayment().then(result => {
+      if (!stripeMountActiveRef.current || !result || !prButtonContainerRef.current) return;
+
+      const elements = stripe.elements(stripeElementsOptions);
+      const btn = elements.create('paymentRequestButton', {
+        paymentRequest: pr,
+        style: {
+          paymentRequestButton: {
+            type: 'default',
+            theme: 'dark',
+            height: '48px',
+          },
+        },
+      });
+      btn.mount(prButtonContainerRef.current);
+      prButtonElementRef.current = btn;
+      setPaymentRequestShown(true);
+    });
+
+    return () => {
+      if (prButtonElementRef.current) {
+        try { prButtonElementRef.current.unmount(); } catch (e) { /* ignore */ }
+        prButtonElementRef.current = null;
+      }
+      if (paymentRequestRef.current) {
+        try { paymentRequestRef.current.off('paymentmethod'); } catch (e) { /* ignore */ }
+        paymentRequestRef.current = null;
+      }
+      setPaymentRequestShown(false);
+    };
+  }, [stripeReady, clientSecret, price?.amount, price?.currency]); // eslint-disable-line
 
   // ---------------- Step 2: register card with Sharetribe via Redux thunk ----------------
   const runStep2 = async pmId => {
@@ -211,7 +328,7 @@ const SoftBookingCheckoutPage = () => {
     }
   };
 
-  // ---------------- Form submit (step 1: save card) ----------------
+  // ---------------- Form submit (step 1: save card via card element) ----------------
   const handleSubmit = async e => {
     e.preventDefault();
     if (!stripeRef.current || !cardRef.current || !clientSecret) return;
@@ -248,7 +365,8 @@ const SoftBookingCheckoutPage = () => {
   // ---------------- Derived UI state ----------------
   const isLoading = ['saving-card', 'registering-card', 'initiating'].includes(step);
   const isSubmitDisabled = isLoading || !clientSecret || !!fetchError;
-  const showMainSubmit = step === 'idle' || step === 'saving-card' || (step === 'error' && errorStep === 1);
+  const showMainSubmit =
+    step === 'idle' || step === 'saving-card' || (step === 'error' && errorStep === 1);
 
   const pageTitle = intl.formatMessage({ id: 'SoftBookingCheckoutPage.heading' });
 
@@ -272,6 +390,20 @@ const SoftBookingCheckoutPage = () => {
                 <p className={css.error}>{fetchError}</p>
               ) : (
                 <form onSubmit={handleSubmit} className={css.form}>
+                  {/* Apple Pay / Google Pay button — shown when wallet is available */}
+                  <div
+                    ref={prButtonContainerRef}
+                    className={css.paymentRequestButtonContainer}
+                    style={{ display: paymentRequestShown ? 'block' : 'none' }}
+                  />
+                  {paymentRequestShown ? (
+                    <div className={css.orDivider}>
+                      <span className={css.orDividerText}>
+                        <FormattedMessage id="SoftBookingCheckoutPage.orPayWithCard" />
+                      </span>
+                    </div>
+                  ) : null}
+
                   {/* Stripe card element container */}
                   <div className={css.cardWrapper}>
                     <div ref={cardContainerRef} className={css.cardElement} />
