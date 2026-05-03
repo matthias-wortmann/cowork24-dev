@@ -315,7 +315,9 @@ export const isPurchaseProcessAlias = processAlias => {
 export const isBookingProcess = processName => {
   const latestProcessName = resolveLatestProcessName(processName);
   const processInfo = PROCESSES.find(process => process.name === latestProcessName);
-  return [BOOKING_PROCESS_NAME].includes(processInfo?.name);
+  // cowork24-soft-booking is a booking process (calendar-based, time/day units)
+  // even though it has a custom payment flow.
+  return [BOOKING_PROCESS_NAME, SOFT_BOOKING_PROCESS_NAME].includes(processInfo?.name);
 };
 
 /**
