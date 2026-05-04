@@ -6,10 +6,6 @@ import { convertMoneyToNumber, formatMoney } from '../../util/currency';
 import { timestampToDate } from '../../util/dates';
 import { hasPermissionToInitiateTransactions, isUserAuthorized } from '../../util/userHelpers';
 import {
-  createSoftReservationProtectedData,
-  requiresSoftReservationFallback,
-} from '../../util/softReservation';
-import {
   NO_ACCESS_PAGE_INITIATE_TRANSACTIONS,
   NO_ACCESS_PAGE_USER_PENDING_APPROVAL,
   createSlug,
@@ -233,7 +229,6 @@ export const handleSubmit = parameters => values => {
     getListing,
     callSetInitialValues,
     onInitializeCardPaymentData,
-    onSendInquiry,
     routes,
   } = parameters;
   const listingId = new UUID(params.id);
@@ -310,18 +305,14 @@ export const handleSubmit = parameters => values => {
 
   const saveToSessionStorage = !currentUser;
 
-  // Route to soft-booking checkout when the provider has no Stripe Connect set up.
-  // This covers both explicit cowork24-soft-booking listings AND any regular booking
-  // listing where the provider hasn't yet completed Stripe onboarding.
-  // The soft-booking flow saves the customer's card and creates a proposed booking;
-  // payment is captured only when the provider accepts.
-  const shouldUseSoftBooking =
-    !!currentUser &&
-    isUserAuthorized(currentUser) &&
-    hasPermissionToInitiateTransactions(currentUser) &&
-    requiresSoftReservationFallback(listing);
+  // Route cowork24-soft-booking listings to the dedicated soft-booking checkout.
+  // This check is intentionally narrow: only listings that explicitly use the
+  // cowork24-soft-booking process are affected. All other listing types continue
+  // through the normal CheckoutPage flow unchanged.
+  const processAlias = listing?.attributes?.publicData?.transactionProcessAlias || '';
+  const processName = processAlias.split('/')[0];
 
-  if (shouldUseSoftBooking) {
+  if (processName === 'cowork24-soft-booking') {
     history.push(
       createResourceLocatorString('SoftBookingCheckoutPage', routes, {}, {}),
       {
