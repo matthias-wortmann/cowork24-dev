@@ -287,6 +287,7 @@ export const ListingPageComponent = props => {
     callSetInitialValues,
     getListing,
     onInitializeCardPaymentData,
+    onSendInquiry,
   });
 
   const handleOrderSubmit = values => {

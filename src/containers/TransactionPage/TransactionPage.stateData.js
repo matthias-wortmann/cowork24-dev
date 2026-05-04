@@ -4,6 +4,7 @@ import {
   INQUIRY_PROCESS_NAME,
   PURCHASE_PROCESS_NAME,
   NEGOTIATION_PROCESS_NAME,
+  SOFT_BOOKING_PROCESS_NAME,
   resolveLatestProcessName,
 } from '../../transactions/transaction';
 import { getStateDataForBookingProcess } from './TransactionPage.stateDataBooking.js';
@@ -157,6 +158,10 @@ export const getStateData = (params, process) => {
     return getStateDataForInquiryProcess(params, processInfo());
   } else if (processName === NEGOTIATION_PROCESS_NAME) {
     return getStateDataForNegotiationProcess(params, processInfo());
+  } else if (processName === SOFT_BOOKING_PROCESS_NAME) {
+    const { getState } = process;
+    const processState = getState(transaction);
+    return { processName, processState };
   } else {
     return {};
   }

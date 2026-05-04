@@ -1,0 +1,1 @@
+Neue Buchungsanfrage für {{transaction.listing.title}}

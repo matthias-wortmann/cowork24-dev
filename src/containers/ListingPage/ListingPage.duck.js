@@ -68,6 +68,9 @@ const showListingPayloadCreator = ({ listingId, config, isOwn = false }, thunkAP
   const params = {
     id: listingId,
     include: ['author', 'author.profileImage', 'images', 'currentStock'],
+    // No fields.user restriction — we need the full author profile including
+    // profile.publicData to read stripeConnected (set by stripeConnectAccount.duck.js).
+    // 'fields.user': ['profile.displayName', 'profile.abbreviatedName'],
     'fields.image': [
       // Scaled variants for large images
       'variants.scaled-small',
@@ -216,7 +219,7 @@ export const fetchTimeSlots = (listingId, start, end, timeZone, options) => (
 // Send Inquiry //
 //////////////////
 const sendInquiryPayloadCreator = (
-  { listing, message },
+  { listing, message, protectedData = null },
   { dispatch, rejectWithValue, extra: sdk }
 ) => {
   const processAlias = listing?.attributes?.publicData?.transactionProcessAlias;
@@ -249,15 +252,23 @@ const sendInquiryPayloadCreator = (
   const bodyParams = {
     transition: transitions.INQUIRE,
     processAlias,
-    params: { listingId },
+    params: {
+      listingId,
+      ...(protectedData ? { protectedData } : {}),
+    },
   };
   return sdk.transactions
     .initiate(bodyParams)
     .then(response => {
       const transactionId = response.data.data.id;
 
-      // Send the message to the created transaction
-      return sdk.messages.send({ transactionId, content: message }).then(() => {
+      const sendMessagePromise =
+        typeof message === 'string' && message.trim().length > 0
+          ? sdk.messages.send({ transactionId, content: message.trim() })
+          : Promise.resolve();
+
+      // Send the message to the created transaction only if user wrote one
+      return sendMessagePromise.then(() => {
         dispatch(setCurrentUserHasOrders());
         return transactionId;
       });
@@ -272,8 +283,8 @@ export const sendInquiryThunk = createAsyncThunk(
   sendInquiryPayloadCreator
 );
 // Backward compatible wrapper for the thunk
-export const sendInquiry = (listing, message) => (dispatch, getState, sdk) => {
-  return dispatch(sendInquiryThunk({ listing, message })).unwrap();
+export const sendInquiry = (listing, message, protectedData = null) => (dispatch, getState, sdk) => {
+  return dispatch(sendInquiryThunk({ listing, message, protectedData })).unwrap();
 };
 
 // Helper function for loadData call.

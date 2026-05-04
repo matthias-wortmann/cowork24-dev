@@ -12,6 +12,7 @@ import {
 
 import { authInfo } from './auth.duck';
 import { updateStripeConnectAccount } from './stripeConnectAccount.duck';
+import { syncStripeStatus } from '../util/api';
 
 // ================ Helper Functions ================ //
 
@@ -165,6 +166,7 @@ const fetchCurrentUserPayloadCreator = (options, thunkAPI) => {
     updateNotifications = true,
     afterLogin,
     enforce = false, // Automatic emailVerification might be called too fast
+    skipStripeSync = false, // Prevent infinite loop when re-fetching after sync
   } = options || {};
 
   // Double fetch might happen when e.g. profile page is making a full page load
@@ -207,9 +209,39 @@ const fetchCurrentUserPayloadCreator = (options, thunkAPI) => {
       }
       const currentUser = entities[0];
 
-      // Save stripeAccount to store.stripe.stripeAccount if it exists
+      // Save stripeAccount to store.stripe.stripeAccount if it exists.
+      // Guard: only update if we don't already have the full stripeAccountData in Redux.
+      // The relationship entity from include:['stripeAccount'] only carries
+      // attributes.stripeConnected, NOT attributes.stripeAccountData (country, requirements,
+      // etc.). That full data is loaded separately by sdk.stripeAccount.fetch() in
+      // StripePayoutPage.duck.js. If we overwrite the complete data with the partial entity
+      // (e.g. during the post-syncStripeStatus re-fetch), savedCountry becomes null and the
+      // verification button on /account/payments disappears. So we only update when either
+      // we don't have complete data yet, or the new entity actually carries stripeAccountData.
       if (currentUser.stripeAccount) {
-        dispatch(updateStripeConnectAccount(currentUser.stripeAccount));
+        const existingStripeData =
+          getState().stripeConnectAccount?.stripeAccount?.attributes?.stripeAccountData;
+        const newStripeData = currentUser.stripeAccount?.attributes?.stripeAccountData;
+        if (!existingStripeData || newStripeData) {
+          dispatch(updateStripeConnectAccount(currentUser.stripeAccount));
+        }
+      }
+
+      // Mirror the accurate Stripe readiness flag into profile.publicData so it is
+      // readable by other users (e.g. customers on ListingPage).
+      // We always call syncStripeStatus when the provider has a stripeAccount so that
+      // the publicData flag reflects Stripe's actual charges_enabled status, not just
+      // whether the OAuth flow was completed. This prevents providers who have started
+      // but not finished Stripe onboarding from appearing as payment-ready.
+      // After the sync completes we re-fetch currentUser (with skipStripeSync:true to
+      // prevent an infinite loop) so the Redux state immediately reflects the updated
+      // profile.publicData.stripeConnected flag in the same session.
+      if (!skipStripeSync && typeof window !== 'undefined' && currentUser.stripeAccount) {
+        syncStripeStatus()
+          .then(() =>
+            dispatch(fetchCurrentUserThunk({ enforce: true, skipStripeSync: true }))
+          )
+          .catch(() => {});
       }
 
       // set current user id to the logger

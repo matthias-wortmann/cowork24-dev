@@ -4,6 +4,7 @@
 import { loadData as AuthenticationPageLoader } from './AuthenticationPage/AuthenticationPage.duck';
 import { loadData as LandingPageLoader } from './LandingPage/LandingPage.duck';
 import { setInitialValues as CheckoutPageInitialValues } from './CheckoutPage/CheckoutPage.duck';
+import { setInitialValues as SoftBookingCheckoutPageInitialValues } from './SoftBookingCheckoutPage/SoftBookingCheckoutPage.duck';
 import { loadData as CMSPageLoader } from './CMSPage/CMSPage.duck';
 import { loadData as CityLandingPageLoader } from './CityLandingPage/CityLandingPage.duck';
 import { loadData as ContactDetailsPageLoader } from './ContactDetailsPage/ContactDetailsPage.duck';
@@ -37,6 +38,9 @@ const getPageDataLoadingAPI = () => {
     },
     CheckoutPage: {
       setInitialValues: CheckoutPageInitialValues,
+    },
+    SoftBookingCheckoutPage: {
+      setInitialValues: SoftBookingCheckoutPageInitialValues,
     },
     CMSPage: {
       loadData: CMSPageLoader,

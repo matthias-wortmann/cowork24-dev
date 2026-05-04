@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"></head>
+<body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+  <h2>Erinnerung: Buchungsanfrage</h2>
+  <p>Hallo {{transaction.provider.display-name}},</p>
+  <p>Sie haben noch eine offene Buchungsanfrage für <strong>{{transaction.listing.title}}</strong>. Diese läuft bald ab.</p>
+
+  <div style="background: #fff3cd; border: 1px solid #ffc107; border-radius: 4px; padding: 16px; margin: 20px 0;">
+    <strong>⚠️ Stripe-Konto erforderlich</strong><br>
+    Verbinden Sie Ihr Stripe-Konto, um die Anfrage annehmen zu können.<br>
+    <a href="{{marketplace.url}}/account/payments">{{marketplace.url}}/account/payments</a>
+  </div>
+
+  <p><a href="{{marketplace.url}}/order/{{transaction.id}}/details" style="background: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block;">Anfrage jetzt ansehen</a></p>
+
+  <p>Das {{marketplace.name}} Team</p>
+</body>
+</html>

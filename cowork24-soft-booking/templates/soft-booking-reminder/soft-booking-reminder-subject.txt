@@ -1,0 +1,1 @@
+Erinnerung: Buchungsanfrage läuft bald ab – {{transaction.listing.title}}

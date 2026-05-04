@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"></head>
+<body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+  <h2>Buchung bestätigt!</h2>
+  <p>Hallo {{transaction.customer.display-name}},</p>
+  <p>Ihre Buchung für <strong>{{transaction.listing.title}}</strong> wurde bestätigt.</p>
+  <h3>Buchungsdetails</h3>
+  <ul>
+    <li>Zeitraum: {{transaction.booking.display-start}} – {{transaction.booking.display-end}}</li>
+    <li>Bezahlter Betrag: {{transaction.payin-total.amount}} {{transaction.payin-total.currency}}</li>
+    <li>Anbieter: {{transaction.provider.display-name}}</li>
+  </ul>
+  <p><a href="{{marketplace.url}}/order/{{transaction.id}}/details" style="background: #28a745; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block;">Buchungsdetails ansehen</a></p>
+  <p>Das {{marketplace.name}} Team</p>
+</body>
+</html>

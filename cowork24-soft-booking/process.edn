@@ -1,0 +1,126 @@
+{:format :v3
+ :transitions
+ [{:name :transition/request-soft-booking
+   :actor :actor.role/customer
+   :actions [{:name :action/create-proposed-booking
+               :config {:type :time}}
+              {:name :action/privileged-set-line-items}]
+   :to :state/soft-requested
+   :privileged? true}
+
+  {:name :transition/expire-request
+   :at {:fn/min [{:fn/plus [{:fn/timepoint [:time/first-entered-state :state/soft-requested]}
+                             {:fn/period ["P7D"]}]}
+                  {:fn/timepoint [:time/booking-end]}]}
+   :actions [{:name :action/cancel-booking}]
+   :from :state/soft-requested
+   :to :state/expired}
+
+  {:name :transition/decline
+   :actor :actor.role/provider
+   :actions [{:name :action/cancel-booking}]
+   :from :state/soft-requested
+   :to :state/declined}
+
+  {:name :transition/customer-cancel
+   :actor :actor.role/customer
+   :actions [{:name :action/cancel-booking}]
+   :from :state/soft-requested
+   :to :state/cancelled}
+
+  {:name :transition/accept-and-charge
+   :actor :actor.role/provider
+   :actions [{:name :action/accept-booking}
+              {:name :action/stripe-create-payment-intent
+               :config {:use-customer-default-payment-method? true}}
+              {:name :action/stripe-capture-payment-intent}]
+   :from :state/soft-requested
+   :to :state/accepted
+   :privileged? true}
+
+  {:name :transition/complete
+   :at {:fn/plus [{:fn/timepoint [:time/booking-end]}
+                  {:fn/period ["PT1H"]}]}
+   :actions [{:name :action/update-protected-data}]
+   :from :state/accepted
+   :to :state/delivered}
+
+  {:name :transition/review-1-by-customer
+   :actor :actor.role/customer
+   :actions [{:name :action/post-review-by-customer}]
+   :from :state/delivered
+   :to :state/reviewed-by-customer}
+
+  {:name :transition/review-1-by-provider
+   :actor :actor.role/provider
+   :actions [{:name :action/post-review-by-provider}]
+   :from :state/delivered
+   :to :state/reviewed-by-provider}
+
+  {:name :transition/review-2-by-customer
+   :actor :actor.role/customer
+   :actions [{:name :action/post-review-by-customer}
+              {:name :action/publish-reviews}]
+   :from :state/reviewed-by-provider
+   :to :state/reviewed}
+
+  {:name :transition/review-2-by-provider
+   :actor :actor.role/provider
+   :actions [{:name :action/post-review-by-provider}
+              {:name :action/publish-reviews}]
+   :from :state/reviewed-by-customer
+   :to :state/reviewed}
+
+  {:name :transition/expire-review-period
+   :at {:fn/plus [{:fn/timepoint [:time/first-entered-state :state/delivered]}
+                  {:fn/period ["P7D"]}]}
+   :actions [{:name :action/publish-reviews}]
+   :from :state/delivered
+   :to :state/reviewed}
+
+  {:name :transition/expire-customer-review-period
+   :at {:fn/plus [{:fn/timepoint [:time/first-entered-state :state/reviewed-by-provider]}
+                  {:fn/period ["P7D"]}]}
+   :actions [{:name :action/publish-reviews}]
+   :from :state/reviewed-by-provider
+   :to :state/reviewed}
+
+  {:name :transition/expire-provider-review-period
+   :at {:fn/plus [{:fn/timepoint [:time/first-entered-state :state/reviewed-by-customer]}
+                  {:fn/period ["P7D"]}]}
+   :actions [{:name :action/publish-reviews}]
+   :from :state/reviewed-by-customer
+   :to :state/reviewed}]
+
+ :notifications
+ [{:name :notification/new-soft-booking-request-to-provider
+   :on :transition/request-soft-booking
+   :to :actor.role/provider
+   :template :new-soft-booking-request}
+
+  {:name :notification/soft-booking-reminder-to-provider
+   :on :transition/request-soft-booking
+   :to :actor.role/provider
+   :template :soft-booking-reminder
+   :at {:fn/plus [{:fn/timepoint [:time/first-entered-state :state/soft-requested]}
+                  {:fn/period ["P5D"]}]}}
+
+  {:name :notification/soft-booking-accepted-to-customer
+   :on :transition/accept-and-charge
+   :to :actor.role/customer
+   :template :soft-booking-accepted}
+
+  {:name :notification/soft-booking-declined-to-customer
+   :on :transition/decline
+   :to :actor.role/customer
+   :template :soft-booking-declined}
+
+  {:name :notification/soft-booking-expired-to-customer
+   :on :transition/expire-request
+   :to :actor.role/customer
+   :template :soft-booking-expired}
+
+  {:name :notification/soft-booking-cancelled-to-provider
+   :on :transition/customer-cancel
+   :to :actor.role/provider
+   :template :soft-booking-cancelled-by-customer}]}

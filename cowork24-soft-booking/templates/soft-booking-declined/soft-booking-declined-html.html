@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"></head>
+<body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+  <h2>Buchungsanfrage abgelehnt</h2>
+  <p>Hallo {{transaction.customer.display-name}},</p>
+  <p>Leider hat der Anbieter Ihre Anfrage für <strong>{{transaction.listing.title}}</strong> abgelehnt.</p>
+  <p>Es wurde keine Zahlung vorgenommen.</p>
+  <p>Schauen Sie sich andere Angebote an: <a href="{{marketplace.url}}">{{marketplace.url}}</a></p>
+  <p>Das {{marketplace.name}} Team</p>
+</body>
+</html>

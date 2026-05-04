@@ -33,7 +33,11 @@ import {
   pickCategoryFields,
 } from '../../../util/fieldHelpers';
 import { ensureCurrentUser, ensureListing } from '../../../util/data';
-import { INQUIRY_PROCESS_NAME, resolveLatestProcessName } from '../../../transactions/transaction';
+import {
+  INQUIRY_PROCESS_NAME,
+  isBookingProcess,
+  resolveLatestProcessName,
+} from '../../../transactions/transaction';
 
 // Import shared components
 import {
@@ -99,6 +103,7 @@ const tabsForListingType = (processName, listingTypeConfig) => {
     ['default-purchase']: [DETAILS, PRICING_AND_STOCK, ...deliveryMaybe, ...styleOrPhotosTab],
     ['default-negotiation']: [DETAILS, ...locationMaybe, ...pricingMaybe, ...styleOrPhotosTab],
     ['default-inquiry']: [DETAILS, ...locationMaybe, ...pricingMaybe, ...styleOrPhotosTab],
+    ['cowork24-soft-booking']: [DETAILS, ...locationMaybe, PRICING, AVAILABILITY, ...styleOrPhotosTab],
   };
 
   return tabs[processName] || tabs['default-inquiry'];
@@ -430,8 +435,10 @@ class EditListingWizard extends Component {
 
   handlePublishListing(id) {
     const { onPublishListingDraft, currentUser, stripeAccount, listing, config } = this.props;
-    const processName = listing?.attributes?.publicData?.transactionProcessAlias.split('/')[0];
+    const listingProcessAlias = listing?.attributes?.publicData?.transactionProcessAlias;
+    const processName = listingProcessAlias?.split('/')[0];
     const isInquiryProcess = processName === INQUIRY_PROCESS_NAME;
+    const isAnyBookingProcess = isBookingProcess(resolveLatestProcessName(processName));
 
     const listingTypeConfig = getListingTypeConfig(listing, this.state.selectedListingType, config);
     // Through hosted configs (listingTypeConfig.defaultListingFields?.payoutDetails),
@@ -448,6 +455,7 @@ class EditListingWizard extends Component {
 
     if (
       isInquiryProcess ||
+      isAnyBookingProcess ||
       !isPayoutDetailsRequired ||
       (stripeConnected && !stripeRequirementsMissing)
     ) {

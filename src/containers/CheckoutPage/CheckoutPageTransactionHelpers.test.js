@@ -6,6 +6,7 @@ import {
   bookingDatesFromOrderData,
   getRequestPaymentTransition,
   hasShippingDetailsForOrder,
+  processCheckoutWithPayment,
 } from './CheckoutPageTransactionHelpers';
 
 describe('bookingDatesFromOrderData', () => {
@@ -119,5 +120,98 @@ describe('hasShippingDetailsForOrder', () => {
       })
     ).toBe(false);
     expect(hasShippingDetailsForOrder(null)).toBe(false);
+  });
+});
+
+describe('processCheckoutWithPayment', () => {
+  it('rejects early when listing processAlias is missing', async () => {
+    const process = getProcess('default-booking');
+    await expect(
+      processCheckoutWithPayment(
+        { listingId: { uuid: 'listing-1' } },
+        {
+          hasPaymentIntentUserActionsDone: false,
+          isPaymentFlowUseSavedCard: false,
+          isPaymentFlowPayAndSaveCard: false,
+          isPaymentFlowWallet: false,
+          walletPaymentMethodId: null,
+          message: null,
+          onConfirmCardPayment: jest.fn(),
+          onConfirmPayment: jest.fn(),
+          onInitiateOrder: jest.fn(),
+          onSavePaymentMethod: jest.fn(),
+          onSendMessage: jest.fn(),
+          pageData: { listing: { attributes: { publicData: {} } }, transaction: null },
+          paymentIntent: null,
+          process,
+          setPageData: jest.fn(),
+          sessionStorageKey: 'CheckoutPage',
+          stripeCustomer: null,
+          stripePaymentMethodId: null,
+          stripe: {},
+        }
+      )
+    ).rejects.toThrow(/missing transaction process alias/i);
+  });
+
+  it('handles missing payment_method in save-card flow gracefully', async () => {
+    const process = getProcess('default-booking');
+    const storedTxBase = createTransaction({
+      id: 'tx-pay-save-1',
+      processName: 'default-booking',
+    });
+    const storedTx = {
+      ...storedTxBase,
+      attributes: {
+        ...storedTxBase.attributes,
+        protectedData: {
+          stripePaymentIntents: {
+            default: { stripePaymentIntentClientSecret: 'pi_secret_123' },
+          },
+        },
+      },
+    };
+    const confirmedTx = createTransaction({
+      id: 'tx-pay-save-1',
+      processName: 'default-booking',
+      lastTransition: bookingTransitions.transitions.CONFIRM_PAYMENT,
+    });
+
+    const onSavePaymentMethod = jest.fn();
+    const result = await processCheckoutWithPayment(
+      { listingId: { uuid: 'listing-1' } },
+      {
+        hasPaymentIntentUserActionsDone: true,
+        isPaymentFlowUseSavedCard: false,
+        isPaymentFlowPayAndSaveCard: true,
+        isPaymentFlowWallet: false,
+        walletPaymentMethodId: null,
+        message: null,
+        onConfirmCardPayment: jest.fn(),
+        onConfirmPayment: jest.fn(() => Promise.resolve(confirmedTx)),
+        onInitiateOrder: jest.fn(),
+        onSavePaymentMethod,
+        onSendMessage: jest.fn(() =>
+          Promise.resolve({ orderId: confirmedTx.id, messageSuccess: true })
+        ),
+        pageData: {
+          listing: {
+            attributes: { publicData: { transactionProcessAlias: 'default-booking/release-1' } },
+          },
+          orderData: { quantity: 1 },
+          transaction: storedTx,
+        },
+        paymentIntent: { status: 'requires_capture' },
+        process,
+        setPageData: jest.fn(),
+        sessionStorageKey: 'CheckoutPage',
+        stripeCustomer: null,
+        stripePaymentMethodId: null,
+        stripe: {},
+      }
+    );
+
+    expect(onSavePaymentMethod).not.toHaveBeenCalled();
+    expect(result.paymentMethodSaved).toBe(false);
   });
 });

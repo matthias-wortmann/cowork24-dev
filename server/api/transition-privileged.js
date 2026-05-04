@@ -76,6 +76,13 @@ const getUpdatedMetadata = (orderData, transition, existingMetadata) => {
     : addOfferToMetadata(existingMetadata, null);
 };
 
+// Soft-booking accept: Sharetribe uses the existing payinTotal set during
+// request-soft-booking. The stripe-create-payment-intent action reads it
+// from the transaction directly. We must NOT recalculate line items here
+// (no booking dates in orderData) and must NOT pass lineItems in params
+// (the process has no privileged-set-line-items action for this transition).
+const SOFT_BOOKING_ACCEPT_TRANSITION = 'transition/accept-and-charge';
+
 module.exports = (req, res) => {
   const { isSpeculative, orderData, bodyParams, queryParams } = req.body || {};
 
@@ -83,6 +90,33 @@ module.exports = (req, res) => {
   const transitionName = bodyParams.transition;
   let lineItems = null;
   let metadataMaybe = {};
+
+  // Special path for soft-booking accept: skip line-item recalculation entirely.
+  // The transaction already carries the correct line items / payinTotal from initiation.
+  // Sharetribe's stripe-create-payment-intent + stripe-capture-payment-intent actions
+  // charge the customer's saved payment method using that existing payinTotal.
+  if (transitionName === SOFT_BOOKING_ACCEPT_TRANSITION) {
+    return getTrustedSdk(req)
+      .then(trustedSdk => {
+        const body = {
+          ...bodyParams,
+          params: {}, // no line items — process reads existing payinTotal
+        };
+        if (isSpeculative) {
+          return trustedSdk.transactions.transitionSpeculative(body, queryParams);
+        }
+        return trustedSdk.transactions.transition(body, queryParams);
+      })
+      .then(apiResponse => {
+        const { status, statusText, data } = apiResponse;
+        res
+          .status(status)
+          .set('Content-Type', 'application/transit+json')
+          .send(serialize({ status, statusText, data }))
+          .end();
+      })
+      .catch(e => handleError(res, e));
+  }
 
   Promise.all([transactionPromise(sdk, bodyParams?.id), fetchCommission(sdk)])
     .then(responses => {

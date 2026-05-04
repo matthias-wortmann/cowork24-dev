@@ -5,6 +5,7 @@ import { createResourceLocatorString, findRouteByRouteName } from '../../util/ro
 import { convertMoneyToNumber, formatMoney } from '../../util/currency';
 import { timestampToDate } from '../../util/dates';
 import { hasPermissionToInitiateTransactions, isUserAuthorized } from '../../util/userHelpers';
+import { requiresSoftReservationFallback } from '../../util/softReservation';
 import {
   NO_ACCESS_PAGE_INITIATE_TRANSACTIONS,
   NO_ACCESS_PAGE_USER_PENDING_APPROVAL,
@@ -247,6 +248,19 @@ export const handleSubmit = parameters => values => {
     ...otherOrderData
   } = values;
 
+  const dateFromFieldValue = fieldValue => {
+    if (fieldValue instanceof Date) {
+      return fieldValue;
+    }
+    if (fieldValue?.date instanceof Date) {
+      return fieldValue.date;
+    }
+    return null;
+  };
+
+  const bookingStartDateValue = dateFromFieldValue(bookingStartDate);
+  const bookingEndDateValue = dateFromFieldValue(bookingEndDate);
+
   const bookingMaybe = bookingDates
     ? {
         bookingDates: {
@@ -259,6 +273,13 @@ export const handleSubmit = parameters => values => {
         bookingDates: {
           bookingStart: timestampToDate(bookingStartTime),
           bookingEnd: timestampToDate(bookingEndTime),
+        },
+      }
+    : bookingStartDateValue && bookingEndDateValue
+    ? {
+        bookingDates: {
+          bookingStart: bookingStartDateValue,
+          bookingEnd: bookingEndDateValue,
         },
       }
     : {};
@@ -284,6 +305,30 @@ export const handleSubmit = parameters => values => {
   };
 
   const saveToSessionStorage = !currentUser;
+
+  // Route to soft-booking checkout when the provider has not yet connected Stripe.
+  // requiresSoftReservationFallback() returns true when:
+  //   1. The listing uses a payment process (booking / purchase / negotiation-offer), AND
+  //   2. The provider's profile.publicData.stripeConnected is falsy.
+  // We intentionally omit the hasPermissionToInitiateTransactions() check here:
+  // that function requires effectivePermissionSet to be included in the currentUser
+  // fetch; when it is absent the function always returns false, which would silently
+  // block the soft-booking route even for fully authorized users.
+  // The /soft-booking-checkout route is auth-guarded and the server validates
+  // permissions at initiation time, so skipping it here is safe.
+  if (requiresSoftReservationFallback(listing)) {
+    history.push(
+      createResourceLocatorString('SoftBookingCheckoutPage', routes, {}, {}),
+      {
+        listingId: listing.id.uuid,
+        bookingStart: initialValues.orderData?.bookingDates?.bookingStart,
+        bookingEnd: initialValues.orderData?.bookingDates?.bookingEnd,
+        listingTitle: listing.attributes.title,
+        price: listing.attributes.price,
+      }
+    );
+    return;
+  }
 
   // Customize checkout page state with current listing and selected orderData
   const { setInitialValues } = findRouteByRouteName('CheckoutPage', routes);

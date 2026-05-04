@@ -1,0 +1,1 @@
+Buchungsanfrage abgelehnt: {{transaction.listing.title}}
