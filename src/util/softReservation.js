@@ -48,7 +48,14 @@ export const requiresSoftReservationFallback = listing => {
   // author entities via the Marketplace API. We mirror it into profile.publicData
   // (see stripeConnectAccount.duck.js / user.duck.js) so it is readable by anyone.
   const authorPublicData = listing?.author?.attributes?.profile?.publicData;
-  const authorStripeConnected = !!authorPublicData?.stripeConnected;
+
+  // profile.publicData.stripeConnected is written by syncStripeStatus on provider login.
+  // Providers who existed before this sync was deployed have undefined for the field.
+  // We treat undefined as "verified" to avoid incorrectly routing established providers
+  // with working Stripe accounts to the soft-booking flow. The flag will be set correctly
+  // the next time the provider logs in and syncStripeStatus fires.
+  // Only route to soft-booking when the field has been explicitly set to false.
+  const authorStripeConnected = authorPublicData?.stripeConnected !== false;
 
   return isPaymentProcess && !authorStripeConnected;
 };

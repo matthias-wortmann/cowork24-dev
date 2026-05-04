@@ -229,14 +229,20 @@ const fetchCurrentUserPayloadCreator = (options, thunkAPI) => {
 
       // Mirror the accurate Stripe readiness flag into profile.publicData so it is
       // readable by other users (e.g. customers on ListingPage).
-      // We always call syncStripeStatus when the provider has a stripeAccount so that
-      // the publicData flag reflects Stripe's actual charges_enabled status, not just
-      // whether the OAuth flow was completed. This prevents providers who have started
-      // but not finished Stripe onboarding from appearing as payment-ready.
+      // We fire syncStripeStatus for ALL authenticated users (not just those who have a
+      // stripeAccount entity) because:
+      //   - Providers WITH Stripe: sets stripeConnected based on charges_enabled (or
+      //     Sharetribe's OAuth flag as fallback when STRIPE_SECRET_KEY is not set).
+      //   - Providers WITHOUT Stripe: stripeAccount is null so the old condition
+      //     `&& currentUser.stripeAccount` never triggered the sync, leaving
+      //     profile.publicData.stripeConnected as undefined forever. undefined is
+      //     indistinguishable from "has Stripe but not yet synced", so
+      //     requiresSoftReservationFallback cannot distinguish them. Firing for all
+      //     users ensures these providers get stripeConnected:false on first login.
       // After the sync completes we re-fetch currentUser (with skipStripeSync:true to
       // prevent an infinite loop) so the Redux state immediately reflects the updated
       // profile.publicData.stripeConnected flag in the same session.
-      if (!skipStripeSync && typeof window !== 'undefined' && currentUser.stripeAccount) {
+      if (!skipStripeSync && typeof window !== 'undefined') {
         syncStripeStatus()
           .then(() =>
             dispatch(fetchCurrentUserThunk({ enforce: true, skipStripeSync: true }))
