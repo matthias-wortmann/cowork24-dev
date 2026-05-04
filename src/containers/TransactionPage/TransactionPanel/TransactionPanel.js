@@ -176,45 +176,70 @@ const SoftBookingProviderActions = props => {
     lastTransition === TRANSITION_REQUEST_SOFT_BOOKING || txState === STATE_SOFT_REQUESTED;
   if (!isSoftRequested) return null;
 
-  // stripeConnected is a private currentUser attribute — always available for self.
-  // Fall back to stripeAccount entity presence for extra safety.
-  const stripeReady =
-    !!currentUser?.attributes?.stripeConnected || !!currentUser?.stripeAccount?.id;
+  // Use Sharetribe's own stripeConnected attribute — this is the private, authoritative
+  // flag for the current user. It is true only when Stripe Connect onboarding is fully
+  // complete AND our syncStripeStatus endpoint has confirmed charges_enabled via Stripe.
+  // We deliberately do NOT fall back to stripeAccount entity presence, as an account can
+  // exist without being verified for charges.
+  const stripeReady = !!currentUser?.attributes?.stripeConnected;
 
   const acceptLabel = intl.formatMessage({ id: 'TransactionPanel.SoftBooking.acceptButton' });
   const declineLabel = intl.formatMessage({ id: 'TransactionPanel.SoftBooking.declineButton' });
   const errorMessage = transitionError ? parseSoftBookingError(transitionError, intl) : null;
 
+  // Always-visible badge showing Stripe verification status with a management link.
+  const stripeBadge = (
+    <div className={stripeReady
+      ? `${css.stripeBadge} ${css.stripeBadgeVerified}`
+      : `${css.stripeBadge} ${css.stripeBadgeNotVerified}`}
+    >
+      <span>
+        {stripeReady
+          ? intl.formatMessage({ id: 'TransactionPanel.SoftBooking.stripeBadgeVerified' })
+          : intl.formatMessage({ id: 'TransactionPanel.SoftBooking.stripeBadgeNotVerified' })}
+      </span>
+      <NamedLink name="StripePayoutPage" className={css.stripeBadgeLink}>
+        {stripeReady
+          ? intl.formatMessage({ id: 'TransactionPanel.SoftBooking.stripeBadgeManageLink' })
+          : intl.formatMessage({ id: 'TransactionPanel.SoftBooking.stripeBadgeSetupLink' })}
+      </NamedLink>
+    </div>
+  );
+
   if (!stripeReady) {
     return (
-      <div className={css.softBookingStripeGate}>
-        <h3 className={css.softBookingStripeGateHeading}>
-          {intl.formatMessage({ id: 'TransactionPanel.SoftBooking.providerStripeRequiredHeading' })}
-        </h3>
-        <p className={css.softBookingStripeGateBody}>
-          {intl.formatMessage({ id: 'TransactionPanel.SoftBooking.providerStripeRequiredBody' })}
-        </p>
-        <div className={css.softBookingStripeGateActions}>
-          <NamedLink name="StripePayoutPage" className={css.softBookingStripeConnectLink}>
-            {intl.formatMessage({ id: 'TransactionPanel.SoftBooking.stripeConnectButton' })}
-          </NamedLink>
-          <button
-            className={css.softBookingDeclineButton}
-            onClick={() => onMakeTransition(transaction.id, TRANSITION_DECLINE, {})}
-            disabled={transitionInProgress === TRANSITION_DECLINE}
-          >
-            {transitionInProgress === TRANSITION_DECLINE ? '...' : declineLabel}
-          </button>
+      <div>
+        {stripeBadge}
+        <div className={css.softBookingStripeGate}>
+          <h3 className={css.softBookingStripeGateHeading}>
+            {intl.formatMessage({ id: 'TransactionPanel.SoftBooking.providerStripeRequiredHeading' })}
+          </h3>
+          <p className={css.softBookingStripeGateBody}>
+            {intl.formatMessage({ id: 'TransactionPanel.SoftBooking.providerStripeRequiredBody' })}
+          </p>
+          <div className={css.softBookingStripeGateActions}>
+            <NamedLink name="StripePayoutPage" className={css.softBookingStripeConnectLink}>
+              {intl.formatMessage({ id: 'TransactionPanel.SoftBooking.stripeConnectButton' })}
+            </NamedLink>
+            <button
+              className={css.softBookingDeclineButton}
+              onClick={() => onMakeTransition(transaction.id, TRANSITION_DECLINE, {})}
+              disabled={transitionInProgress === TRANSITION_DECLINE}
+            >
+              {transitionInProgress === TRANSITION_DECLINE ? '...' : declineLabel}
+            </button>
+          </div>
+          <p className={css.softBookingStripeGateNote}>
+            {intl.formatMessage({ id: 'TransactionPanel.SoftBooking.stripeRequiredTooltip' })}
+          </p>
         </div>
-        <p className={css.softBookingStripeGateNote}>
-          {intl.formatMessage({ id: 'TransactionPanel.SoftBooking.stripeRequiredTooltip' })}
-        </p>
       </div>
     );
   }
 
   return (
     <div className={css.softBookingActions}>
+      {stripeBadge}
       {errorMessage ? (
         <div className={css.softBookingError}>{errorMessage}</div>
       ) : null}

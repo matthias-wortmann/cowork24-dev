@@ -548,6 +548,44 @@
    Soft booking provider actions
    ======================================================== */
 
+/* Stripe status badge — always visible at the top of provider actions */
+.stripeBadge {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+  font-size: 13px;
+  font-weight: var(--fontWeightMedium);
+}
+
+.stripeBadgeVerified {
+  background-color: #f0fdf4;
+  border: 1px solid #86efac;
+  color: #15803d;
+}
+
+.stripeBadgeNotVerified {
+  background-color: #fff7ed;
+  border: 1px solid #fdba74;
+  color: #c2410c;
+}
+
+.stripeBadgeLink {
+  margin-left: auto;
+  font-size: 12px;
+  font-weight: var(--fontWeightSemiBold);
+  color: inherit;
+  text-decoration: underline;
+  white-space: nowrap;
+
+  &:hover {
+    text-decoration: none;
+    color: inherit;
+  }
+}
+
 /* Yellow warning banner when Stripe is not connected */
 .softBookingStripeGate {
   background-color: #fff8e1;
