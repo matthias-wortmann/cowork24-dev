@@ -166,6 +166,7 @@ const fetchCurrentUserPayloadCreator = (options, thunkAPI) => {
     updateNotifications = true,
     afterLogin,
     enforce = false, // Automatic emailVerification might be called too fast
+    skipStripeSync = false, // Prevent infinite loop when re-fetching after sync
   } = options || {};
 
   // Double fetch might happen when e.g. profile page is making a full page load
@@ -219,8 +220,15 @@ const fetchCurrentUserPayloadCreator = (options, thunkAPI) => {
       // the publicData flag reflects Stripe's actual charges_enabled status, not just
       // whether the OAuth flow was completed. This prevents providers who have started
       // but not finished Stripe onboarding from appearing as payment-ready.
-      if (typeof window !== 'undefined' && currentUser.stripeAccount) {
-        syncStripeStatus().catch(() => {});
+      // After the sync completes we re-fetch currentUser (with skipStripeSync:true to
+      // prevent an infinite loop) so the Redux state immediately reflects the updated
+      // profile.publicData.stripeConnected flag in the same session.
+      if (!skipStripeSync && typeof window !== 'undefined' && currentUser.stripeAccount) {
+        syncStripeStatus()
+          .then(() =>
+            dispatch(fetchCurrentUserThunk({ enforce: true, skipStripeSync: true }))
+          )
+          .catch(() => {});
       }
 
       // set current user id to the logger

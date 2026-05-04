@@ -176,12 +176,12 @@ const SoftBookingProviderActions = props => {
     lastTransition === TRANSITION_REQUEST_SOFT_BOOKING || txState === STATE_SOFT_REQUESTED;
   if (!isSoftRequested) return null;
 
-  // Use Sharetribe's own stripeConnected attribute — this is the private, authoritative
-  // flag for the current user. It is true only when Stripe Connect onboarding is fully
-  // complete AND our syncStripeStatus endpoint has confirmed charges_enabled via Stripe.
-  // We deliberately do NOT fall back to stripeAccount entity presence, as an account can
-  // exist without being verified for charges.
-  const stripeReady = !!currentUser?.attributes?.stripeConnected;
+  // Use profile.publicData.stripeConnected — this is the field synced by our
+  // syncStripeStatus endpoint using Stripe's charges_enabled as the source of truth.
+  // currentUser.attributes.stripeConnected is Sharetribe's OAuth-completion flag and
+  // becomes true as soon as the OAuth flow starts, regardless of whether the provider
+  // has completed Stripe onboarding. We need the charges_enabled-backed flag instead.
+  const stripeReady = !!currentUser?.attributes?.profile?.publicData?.stripeConnected;
 
   const acceptLabel = intl.formatMessage({ id: 'TransactionPanel.SoftBooking.acceptButton' });
   const declineLabel = intl.formatMessage({ id: 'TransactionPanel.SoftBooking.declineButton' });
