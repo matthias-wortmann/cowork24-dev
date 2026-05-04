@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 
 import { useConfiguration } from '../../context/configurationContext';
@@ -108,6 +109,9 @@ const SoftBookingCheckoutPage = () => {
   const history = useHistory();
   const intl = useIntl();
   const config = useConfiguration();
+
+  // Redux: current user (needed for billing name in card setup)
+  const currentUser = useSelector(state => state.user.currentUser);
 
   // Location state (passed from ListingPage via history.push)
   const locationState = history.location.state || {};
