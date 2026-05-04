@@ -14,7 +14,15 @@
  * sending customers to the normal checkout which would then fail.
  */
 const { getSdk, handleError } = require('../api-util/sdk');
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+
+// Lazy init: do NOT call require('stripe')(...) at module load time.
+// Initialising at the top level crashes the server on startup when
+// STRIPE_SECRET_KEY is not set (e.g. on a fresh Heroku environment).
+const getStripe = () => {
+  const key = process.env.STRIPE_SECRET_KEY;
+  if (!key) throw new Error('STRIPE_SECRET_KEY env var is not set');
+  return require('stripe')(key);
+};
 
 module.exports = (req, res) => {
   const sdk = getSdk(req, res);
@@ -40,6 +48,7 @@ module.exports = (req, res) => {
       // the OAuth connection alone is not sufficient.
       let chargesEnabled = false;
       try {
+        const stripe = getStripe();
         const account = await stripe.accounts.retrieve(stripeAccountId);
         chargesEnabled = !!account.charges_enabled;
       } catch (stripeErr) {
