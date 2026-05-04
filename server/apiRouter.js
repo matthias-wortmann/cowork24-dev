@@ -65,6 +65,7 @@ router.post('/transition-privileged', transitionPrivileged);
 router.post('/delete-account', deleteAccount);
 
 router.get('/soft-booking/setup-intent', require('./api/soft-booking/setup-intent'));
+router.post('/soft-booking/register-payment-method', require('./api/soft-booking/register-payment-method'));
 router.post('/soft-booking/initiate', require('./api/soft-booking/initiate'));
 router.get('/sync-stripe-status', require('./api/sync-stripe-status'));
 

@@ -172,6 +172,21 @@ export const syncStripeStatus = () => {
     });
 };
 
+// Register (or replace) a Stripe payment method with Sharetribe via server.
+export const softBookingRegisterPaymentMethod = ({ stripePaymentMethodId }) => {
+  return window
+    .fetch(`${apiBaseUrl()}/api/soft-booking/register-payment-method`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ stripePaymentMethodId }),
+    })
+    .then(res => {
+      if (!res.ok) return res.json().then(err => Promise.reject(err));
+      return res.json();
+    });
+};
+
 // Initiate a soft-booking transaction on the server.
 export const softBookingInitiate = body => {
   return window

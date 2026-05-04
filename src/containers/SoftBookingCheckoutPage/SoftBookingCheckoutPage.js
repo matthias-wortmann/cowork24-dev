@@ -1,32 +1,15 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 
 import { useConfiguration } from '../../context/configurationContext';
 import { FormattedMessage, useIntl } from '../../util/reactIntl';
 import { loadStripeJs } from '../../util/loadStripe';
 import { getPaymentRequestCountryForCurrency } from '../../util/stripePaymentRequest';
-import { softBookingInitiate } from '../../util/api';
 import {
-  addPaymentMethod,
-  createStripeCustomer,
-  deletePaymentMethod,
-} from '../../ducks/paymentMethods.duck';
-import { createAsyncThunk } from '@reduxjs/toolkit';
-import { storableError } from '../../util/errors';
-
-// Thunk: create a Sharetribe-managed SetupIntent (same as PaymentMethodsPage).
-// Using sdk.stripeSetupIntents.create() ensures the SI is linked to the user's
-// Stripe customer in Sharetribe's backend, so confirmCardSetup attaches the PM
-// correctly and addPaymentMethod can accept it without conflict.
-const createSetupIntentThunk = createAsyncThunk(
-  'SoftBookingCheckoutPage/createSetupIntent',
-  (_, { extra: sdk, rejectWithValue }) =>
-    sdk.stripeSetupIntents
-      .create()
-      .then(response => response.data.data)
-      .catch(e => rejectWithValue(storableError(e)))
-);
+  softBookingSetupIntent,
+  softBookingInitiate,
+  softBookingRegisterPaymentMethod,
+} from '../../util/api';
 
 import { LayoutSingleColumn, Page, PrimaryButton, Heading } from '../../components';
 
@@ -125,10 +108,6 @@ const SoftBookingCheckoutPage = () => {
   const history = useHistory();
   const intl = useIntl();
   const config = useConfiguration();
-  const dispatch = useDispatch();
-
-  // Redux: current user
-  const currentUser = useSelector(state => state.user.currentUser);
 
   // Location state (passed from ListingPage via history.push)
   const locationState = history.location.state || {};
@@ -158,23 +137,13 @@ const SoftBookingCheckoutPage = () => {
   const paymentRequestRef = useRef(null);
 
   // ---------------- Fetch SetupIntent on mount ----------------
-  // Use Sharetribe's own stripeSetupIntents.create() so the SI is tied to the
-  // user's Stripe customer in Sharetribe. This is the same as PaymentMethodsPage.
   useEffect(() => {
-    dispatch(createSetupIntentThunk())
-      .unwrap()
-      .then(setupIntent => {
-        const cs = setupIntent?.attributes?.clientSecret;
-        if (cs) {
-          setClientSecret(cs);
-        } else {
-          setFetchError(intl.formatMessage({ id: 'SoftBookingCheckoutPage.serviceUnavailable' }));
-        }
-      })
+    softBookingSetupIntent()
+      .then(({ clientSecret: cs }) => setClientSecret(cs))
       .catch(() =>
         setFetchError(intl.formatMessage({ id: 'SoftBookingCheckoutPage.serviceUnavailable' }))
       );
-  }, []); // eslint-disable-line
+  }, []); // mount only once
 
   // ---------------- Mount Stripe card element ----------------
   useEffect(() => {
@@ -315,49 +284,17 @@ const SoftBookingCheckoutPage = () => {
     };
   }, [stripeReady, clientSecret, price?.amount, price?.currency]); // eslint-disable-line
 
-  // ---------------- Step 2: register card with Sharetribe via Redux thunk ----------------
+  // ---------------- Step 2: register card with Sharetribe via server endpoint ----------------
   const runStep2 = async pmId => {
     setStep('registering-card');
-
-    // Helper: attach PM to an existing Stripe customer.
-    // If the customer already has a default PM (409), delete it first then re-add.
-    const addOrUpdatePaymentMethod = async () => {
-      try {
-        await dispatch(addPaymentMethod(pmId));
-      } catch (addErr) {
-        if (addErr?.status === 409) {
-          await dispatch(deletePaymentMethod());
-          await dispatch(addPaymentMethod(pmId));
-        } else {
-          throw addErr;
-        }
-      }
-    };
-
     try {
-      // fetchCurrentUser does not include stripeCustomer in its response, so the
-      // relationship may appear absent even when a customer exists. We therefore
-      // try createStripeCustomer first; a 409 means the customer already exists
-      // (Sharetribe enforces uniqueness) — in that case we fall back to add/update.
-      const hasStripeCustomer = !!currentUser?.relationships?.stripeCustomer?.data;
-      if (hasStripeCustomer) {
-        await addOrUpdatePaymentMethod();
-      } else {
-        try {
-          await dispatch(createStripeCustomer(pmId));
-        } catch (createErr) {
-          if (createErr?.status === 409) {
-            // Customer already exists but wasn't reflected in currentUser data
-            await addOrUpdatePaymentMethod();
-          } else {
-            throw createErr;
-          }
-        }
-      }
+      await softBookingRegisterPaymentMethod({ stripePaymentMethodId: pmId });
     } catch (e) {
       console.error('[SoftBooking step2] payment method registration failed:', e);
       setErrorStep(2);
-      setErrorMsg(e?.message || 'Karte konnte nicht registriert werden. Bitte erneut versuchen.');
+      setErrorMsg(
+        e?.error || e?.message || 'Karte konnte nicht registriert werden. Bitte erneut versuchen.'
+      );
       setStep('error');
       return;
     }
