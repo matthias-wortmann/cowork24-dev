@@ -10,6 +10,7 @@ import { softBookingSetupIntent, softBookingInitiate } from '../../util/api';
 import {
   addPaymentMethod,
   createStripeCustomer,
+  deletePaymentMethod,
 } from '../../ducks/paymentMethods.duck';
 
 import { LayoutSingleColumn, Page, PrimaryButton, Heading } from '../../components';
@@ -295,7 +296,18 @@ const SoftBookingCheckoutPage = () => {
     try {
       const hasStripeCustomer = !!currentUser?.relationships?.stripeCustomer?.data;
       if (hasStripeCustomer) {
-        await dispatch(addPaymentMethod(pmId));
+        // Try adding directly first. 409 means the user already has a default payment method
+        // (e.g. from a previous booking) — in that case delete it first, then add the new one.
+        try {
+          await dispatch(addPaymentMethod(pmId));
+        } catch (addErr) {
+          if (addErr?.status === 409) {
+            await dispatch(deletePaymentMethod());
+            await dispatch(addPaymentMethod(pmId));
+          } else {
+            throw addErr;
+          }
+        }
       } else {
         await dispatch(createStripeCustomer(pmId));
       }
