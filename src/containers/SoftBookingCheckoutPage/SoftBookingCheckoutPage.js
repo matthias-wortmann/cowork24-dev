@@ -6,12 +6,27 @@ import { useConfiguration } from '../../context/configurationContext';
 import { FormattedMessage, useIntl } from '../../util/reactIntl';
 import { loadStripeJs } from '../../util/loadStripe';
 import { getPaymentRequestCountryForCurrency } from '../../util/stripePaymentRequest';
-import { softBookingSetupIntent, softBookingInitiate } from '../../util/api';
+import { softBookingInitiate } from '../../util/api';
 import {
   addPaymentMethod,
   createStripeCustomer,
   deletePaymentMethod,
 } from '../../ducks/paymentMethods.duck';
+import { createAsyncThunk } from '@reduxjs/toolkit';
+import { storableError } from '../../util/errors';
+
+// Thunk: create a Sharetribe-managed SetupIntent (same as PaymentMethodsPage).
+// Using sdk.stripeSetupIntents.create() ensures the SI is linked to the user's
+// Stripe customer in Sharetribe's backend, so confirmCardSetup attaches the PM
+// correctly and addPaymentMethod can accept it without conflict.
+const createSetupIntentThunk = createAsyncThunk(
+  'SoftBookingCheckoutPage/createSetupIntent',
+  (_, { extra: sdk, rejectWithValue }) =>
+    sdk.stripeSetupIntents
+      .create()
+      .then(response => response.data.data)
+      .catch(e => rejectWithValue(storableError(e)))
+);
 
 import { LayoutSingleColumn, Page, PrimaryButton, Heading } from '../../components';
 
@@ -143,13 +158,23 @@ const SoftBookingCheckoutPage = () => {
   const paymentRequestRef = useRef(null);
 
   // ---------------- Fetch SetupIntent on mount ----------------
+  // Use Sharetribe's own stripeSetupIntents.create() so the SI is tied to the
+  // user's Stripe customer in Sharetribe. This is the same as PaymentMethodsPage.
   useEffect(() => {
-    softBookingSetupIntent()
-      .then(({ clientSecret: cs }) => setClientSecret(cs))
+    dispatch(createSetupIntentThunk())
+      .unwrap()
+      .then(setupIntent => {
+        const cs = setupIntent?.attributes?.clientSecret;
+        if (cs) {
+          setClientSecret(cs);
+        } else {
+          setFetchError(intl.formatMessage({ id: 'SoftBookingCheckoutPage.serviceUnavailable' }));
+        }
+      })
       .catch(() =>
         setFetchError(intl.formatMessage({ id: 'SoftBookingCheckoutPage.serviceUnavailable' }))
       );
-  }, []); // mount only once
+  }, []); // eslint-disable-line
 
   // ---------------- Mount Stripe card element ----------------
   useEffect(() => {
