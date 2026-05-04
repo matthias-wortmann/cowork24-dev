@@ -293,41 +293,41 @@ const SoftBookingCheckoutPage = () => {
   // ---------------- Step 2: register card with Sharetribe via Redux thunk ----------------
   const runStep2 = async pmId => {
     setStep('registering-card');
-    try {
-      const hasStripeCustomer = !!currentUser?.relationships?.stripeCustomer?.data;
-      console.log('[SoftBooking step2] hasStripeCustomer:', hasStripeCustomer, 'pmId:', pmId);
-      if (hasStripeCustomer) {
-        // Try adding directly first. 409 means the user already has a default payment method
-        // (e.g. from a previous booking) — in that case delete it first, then add the new one.
-        try {
+
+    // Helper: attach PM to an existing Stripe customer.
+    // If the customer already has a default PM (409), delete it first then re-add.
+    const addOrUpdatePaymentMethod = async () => {
+      try {
+        await dispatch(addPaymentMethod(pmId));
+      } catch (addErr) {
+        if (addErr?.status === 409) {
+          await dispatch(deletePaymentMethod());
           await dispatch(addPaymentMethod(pmId));
-          console.log('[SoftBooking step2] addPaymentMethod succeeded');
-        } catch (addErr) {
-          console.warn('[SoftBooking step2] addPaymentMethod failed:', addErr?.status, addErr?.apiErrors?.[0]?.code, addErr);
-          if (addErr?.status === 409) {
-            console.log('[SoftBooking step2] attempting delete then re-add...');
-            try {
-              await dispatch(deletePaymentMethod());
-              console.log('[SoftBooking step2] deletePaymentMethod succeeded');
-            } catch (delErr) {
-              console.error('[SoftBooking step2] deletePaymentMethod failed:', delErr?.status, delErr?.apiErrors?.[0]?.code, delErr);
-              throw delErr;
-            }
-            try {
-              await dispatch(addPaymentMethod(pmId));
-              console.log('[SoftBooking step2] second addPaymentMethod succeeded');
-            } catch (add2Err) {
-              console.error('[SoftBooking step2] second addPaymentMethod failed:', add2Err?.status, add2Err?.apiErrors?.[0]?.code, add2Err);
-              throw add2Err;
-            }
+        } else {
+          throw addErr;
+        }
+      }
+    };
+
+    try {
+      // fetchCurrentUser does not include stripeCustomer in its response, so the
+      // relationship may appear absent even when a customer exists. We therefore
+      // try createStripeCustomer first; a 409 means the customer already exists
+      // (Sharetribe enforces uniqueness) — in that case we fall back to add/update.
+      const hasStripeCustomer = !!currentUser?.relationships?.stripeCustomer?.data;
+      if (hasStripeCustomer) {
+        await addOrUpdatePaymentMethod();
+      } else {
+        try {
+          await dispatch(createStripeCustomer(pmId));
+        } catch (createErr) {
+          if (createErr?.status === 409) {
+            // Customer already exists but wasn't reflected in currentUser data
+            await addOrUpdatePaymentMethod();
           } else {
-            throw addErr;
+            throw createErr;
           }
         }
-      } else {
-        console.log('[SoftBooking step2] no stripe customer, creating...');
-        await dispatch(createStripeCustomer(pmId));
-        console.log('[SoftBooking step2] createStripeCustomer succeeded');
       }
     } catch (e) {
       console.error('[SoftBooking step2] payment method registration failed:', e);
