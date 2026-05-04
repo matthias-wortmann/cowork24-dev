@@ -213,18 +213,14 @@ const fetchCurrentUserPayloadCreator = (options, thunkAPI) => {
         dispatch(updateStripeConnectAccount(currentUser.stripeAccount));
       }
 
-      // Mirror the authoritative stripeConnected flag into profile.publicData so it is
+      // Mirror the accurate Stripe readiness flag into profile.publicData so it is
       // readable by other users (e.g. customers on ListingPage).
-      // currentUser.attributes.stripeConnected is private; publicData is public.
-      // Sync whenever: (a) stripeAccount exists but flag is missing, OR (b) the
-      // actual connected status differs from what is cached in publicData.
-      if (typeof window !== 'undefined') {
-        const actuallyConnected = !!currentUser.attributes?.stripeConnected;
-        const cachedConnected = currentUser.attributes?.profile?.publicData?.stripeConnected;
-        const needsSync = cachedConnected !== actuallyConnected;
-        if (needsSync) {
-          syncStripeStatus().catch(() => {});
-        }
+      // We always call syncStripeStatus when the provider has a stripeAccount so that
+      // the publicData flag reflects Stripe's actual charges_enabled status, not just
+      // whether the OAuth flow was completed. This prevents providers who have started
+      // but not finished Stripe onboarding from appearing as payment-ready.
+      if (typeof window !== 'undefined' && currentUser.stripeAccount) {
+        syncStripeStatus().catch(() => {});
       }
 
       // set current user id to the logger

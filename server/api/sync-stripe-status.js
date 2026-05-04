@@ -1,39 +1,56 @@
 /**
  * GET /api/sync-stripe-status
  *
- * Fetches the current user's Stripe account and, if found, writes
- * `stripeConnected: true` into their profile.publicData so it is
+ * Fetches the current user's Stripe account and writes an accurate
+ * `stripeConnected` flag into their profile.publicData so it is
  * readable by other users (e.g. customers on ListingPage).
  *
- * This endpoint is called by user.duck.js whenever fetchCurrentUser
- * detects a stripeAccount but no publicData.stripeConnected flag.
+ * We use Stripe's `charges_enabled` as the authoritative source rather
+ * than Sharetribe's own stripeConnected flag. Sharetribe marks an account
+ * as "connected" as soon as the OAuth flow completes, but Stripe only
+ * enables charges once identity verification and onboarding are fully
+ * complete. Without this check, providers who have started (but not
+ * finished) Stripe onboarding would incorrectly appear as payment-ready,
+ * sending customers to the normal checkout which would then fail.
  */
 const { getSdk, handleError } = require('../api-util/sdk');
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 module.exports = (req, res) => {
   const sdk = getSdk(req, res);
 
-  // Fetch currentUser with stripeAccount relationship.
-  // currentUser.attributes.stripeConnected is the authoritative flag — it is true
-  // only when the provider has completed Stripe Connect onboarding (not just created
-  // an account object). We mirror this exact value into profile.publicData so that
-  // listing authors' Stripe readiness is readable by customers.
   sdk.currentUser
     .show({ include: ['stripeAccount'] })
-    .then(response => {
+    .then(async response => {
       const currentUser = response.data.data;
-      const isFullyConnected = !!currentUser?.attributes?.stripeConnected;
+      const included = response.data.included || [];
 
-      if (!isFullyConnected) {
-        // Account exists but onboarding is incomplete — mark as not connected.
-        return sdk.currentUser
-          .updateProfile({ publicData: { stripeConnected: false } })
-          .then(() => res.status(200).json({ synced: false, reason: 'stripe_not_onboarded' }));
+      // No Stripe account at all → definitely not connected.
+      const sharetribeConnected = !!currentUser?.attributes?.stripeConnected;
+      const stripeAccountEntity = included.find(i => i.type === 'stripeAccount');
+      const stripeAccountId = stripeAccountEntity?.attributes?.stripeAccountId;
+
+      if (!sharetribeConnected || !stripeAccountId) {
+        await sdk.currentUser.updateProfile({ publicData: { stripeConnected: false } });
+        return res.status(200).json({ synced: false, reason: 'stripe_not_onboarded' });
       }
 
-      return sdk.currentUser
-        .updateProfile({ publicData: { stripeConnected: true } })
-        .then(() => res.status(200).json({ synced: true }));
+      // Verify with Stripe that the account can actually receive charges.
+      // `charges_enabled` is false until identity verification is complete —
+      // the OAuth connection alone is not sufficient.
+      let chargesEnabled = false;
+      try {
+        const account = await stripe.accounts.retrieve(stripeAccountId);
+        chargesEnabled = !!account.charges_enabled;
+      } catch (stripeErr) {
+        console.error('[sync-stripe-status] Stripe account retrieve failed:', stripeErr.message);
+        // On Stripe error, fall back to Sharetribe's own flag to avoid incorrectly
+        // blocking providers who have a functioning account.
+        chargesEnabled = sharetribeConnected;
+      }
+
+      await sdk.currentUser.updateProfile({ publicData: { stripeConnected: chargesEnabled } });
+      return res.status(200).json({ synced: chargesEnabled, chargesEnabled });
     })
     .catch(e => {
       const status = e?.status || e?.response?.status;
