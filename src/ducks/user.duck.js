@@ -209,9 +209,22 @@ const fetchCurrentUserPayloadCreator = (options, thunkAPI) => {
       }
       const currentUser = entities[0];
 
-      // Save stripeAccount to store.stripe.stripeAccount if it exists
+      // Save stripeAccount to store.stripe.stripeAccount if it exists.
+      // Guard: only update if we don't already have the full stripeAccountData in Redux.
+      // The relationship entity from include:['stripeAccount'] only carries
+      // attributes.stripeConnected, NOT attributes.stripeAccountData (country, requirements,
+      // etc.). That full data is loaded separately by sdk.stripeAccount.fetch() in
+      // StripePayoutPage.duck.js. If we overwrite the complete data with the partial entity
+      // (e.g. during the post-syncStripeStatus re-fetch), savedCountry becomes null and the
+      // verification button on /account/payments disappears. So we only update when either
+      // we don't have complete data yet, or the new entity actually carries stripeAccountData.
       if (currentUser.stripeAccount) {
-        dispatch(updateStripeConnectAccount(currentUser.stripeAccount));
+        const existingStripeData =
+          getState().stripeConnectAccount?.stripeAccount?.attributes?.stripeAccountData;
+        const newStripeData = currentUser.stripeAccount?.attributes?.stripeAccountData;
+        if (!existingStripeData || newStripeData) {
+          dispatch(updateStripeConnectAccount(currentUser.stripeAccount));
+        }
       }
 
       // Mirror the accurate Stripe readiness flag into profile.publicData so it is
