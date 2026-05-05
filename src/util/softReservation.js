@@ -49,20 +49,19 @@ export const requiresSoftReservationFallback = listing => {
   // (see stripeConnectAccount.duck.js / user.duck.js) so it is readable by anyone.
   const authorPublicData = listing?.author?.attributes?.profile?.publicData;
 
-  // profile.publicData.stripeConnected is written by syncStripeStatus on provider login.
-  // Providers who existed before this sync was deployed have undefined for the field.
-  // Default (prod): treat undefined as "verified" so established providers with working
-  // Stripe accounts are not incorrectly routed into the soft-booking flow.
-  // Test override: when REACT_APP_SOFT_BOOKING_TREAT_UNSYNCED_AS_DISCONNECTED=true,
-  // treat undefined as disconnected so QA can drive the soft-booking flow with providers
-  // whose flag has not been backfilled yet.
-  const treatUnsyncedAsDisconnected =
-    process.env.REACT_APP_SOFT_BOOKING_TREAT_UNSYNCED_AS_DISCONNECTED === 'true';
-  const authorStripeConnected = treatUnsyncedAsDisconnected
-    ? !!authorPublicData?.stripeConnected
-    : authorPublicData?.stripeConnected !== false;
+  // Two states must both be true before a provider can accept normal Stripe checkout:
+  //   1. Stripe Connect account exists (provider completed OAuth onboarding), AND
+  //   2. Stripe has marked the account as verified (charges_enabled === true).
+  // Both conditions are encoded in profile.publicData.stripeConnected, which is written
+  // by syncStripeStatus from Stripe's charges_enabled flag — that flag is true only
+  // after onboarding AND identity verification are complete.
+  // We require an explicit `true`. Anything else (false, null, undefined) routes the
+  // customer into the soft-booking flow. Providers whose flag is still undefined
+  // (e.g. accounts that pre-date sync-stripe-status) need to log in once to populate
+  // it; the sync runs automatically for every authenticated user on session start.
+  const authorStripeVerified = authorPublicData?.stripeConnected === true;
 
-  return isPaymentProcess && !authorStripeConnected;
+  return isPaymentProcess && !authorStripeVerified;
 };
 
 /**

@@ -29,7 +29,7 @@ describe('softReservation', () => {
     expect(requiresSoftReservationFallback(listing)).toBe(true);
   });
 
-  it('returns false when provider stripe is connected', () => {
+  it('returns false when provider stripe is connected and verified', () => {
     const listing = createListing(
       'listing-stripe-ready',
       {
@@ -42,6 +42,21 @@ describe('softReservation', () => {
     );
 
     expect(requiresSoftReservationFallback(listing)).toBe(false);
+  });
+
+  it('returns true when provider stripeConnected is undefined (un-synced)', () => {
+    const listing = createListing(
+      'listing-unsynced-provider',
+      {
+        publicData: {
+          transactionProcessAlias: 'default-booking/release-1',
+          unitType: 'day',
+        },
+      },
+      { author: createUser('provider-3', { profile: { displayName: 'Provider 3', abbreviatedName: 'P3', publicData: {} } }) }
+    );
+
+    expect(requiresSoftReservationFallback(listing)).toBe(true);
   });
 
   it('creates structured booking details for transaction protectedData', () => {
