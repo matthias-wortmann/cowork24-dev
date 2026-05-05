@@ -51,11 +51,16 @@ export const requiresSoftReservationFallback = listing => {
 
   // profile.publicData.stripeConnected is written by syncStripeStatus on provider login.
   // Providers who existed before this sync was deployed have undefined for the field.
-  // We treat undefined as "verified" to avoid incorrectly routing established providers
-  // with working Stripe accounts to the soft-booking flow. The flag will be set correctly
-  // the next time the provider logs in and syncStripeStatus fires.
-  // Only route to soft-booking when the field has been explicitly set to false.
-  const authorStripeConnected = authorPublicData?.stripeConnected !== false;
+  // Default (prod): treat undefined as "verified" so established providers with working
+  // Stripe accounts are not incorrectly routed into the soft-booking flow.
+  // Test override: when REACT_APP_SOFT_BOOKING_TREAT_UNSYNCED_AS_DISCONNECTED=true,
+  // treat undefined as disconnected so QA can drive the soft-booking flow with providers
+  // whose flag has not been backfilled yet.
+  const treatUnsyncedAsDisconnected =
+    process.env.REACT_APP_SOFT_BOOKING_TREAT_UNSYNCED_AS_DISCONNECTED === 'true';
+  const authorStripeConnected = treatUnsyncedAsDisconnected
+    ? !!authorPublicData?.stripeConnected
+    : authorPublicData?.stripeConnected !== false;
 
   return isPaymentProcess && !authorStripeConnected;
 };
