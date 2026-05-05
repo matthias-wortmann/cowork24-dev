@@ -58,6 +58,12 @@ const LOGOS = [
     logo:
       'https://sharetribe.imgix.net/68a32a0c-65b6-47ae-97b1-43643e03bc76/68ff4fb2-1062-4637-b383-1499b28a4f79?auto=format&crop=edges&fit=crop&h=240&w=240&s=f9f2b10936124552b1ad8b3965eea761',
   },
+  {
+    id: 'story-thusis',
+    name: 'Story Thusis',
+    logo:
+      'https://story-thusis.ch/wp-content/uploads/2023/08/cropped-favicon-quadratisch-270x270.png',
+  },
 ];
 
 const optimizeLogoUrl = url => {
