@@ -28,24 +28,23 @@ const defaultLandingSections = () => [
   { sectionType: 'logoSlider', sectionId: 'logo-slider', landingSurface: 'muted' },
   {
     sectionType: 'landingListingRows',
-    sectionId: 'landing-listings-newest-coliving',
-    rowIds: ['newest', 'coliving'],
+    sectionId: 'landing-listings-all',
+    rowIds: [
+      'tagespass',
+      'hourly-rental',
+      'fixdesk',
+      'individual',
+      'lounge',
+      'coliving',
+      'workation',
+      'newest',
+    ],
     landingSurface: 'white',
   },
-  {
-    sectionType: 'categoryShortcuts',
-    sectionId: 'category-shortcuts',
-    landingSurface: 'muted',
-  },
-  {
-    sectionType: 'landingListingRows',
-    sectionId: 'landing-listings-workation',
-    rowIds: ['workation'],
-    landingSurface: 'white',
-  },
-  { sectionType: 'sectionLocations', sectionId: 'locations', landingSurface: 'muted' },
-  { sectionType: 'sectionSpaceOwner', sectionId: 'space-owner', landingSurface: 'white' },
-  { sectionType: 'faq', sectionId: 'faq', landingSurface: 'muted' },
+  { sectionType: 'categoryShortcuts', sectionId: 'category-shortcuts', landingSurface: 'muted' },
+  { sectionType: 'sectionLocations', sectionId: 'locations', landingSurface: 'white' },
+  { sectionType: 'sectionSpaceOwner', sectionId: 'space-owner', landingSurface: 'muted' },
+  { sectionType: 'faq', sectionId: 'faq', landingSurface: 'white' },
 ];
 
 /** Page data for the custom start page (hero + categories). Exported for use in LandingPage. */

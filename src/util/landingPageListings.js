@@ -181,7 +181,16 @@ export const buildLandingRowQueryParams = (config, row) => {
 
   const stockMaybe = { minStock: 1, stockMode: 'match-undefined' };
 
-  const listingTypesMaybe = searchValidListingTypes(config.listing.listingTypes, config);
+  // Row may pin a specific listingType (e.g. 'day-pass'). Otherwise fall back to the
+  // marketplace-wide validity filter from configListing.
+  const rowListingTypes = Array.isArray(row.listingType)
+    ? row.listingType
+    : row.listingType
+    ? [row.listingType]
+    : null;
+  const listingTypesMaybe = rowListingTypes
+    ? { pub_listingType: rowListingTypes }
+    : searchValidListingTypes(config.listing.listingTypes, config);
 
   const sdkParams = {
     ...categoryApiParams,
@@ -221,6 +230,7 @@ export const buildLandingRowQueryParams = (config, row) => {
   const viewAllSearchParams = {
     ...sortMaybe,
     ...rawCategory,
+    ...(rowListingTypes ? { pub_listingType: rowListingTypes.join(',') } : {}),
   };
 
   return { sdkParams, viewAllSearchParams };

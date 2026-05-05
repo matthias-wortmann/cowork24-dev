@@ -12,6 +12,7 @@ import { useConfiguration } from '../context/configurationContext';
 import { locationChanged } from '../ducks/routing.duck';
 
 import { NamedRedirect } from '../components';
+import FloatingMapButton from '../components/FloatingMapButton/FloatingMapButton';
 import NotFoundPage from '../containers/NotFoundPage/NotFoundPage';
 
 import LoadableComponentErrorBoundary from './LoadableComponentErrorBoundary/LoadableComponentErrorBoundary';
@@ -263,10 +264,13 @@ const Routes = (props, context) => {
   };
 
   return (
-    <Switch>
-      {routeConfiguration.map(toRouteComponent)}
-      <Route component={NotFoundPage} />
-    </Switch>
+    <>
+      <Switch>
+        {routeConfiguration.map(toRouteComponent)}
+        <Route component={NotFoundPage} />
+      </Switch>
+      <FloatingMapButton />
+    </>
   );
 };
 

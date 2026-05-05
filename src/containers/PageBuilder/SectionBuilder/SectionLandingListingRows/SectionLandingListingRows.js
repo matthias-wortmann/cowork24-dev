@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { useSelector } from 'react-redux';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 import { getListingsById } from '../../../../ducks/marketplaceData.duck';
 import { useConfiguration } from '../../../../context/configurationContext';
@@ -13,11 +14,13 @@ import { ListingCard, NamedLink } from '../../../../components';
 import css from './SectionLandingListingRows.module.css';
 
 const LANDING_CARD_RENDER_SIZES = [
-  '(max-width: 767px) 58vw',
-  '(max-width: 1023px) 30vw',
-  '(max-width: 1439px) 20vw',
-  '210px',
+  '(max-width: 767px) 70vw',
+  '(max-width: 1023px) 38vw',
+  '(max-width: 1439px) 26vw',
+  '260px',
 ].join(', ');
+
+const SCROLL_EDGE_TOLERANCE = 4;
 
 /**
  * One horizontal listing row (title, “view all”, scrollable cards).
@@ -28,10 +31,41 @@ const LANDING_CARD_RENDER_SIZES = [
  */
 const LandingListingRow = ({ row, isFirstRow }) => {
   const intl = useIntl();
+  const scrollerRef = useRef(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+
   const rowState = useSelector(state => state.LandingPage?.listingRows?.[row.id] || {});
   const { ids = [], inProgress, error, viewAllSearchParams = {} } = rowState;
 
   const listings = useSelector(state => getListingsById(state, ids));
+
+  const updateScrollState = useCallback(() => {
+    const el = scrollerRef.current;
+    if (!el) return;
+    const { scrollLeft, scrollWidth, clientWidth } = el;
+    setCanScrollLeft(scrollLeft > SCROLL_EDGE_TOLERANCE);
+    setCanScrollRight(scrollLeft + clientWidth < scrollWidth - SCROLL_EDGE_TOLERANCE);
+  }, []);
+
+  useEffect(() => {
+    updateScrollState();
+    const el = scrollerRef.current;
+    if (!el) return undefined;
+    el.addEventListener('scroll', updateScrollState, { passive: true });
+    window.addEventListener('resize', updateScrollState);
+    return () => {
+      el.removeEventListener('scroll', updateScrollState);
+      window.removeEventListener('resize', updateScrollState);
+    };
+  }, [updateScrollState, listings.length]);
+
+  const scrollByPage = direction => () => {
+    const el = scrollerRef.current;
+    if (!el) return;
+    const delta = Math.round(el.clientWidth * 0.9) * direction;
+    el.scrollBy({ left: delta, behavior: 'smooth' });
+  };
 
   const showRow = !error && !inProgress && listings.length > 0;
   if (!showRow) {
@@ -48,31 +82,58 @@ const LandingListingRow = ({ row, isFirstRow }) => {
           <FormattedMessage id={row.titleTranslationKey} />
         </h2>
         <NamedLink name="SearchPage" to={viewAllTo} className={css.viewAll}>
-          <FormattedMessage id="SectionLandingListingRows.viewAll" />
+          <span className={css.viewAllLabel}>
+            <FormattedMessage id="SectionLandingListingRows.viewAll" />
+          </span>
+          <ChevronRight className={css.viewAllIcon} aria-hidden="true" />
         </NamedLink>
       </div>
-      <div className={css.scroller}>
-        <ul
-          className={css.list}
-          aria-label={intl.formatMessage(
-            { id: 'SectionLandingListingRows.rowAriaLabel' },
-            { title: intl.formatMessage({ id: row.titleTranslationKey }) }
-          )}
+      <div className={css.scrollerWrap}>
+        <button
+          type="button"
+          className={classNames(css.navButton, css.navButtonLeft, {
+            [css.navButtonHidden]: !canScrollLeft,
+          })}
+          aria-label={intl.formatMessage({ id: 'SectionLandingListingRows.scrollPrev' })}
+          onClick={scrollByPage(-1)}
+          tabIndex={canScrollLeft ? 0 : -1}
         >
-          {listings.map((listing, index) => (
-            <li key={listing.id.uuid} className={css.cardWrap}>
-              <div className={css.cardShell}>
-                <ListingCard
-                  className={css.listingCard}
-                  listing={listing}
-                  renderSizes={LANDING_CARD_RENDER_SIZES}
-                  intl={intl}
-                  highImagePriority={isFirstRow && index === 0}
-                />
-              </div>
-            </li>
-          ))}
-        </ul>
+          <ChevronLeft aria-hidden="true" />
+        </button>
+        <button
+          type="button"
+          className={classNames(css.navButton, css.navButtonRight, {
+            [css.navButtonHidden]: !canScrollRight,
+          })}
+          aria-label={intl.formatMessage({ id: 'SectionLandingListingRows.scrollNext' })}
+          onClick={scrollByPage(1)}
+          tabIndex={canScrollRight ? 0 : -1}
+        >
+          <ChevronRight aria-hidden="true" />
+        </button>
+        <div className={css.scroller} ref={scrollerRef}>
+          <ul
+            className={css.list}
+            aria-label={intl.formatMessage(
+              { id: 'SectionLandingListingRows.rowAriaLabel' },
+              { title: intl.formatMessage({ id: row.titleTranslationKey }) }
+            )}
+          >
+            {listings.map((listing, index) => (
+              <li key={listing.id.uuid} className={css.cardWrap}>
+                <div className={css.cardShell}>
+                  <ListingCard
+                    className={css.listingCard}
+                    listing={listing}
+                    renderSizes={LANDING_CARD_RENDER_SIZES}
+                    intl={intl}
+                    highImagePriority={isFirstRow && index === 0}
+                  />
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
     </div>
   );

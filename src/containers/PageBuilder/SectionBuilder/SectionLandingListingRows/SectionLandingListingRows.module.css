@@ -1,6 +1,5 @@
 @import '../../../../styles/customMediaQueries.css';
 
-/* Same section shell as SectionCategoryShortcuts (full width + content width); colour via landingSurface */
 .root {
   width: 100%;
   max-width: 100%;
@@ -14,52 +13,44 @@
   }
 }
 
-/* Horizontal + bottom padding match SectionCategoryShortcuts; top is smaller so the gap
-   after „Kategorien“ does not stack two full section paddings. */
 .wrapper {
   max-width: var(--contentMaxWidthPages);
   margin: 0 auto;
-  padding: 16px 16px 36px;
+  padding: 8px 16px 24px;
 }
 
 @media (--viewportSmall) {
   .wrapper {
-    padding: 20px 24px 40px;
+    padding: 12px 24px 32px;
   }
 }
 
 @media (--viewportMedium) {
   .wrapper {
-    padding: 28px 48px 56px;
+    padding: 16px 48px 48px;
   }
 }
 
 @media (--viewportLarge) {
   .wrapper {
-    padding: 32px 48px 80px;
+    padding: 16px 48px 64px;
   }
 }
 
-/* Vertical rhythm between carousels (6px mobile baseline → 8px from md) */
+/* Tighter vertical rhythm now that all rows live in one section */
 .row {
-  margin-bottom: 24px;
-}
-
-@media (--viewportSmall) {
-  .row {
-    margin-bottom: 28px;
-  }
+  margin-bottom: 28px;
 }
 
 @media (--viewportMedium) {
   .row {
-    margin-bottom: 32px;
+    margin-bottom: 36px;
   }
 }
 
 @media (--viewportLarge) {
   .row {
-    margin-bottom: 40px;
+    margin-bottom: 44px;
   }
 }
 
@@ -67,11 +58,10 @@
   margin-bottom: 0;
 }
 
-/* Align with SectionLocations.sectionHeader spacing */
 .rowHeader {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
+  align-items: baseline;
   justify-content: space-between;
   gap: 12px;
   margin-bottom: 12px;
@@ -79,20 +69,20 @@
 
 @media (--viewportSmall) {
   .rowHeader {
-    margin-bottom: 16px;
+    margin-bottom: 14px;
   }
 }
 
 @media (--viewportMedium) {
   .rowHeader {
-    margin-bottom: 24px;
+    margin-bottom: 18px;
   }
 }
 
-/* Match SectionCategoryShortcuts.title (incl. „Neueste Spaces“) */
+/* Airbnb-style heading: bold, tight, large but not screaming */
 .rowTitle {
   font-size: 20px;
-  font-weight: 800;
+  font-weight: 700;
   line-height: 1.2;
   letter-spacing: -0.01em;
   margin: 0;
@@ -110,59 +100,79 @@
 
 @media (--viewportMedium) {
   .rowTitle {
-    font-size: 32px;
+    font-size: 26px;
   }
 }
 
-/* Secondary CTA: same scale as category description / links */
+@media (--viewportLarge) {
+  .rowTitle {
+    font-size: 28px;
+  }
+}
+
+/* "View all" — minimal text + chevron, like Airbnb's "Show all" */
 .viewAll {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
   flex-shrink: 0;
   font-size: 14px;
   font-weight: 600;
   line-height: 1.3;
-  color: var(--marketplaceColor);
+  color: var(--colorGrey800);
   text-decoration: none;
-  padding: 6px 14px;
-  border-radius: 999px;
-  background-color: color-mix(in srgb, var(--marketplaceColor) 8%, transparent);
-  transition: background-color 0.15s ease, color 0.15s ease;
+  padding: 4px 6px;
+  margin-right: -6px;
+  border-radius: 8px;
+  transition: color 0.15s ease, background-color 0.15s ease, transform 0.15s ease;
 }
 
-@media (--viewportSmall) {
+.viewAll:hover {
+  color: var(--colorGrey900);
+  text-decoration: none;
+  background-color: var(--colorGrey50, rgba(0, 0, 0, 0.04));
+}
+
+.viewAll:hover .viewAllIcon {
+  transform: translateX(2px);
+}
+
+.viewAll:focus-visible {
+  outline: 2px solid var(--marketplaceColor);
+  outline-offset: 2px;
+}
+
+.viewAllLabel {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+}
+
+.viewAllIcon {
+  width: 16px;
+  height: 16px;
+  transition: transform 0.18s ease;
+}
+
+@media (--viewportMedium) {
   .viewAll {
     font-size: 15px;
   }
 }
 
-@media (--viewportMedium) {
-  .viewAll {
-    font-size: 17px;
-    padding: 8px 16px;
-  }
+/* Scroller + nav buttons + edge fade */
+.scrollerWrap {
+  position: relative;
 }
 
-.viewAll:hover {
-  background-color: color-mix(in srgb, var(--marketplaceColor) 16%, transparent);
-  text-decoration: none;
-}
-
-@supports not (background-color: color-mix(in srgb, black 50%, white)) {
-  .viewAll {
-    background-color: var(--colorGrey100);
-  }
-
-  .viewAll:hover {
-    background-color: var(--colorGrey200);
-  }
-}
-
-/* Same scroll behaviour as SectionCategoryShortcuts.grid */
 .scroller {
   overflow-x: auto;
-  overflow-y: hidden;
-  padding-bottom: 4px;
+  overflow-y: visible;
+  padding: 4px 4px 8px;
+  margin: -4px -4px 0;
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
@@ -192,44 +202,55 @@
   }
 }
 
+/* Larger cards — Airbnb-like */
 .cardWrap {
   flex: 0 0 auto;
-  width: min(58vw, 188px);
+  width: min(70vw, 220px);
   scroll-snap-align: start;
+}
+
+@media (--viewportSmall) {
+  .cardWrap {
+    width: min(46vw, 240px);
+  }
 }
 
 @media (--viewportMedium) {
   .cardWrap {
-    width: min(30vw, 196px);
+    width: min(28vw, 240px);
   }
 }
 
 @media (--viewportLarge) {
   .cardWrap {
-    width: min(20vw, 210px);
+    width: min(22vw, 260px);
   }
 }
 
-/* Card chrome: radii / hover like SectionCategoryShortcuts cards */
 .cardShell {
   height: 100%;
-  border-radius: 12px;
+  border-radius: 16px;
   background-color: var(--colorWhite);
-  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06), 0 4px 16px rgba(15, 23, 42, 0.06);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 2px 8px rgba(15, 23, 42, 0.06);
   overflow: hidden;
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
-}
-
-@media (--viewportSmall) {
-  .cardShell {
-    border-radius: 16px;
-  }
+  transition: transform 0.22s ease, box-shadow 0.22s ease;
 }
 
 @media (hover: hover) and (pointer: fine) {
   .cardShell:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(15, 23, 42, 0.12);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cardShell,
+  .cardShell:hover,
+  .viewAllIcon,
+  .scroller {
+    transition: none;
+    transform: none;
+    scroll-behavior: auto;
   }
 }
 
@@ -250,16 +271,16 @@
 }
 
 .listingCard [class*='info'] {
-  padding: 8px 10px 10px;
+  padding: 10px 12px 12px;
 }
 
 .listingCard [class*='price'] {
   margin-bottom: 2px;
-  font-size: 12px;
+  font-size: 13px;
 }
 
 .listingCard [class*='title'] {
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.35;
   font-weight: var(--fontWeightSemiBold);
 }
@@ -268,4 +289,73 @@
   padding-top: 2px;
   padding-bottom: 0;
   font-size: 11px;
+}
+
+/* Hover-only nav arrows (Airbnb style) — hidden on touch devices */
+.navButton {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background-color: var(--colorWhite);
+  color: var(--colorGrey900);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+  transition: background-color 0.15s ease, transform 0.15s ease, opacity 0.15s ease;
+  padding: 0;
+}
+
+.navButton svg {
+  width: 18px;
+  height: 18px;
+}
+
+.navButtonLeft {
+  left: -4px;
+}
+
+.navButtonRight {
+  right: -4px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .navButton {
+    display: inline-flex;
+    opacity: 0;
+  }
+
+  .scrollerWrap:hover .navButton:not(.navButtonHidden) {
+    opacity: 1;
+  }
+
+  .navButton:not(.navButtonHidden):hover {
+    background-color: var(--colorGrey50, #f7f7f7);
+    transform: translateY(-50%) scale(1.04);
+  }
+
+  .navButton:focus-visible {
+    opacity: 1;
+    outline: 2px solid var(--marketplaceColor);
+    outline-offset: 2px;
+  }
+}
+
+.navButtonHidden {
+  pointer-events: none;
+  opacity: 0 !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .navButton,
+  .navButton:hover {
+    transition: none;
+    transform: translateY(-50%);
+  }
 }

@@ -1,0 +1,79 @@
+.root {
+  position: fixed;
+  bottom: calc(28px + env(safe-area-inset-bottom));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 50;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 14px 22px;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+
+  background-color: #222222;
+  color: #ffffff;
+  text-decoration: none;
+
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0.01em;
+
+  /* Layered Airbnb-style elevation */
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08), 0 6px 16px rgba(0, 0, 0, 0.18),
+    0 18px 36px rgba(0, 0, 0, 0.18);
+  transition: transform 180ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    box-shadow 180ms cubic-bezier(0.2, 0.8, 0.2, 1), background-color 180ms ease;
+}
+
+.root:hover {
+  transform: translateX(-50%) translateY(-2px);
+  background-color: #000000;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1), 0 10px 22px rgba(0, 0, 0, 0.22),
+    0 24px 48px rgba(0, 0, 0, 0.22);
+  color: #ffffff;
+  text-decoration: none;
+}
+
+.root:active {
+  transform: translateX(-50%) translateY(0);
+}
+
+.root:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 3px;
+  box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.6), 0 6px 16px rgba(0, 0, 0, 0.18),
+    0 18px 36px rgba(0, 0, 0, 0.18);
+}
+
+.icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.label {
+  white-space: nowrap;
+}
+
+@media (max-width: 767px) {
+  .root {
+    bottom: calc(20px + env(safe-area-inset-bottom));
+    padding: 12px 18px;
+    font-size: 14px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .root {
+    transition: none;
+  }
+
+  .root:hover,
+  .root:active {
+    transform: translateX(-50%);
+  }
+}
