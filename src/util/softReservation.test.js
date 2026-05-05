@@ -23,7 +23,15 @@ describe('softReservation', () => {
           unitType: 'day',
         },
       },
-      { author: createUser('provider-1', { profile: { displayName: 'Provider 1', abbreviatedName: 'P1', publicData: { stripeConnected: false } } }) }
+      {
+        author: createUser('provider-1', {
+          profile: {
+            displayName: 'Provider 1',
+            abbreviatedName: 'P1',
+            publicData: { stripeConnected: false },
+          },
+        }),
+      }
     );
 
     expect(requiresSoftReservationFallback(listing)).toBe(true);
@@ -38,7 +46,15 @@ describe('softReservation', () => {
           unitType: 'day',
         },
       },
-      { author: createUser('provider-2', { profile: { displayName: 'Provider 2', abbreviatedName: 'P2', publicData: { stripeConnected: true } } }) }
+      {
+        author: createUser('provider-2', {
+          profile: {
+            displayName: 'Provider 2',
+            abbreviatedName: 'P2',
+            publicData: { stripeConnected: true },
+          },
+        }),
+      }
     );
 
     expect(requiresSoftReservationFallback(listing)).toBe(false);
@@ -53,7 +69,11 @@ describe('softReservation', () => {
           unitType: 'day',
         },
       },
-      { author: createUser('provider-3', { profile: { displayName: 'Provider 3', abbreviatedName: 'P3', publicData: {} } }) }
+      {
+        author: createUser('provider-3', {
+          profile: { displayName: 'Provider 3', abbreviatedName: 'P3', publicData: {} },
+        }),
+      }
     );
 
     expect(requiresSoftReservationFallback(listing)).toBe(true);
