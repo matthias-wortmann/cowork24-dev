@@ -1,6 +1,6 @@
 .root {
   position: fixed;
-  bottom: calc(28px + env(safe-area-inset-bottom));
+  bottom: calc(24px + env(safe-area-inset-bottom));
   left: 50%;
   transform: translateX(-50%);
   z-index: 50;
@@ -9,6 +9,7 @@
   align-items: center;
   gap: 8px;
 
+  min-height: 48px;
   padding: 14px 22px;
   border-radius: 999px;
   border: 1px solid rgba(0, 0, 0, 0.08);
@@ -22,6 +23,10 @@
   line-height: 1;
   letter-spacing: 0.01em;
 
+  /* Block iOS tap highlight; keep the button as one tap target */
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+
   /* Layered Airbnb-style elevation */
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08), 0 6px 16px rgba(0, 0, 0, 0.18),
     0 18px 36px rgba(0, 0, 0, 0.18);
@@ -29,17 +34,22 @@
     box-shadow 180ms cubic-bezier(0.2, 0.8, 0.2, 1), background-color 180ms ease;
 }
 
-.root:hover {
-  transform: translateX(-50%) translateY(-2px);
-  background-color: #000000;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1), 0 10px 22px rgba(0, 0, 0, 0.22),
-    0 24px 48px rgba(0, 0, 0, 0.22);
-  color: #ffffff;
-  text-decoration: none;
+/* Hover lift only on devices with a real pointer — avoids "sticky hover" on touch */
+@media (hover: hover) and (pointer: fine) {
+  .root:hover {
+    transform: translateX(-50%) translateY(-2px);
+    background-color: #000000;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1), 0 10px 22px rgba(0, 0, 0, 0.22),
+      0 24px 48px rgba(0, 0, 0, 0.22);
+    color: #ffffff;
+    text-decoration: none;
+  }
 }
 
 .root:active {
-  transform: translateX(-50%) translateY(0);
+  transform: translateX(-50%) scale(0.97);
+  background-color: #000000;
+  color: #ffffff;
 }
 
 .root:focus-visible {
@@ -61,9 +71,19 @@
 
 @media (max-width: 767px) {
   .root {
-    bottom: calc(20px + env(safe-area-inset-bottom));
-    padding: 12px 18px;
-    font-size: 14px;
+    /* Sit just above iOS home-indicator / Android nav bar */
+    bottom: calc(16px + env(safe-area-inset-bottom));
+    min-height: 52px;
+    padding: 14px 22px;
+    font-size: 15px;
+    /* Slightly stronger lift on mobile so the pill reads above map/listings */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12), 0 8px 20px rgba(0, 0, 0, 0.22),
+      0 22px 44px rgba(0, 0, 0, 0.22);
+  }
+
+  .icon {
+    width: 20px;
+    height: 20px;
   }
 }
 

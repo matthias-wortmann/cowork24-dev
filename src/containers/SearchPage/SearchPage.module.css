@@ -322,3 +322,74 @@
 .mapRoot {
   background-color: var(--colorGrey100);
 }
+
+/* Floating "Show map" pill — only visible on mobile when the map modal is closed.
+   Mirrors the Airbnb-style FloatingMapButton so the in-search re-open affordance
+   is the same prominent target users tapped on the landing page. */
+.mobileMapToggle {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  .mobileMapToggle {
+    position: fixed;
+    bottom: calc(16px + env(safe-area-inset-bottom));
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 50;
+
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+
+    min-height: 52px;
+    padding: 14px 22px;
+    border-radius: 999px;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+
+    background-color: #222222;
+    color: #ffffff;
+    text-decoration: none;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: 0.01em;
+    cursor: pointer;
+
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12), 0 8px 20px rgba(0, 0, 0, 0.22),
+      0 22px 44px rgba(0, 0, 0, 0.22);
+    transition: transform 180ms cubic-bezier(0.2, 0.8, 0.2, 1),
+      box-shadow 180ms cubic-bezier(0.2, 0.8, 0.2, 1), background-color 180ms ease;
+  }
+
+  .mobileMapToggle:active {
+    transform: translateX(-50%) scale(0.97);
+    background-color: #000000;
+  }
+
+  .mobileMapToggle:focus-visible {
+    outline: 2px solid #ffffff;
+    outline-offset: 3px;
+    box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.6), 0 8px 20px rgba(0, 0, 0, 0.22),
+      0 22px 44px rgba(0, 0, 0, 0.22);
+  }
+
+  .mobileMapToggleIcon {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mobileMapToggle {
+    transition: none;
+  }
+  .mobileMapToggle:active {
+    transform: translateX(-50%);
+  }
+}

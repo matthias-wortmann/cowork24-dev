@@ -31,19 +31,9 @@
 }
 
 .mapIcon {
-  /* Font */
-  composes: marketplaceTinyFontStyles from global;
-  font-weight: var(--fontWeightMedium);
-
-  /* background map image */
-  background-image: url(./images/map_icon216x105.png);
-  background-size: cover;
-
-  border-radius: 3px;
-  width: 72px;
-  height: 35px;
-  padding: 9px 22px;
-  margin: 0;
+  /* Replaced by the floating bottom-center map pill rendered by SearchPageWithMap.
+     Hidden here so we don't render two redundant map-open affordances. */
+  display: none;
 }
 
 .modalContainer {

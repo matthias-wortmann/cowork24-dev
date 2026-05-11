@@ -36,6 +36,8 @@ import {
 import { getListingsById } from '../../ducks/marketplaceData.duck';
 import { manageDisableScrolling, isScrollingDisabled } from '../../ducks/ui.duck';
 
+import { Map as MapIcon } from 'lucide-react';
+
 import { H3, H5, ModalInMobile, NamedRedirect, Page } from '../../components';
 import TopbarContainer from '../../containers/TopbarContainer/TopbarContainer';
 
@@ -98,8 +100,14 @@ export class SearchPageComponent extends Component {
   constructor(props) {
     super(props);
 
+    // Open the map modal on mobile when the URL signals a map-view intent.
+    // `mapSearch=true` is set by the global FloatingMapButton and by every
+    // map-move; on first mount on a mobile viewport that means "show the map".
+    const searchString = props?.location?.search || '';
+    const wantsMapView = /[?&]mapSearch=true(\b|&|$)/.test(searchString);
+
     this.state = {
-      isSearchMapOpenOnMobile: false,
+      isSearchMapOpenOnMobile: wantsMapView,
       isMobileModalOpen: false,
       currentQueryParams: validUrlQueryParamsFromProps(props),
       isSecondaryFiltersOpen: false,
@@ -676,6 +684,19 @@ export class SearchPageComponent extends Component {
               </div>
             )}
           </div>
+          {!this.state.isSearchMapOpenOnMobile && !this.state.isMobileModalOpen ? (
+            <button
+              type="button"
+              className={css.mobileMapToggle}
+              onClick={() => this.setState({ isSearchMapOpenOnMobile: true })}
+              aria-label={intl.formatMessage({ id: 'SearchFiltersMobile.openMapView' })}
+            >
+              <MapIcon className={css.mobileMapToggleIcon} aria-hidden="true" strokeWidth={2.25} />
+              <span>
+                <FormattedMessage id="SearchFiltersMobile.openMapView" />
+              </span>
+            </button>
+          ) : null}
           <ModalInMobile
             className={css.mapPanel}
             id="SearchPage_map"
